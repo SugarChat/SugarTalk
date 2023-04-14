@@ -6,7 +6,7 @@
     </div>
 
     <div class="footer-content">
-      <ScreenShare :click="screenShare" />
+      <ScreenShare :start-share="startShare" :stop-share="stopShare" />
     </div>
 
     <div class="footer-right">
@@ -23,12 +23,13 @@ import ScreenShare from "../screen-share/index.vue";
 import OpenVideo from "../open-video/index.vue";
 
 interface Props {
-  screenShare?: (source: ScreenSource) => void;
+  startShare?: (source: ScreenSource) => void;
+  stopShare?: () => void;
 }
 
 const props = defineProps<Props>();
 
-const { screenShare } = toRefs(props);
+const { startShare, stopShare } = toRefs(props);
 </script>
 
 <style scoped lang="scss">

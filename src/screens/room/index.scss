@@ -4,4 +4,11 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  .st-container {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+  }
 }

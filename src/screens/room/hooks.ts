@@ -4,7 +4,7 @@ import { ScreenSource } from "../../entity/types";
 export const useAction = () => {
   const stream = ref<MediaStream>();
 
-  const onScreenShare = async (source: ScreenSource) => {
+  const onStartShare = async (source: ScreenSource) => {
     stream.value = await navigator.mediaDevices.getUserMedia({
       audio: false,
       video: {
@@ -14,6 +14,11 @@ export const useAction = () => {
         },
       } as MediaTrackConstraints,
     });
+  };
+
+  const onStipShare = () => {
+    stream.value?.getVideoTracks()?.[0]?.stop();
+    stream.value = undefined;
   };
 
   onMounted(() => {
@@ -34,6 +39,7 @@ export const useAction = () => {
 
   return {
     stream,
-    onScreenShare,
+    onStartShare,
+    onStipShare,
   };
 };

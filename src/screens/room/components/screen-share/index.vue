@@ -1,5 +1,11 @@
 <template>
-  <ActionBtn title="共享屏幕" icon="icon-screen" @click="onOpen" />
+  <ActionBtn
+    v-if="isSharing"
+    title="结束共享"
+    icon="icon-screen-end"
+    @click="onStopShare"
+  />
+  <ActionBtn v-else title="共享屏幕" icon="icon-screen" @click="onOpen" />
 
   <el-dialog
     class="screen-share-dialog"
@@ -54,13 +60,15 @@ import { useAction } from "./hooks";
 import { ScreenSource } from "../../../../entity/types";
 
 interface Props {
-  click?: (source: ScreenSource) => void;
+  startShare?: (source: ScreenSource) => void;
+  stopShare?: () => void;
 }
 
 const props = defineProps<Props>();
 
 const {
   visible,
+  isSharing,
   currentSource,
   screenSources,
   appSources,
@@ -75,8 +83,14 @@ const {
 const onConfirm = () => {
   onClose();
   if (currentSource.value) {
-    props?.click?.(currentSource.value);
+    isSharing.value = true;
+    props?.startShare?.(currentSource.value);
   }
+};
+
+const onStopShare = () => {
+  isSharing.value = false;
+  props?.stopShare?.();
 };
 </script>
 

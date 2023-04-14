@@ -15,7 +15,9 @@ export const useAction = () => {
 
   const appIcons = ref<string[]>([]);
 
-  const currentAppIcon = ref<string>("");
+  const currentAppIcon = ref("");
+
+  const isSharing = ref(false);
 
   const onOpen = async () => {
     const sources = await window.desktopCapturer.getSources({
@@ -63,6 +65,7 @@ export const useAction = () => {
 
   return {
     visible,
+    isSharing,
     currentSource,
     screenSources,
     appSources,

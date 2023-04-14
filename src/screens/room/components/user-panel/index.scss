@@ -1,4 +1,4 @@
-.user-tabs {
+.user-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -7,38 +7,36 @@
   overflow: hidden;
 
   .user-list {
-    flex: 1;
+    min-height: calc(100vh - 108px);
     display: flex;
     flex-flow: row wrap;
     align-items: center;
     justify-content: center;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      transition: all 0.2s ease-in-out 0s;
-    }
-
-    &::-webkit-scrollbar-track {
-      border-radius: 10px;
-    }
 
     .user-item {
       width: 20%;
       max-width: 192px;
-      height: 177px;
+      height: 176px;
       flex: 0 0 20%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+
+      .user-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        overflow: hidden;
+
+        .user-avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          -webkit-user-drag: none;
+          user-select: none;
+        }
+      }
 
       .title {
         margin-top: 8px;
