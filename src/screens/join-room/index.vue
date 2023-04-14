@@ -52,7 +52,7 @@ const onJoinRoom = () => {
     minWidth: 960,
     minHeight: 640,
     titleBarStyle: "hidden",
-    alwaysOnTop: true,
+    // alwaysOnTop: true,
   });
 };
 </script>
