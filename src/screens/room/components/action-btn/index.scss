@@ -1,0 +1,47 @@
+.box-item {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  .box-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.disabled::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: calc(50% - 2px);
+      width: 3px;
+      bottom: 0;
+      background-color: var(--color-primary);
+      border-left: var(--border-width-base) solid var(--background-color-base);
+      border-right: var(--border-width-base) solid var(--background-color-base);
+      transform-origin: center;
+      transform: rotate(45deg);
+    }
+
+    .iconfont {
+      font-size: 24px;
+    }
+  }
+
+  .title {
+    width: 100%;
+    font-size: var(--font-size-extra-small);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+}

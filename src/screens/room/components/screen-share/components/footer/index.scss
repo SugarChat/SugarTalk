@@ -1,0 +1,11 @@
+.screen-share-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--spacing-small);
+
+  .footer-btn {
+    width: 88px;
+  }
+}

@@ -1,0 +1,124 @@
+.header {
+  height: 36px;
+}
+
+.login-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 28px 56px;
+
+  .app-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    .app-logo {
+      width: 64px;
+      height: 64px;
+    }
+
+    .app-name {
+      font-size: var(--font-size-extra-large);
+      font-weight: var(--font-weight-primary);
+      margin-top: 12px;
+    }
+  }
+
+  .login-btn {
+    .el-button {
+      width: 100%;
+    }
+  }
+
+  .other-login {
+    position: relative;
+    font-size: var(--font-size-small);
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-top: 40px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: var(--border-width-base);
+      background-color: var(--border-color-light);
+      z-index: -1;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 110px;
+      margin-left: -55px;
+      background-color: var(--background-color-white);
+      z-index: -1;
+    }
+  }
+
+  .other-mode-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 28px;
+
+    .other-mode-item {
+      cursor: pointer;
+
+      &:hover {
+        .other-logo {
+          border-color: var(--border-color-light);
+        }
+      }
+
+      .other-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background-color: var(--background-color-base);
+        border-radius: 22px;
+        border: var(--border-width-base) solid var(--background-color-base);
+
+        .other-logo-img {
+          width: 24px;
+          height: 24px;
+          object-fit: contain;
+        }
+      }
+
+      .title {
+        font-size: var(--font-size-small);
+        color: var(--color-text-secondary);
+        margin-top: 12px;
+      }
+    }
+  }
+
+  .setting {
+    position: absolute;
+    top: 8px;
+    right: 28px;
+    cursor: pointer;
+
+    &:hover {
+      .iconfont {
+        color: var(--color-primary);
+      }
+    }
+
+    .iconfont {
+      font-size: var(--font-size-extra-large);
+    }
+  }
+}

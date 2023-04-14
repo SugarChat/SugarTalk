@@ -1,0 +1,238 @@
+:root {
+  --font-family: "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Helvetica,Arial";
+
+  /* 基础色 */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /**
+   * Brand Color
+   * 主题色 - 品牌红
+   * light - 80%
+   * lighter - 90%
+   */
+  --color-primary: #ce2664;
+  --color-primary-light: #f5d4e0;
+  --color-primary-lighter: #f5d4e0;
+
+  /**
+   * 成功颜色
+   * light - 80%
+   * lighter - 90%
+   */
+  --color-success: #34c759;
+  --color-success-light: #e0f9f3;
+  --color-success-lighter: #effcf9;
+
+  /**
+   * 警告颜色
+   * light - 80%
+   * lighter - 90%
+   */
+  --color-warning: #f8c550;
+  --color-warning-light: #fef0cc;
+  --color-warning-lighter: #fef8e6;
+  /**
+   * 危险颜色
+   * light - 80%
+   * lighter - 90%
+   */
+  --color-danger: #841a42;
+  --color-danger-light: #f5d4e0;
+  --color-danger-lighter: #fae9f0;
+  /**
+   * 信息颜色
+   * light - 80%
+   * lighter - 90%
+   */
+  --color-info: #909399;
+  --color-info-light: #e9e9eb;
+  --color-info-lighter: #f4f4f5;
+
+  /**
+   * Font Color
+   * 字体颜色
+   */
+  /**
+   * 主要文字颜色 #333333
+   */
+  --color-text-primary: #333333;
+  /**
+   * 常规文字颜色 #666666
+   */
+  --color-text-regular: #666666;
+  /**
+   * 次要文字颜色 #999999
+   */
+  --color-text-secondary: #999999;
+  /**
+   * 占位文字颜色 #cccccc
+   */
+  --color-text-placeholder: #cccccc;
+  /**
+   * 禁用文字颜色 #c0c4cc
+   */
+  --color-text-disabled: #c0c4cc;
+  /**
+   * 白色文字颜色 #ffffff
+   */
+  --color-text-white: var(--color-white);
+  /**
+   * 黑色文字颜色 #000000
+   */
+  --color-text-black: var(--color-black);
+
+  /**
+   * Border Color
+   * 边框颜色
+   */
+  /**
+   * 一级边框颜色 #d9d9d9
+   */
+  --border-color-base: #d9d9d9;
+  /**
+   * 二级边框颜色 #e4e7ed
+   */
+  --border-color-light: #e4e7ed;
+  /**
+   * 三级边框颜色 #ebeef5
+   */
+  --border-color-lighter: #ebeef5;
+  /**
+   * 四级边框颜色 #f2f6fc
+   */
+  --border-color-extralight: #f2f6fc;
+
+  /**
+   * Background Color
+   * 背景颜色
+   */
+  /**
+   * 白色背景 #ffffff
+   */
+  --background-color-white: var(--color-white);
+  /**
+   * 基础背景色 #f2f2f2
+   */
+  --background-color-base: #f2f2f2;
+  /**
+   * 弹窗背景 rgba(0, 0, 0, 0.5)
+   */
+  --background-color-popup: rgba(0, 0, 0, 0.5);
+  /**
+   * 透明背景 rgba(0, 0, 0, 0)
+   */
+  --background-color-transparent: rgba(0, 0, 0, 0);
+  /**
+   * 禁用背景色#cccccc
+   */
+  --background-color-disabled: #cccccc;
+
+  /**
+   * Font Size
+   * 字体大小
+   */
+  /**
+   * 主标题文字大小 20
+   */
+  --font-size-extra-large: 20px;
+  /**
+   * 标题文字大小 18
+   */
+  --font-size-large: 18px;
+  /**
+   * 小标题文字大小 16
+   */
+  --font-size-medium: 16px;
+  /**
+   * 正文文字大小 14
+   */
+  --font-size-base: 14px;
+  /**
+   * 辅助文字大小 12
+   */
+  --font-size-small: 12px;
+  /**
+   * 辅助文字大小 10
+   */
+  --font-size-extra-small: 10px;
+
+  /**
+   * Font Weight
+   * 字体字重
+   */
+  /**
+   * 主要文字粗细 600
+   */
+  --font-weight-primary: bold;
+  /**
+    * 次要文字粗细 100
+    */
+  --font-weight-secondary: 400;
+
+  /**
+   * Radius
+   * 圆角
+   */
+
+  /** 
+   * 圆形圆角 50%
+   */
+  --border-radius-circle: 50%;
+  /**
+   * 大圆角 8
+   */
+  --border-radius-large: 8px;
+  /**
+   * 普通圆角 4
+   */
+  --border-radius-base: 4px;
+  /**
+   * 小圆角 2
+   */
+  --border-radius-small: 2px;
+  /**
+   * 无圆角 0
+   */
+  --border-radius-zero: 0;
+
+  /**
+   * Width
+   * 边框宽度
+   */
+  --border-width-base: 1px;
+
+  /**
+   * Spacing
+   * 间距
+   */
+  --spacing-none: 0px;
+  --spacing-tiny: 4px;
+  --spacing-smaller: 8px;
+  --spacing-small: 12px;
+  --spacing-medium: 16px;
+  --spacing-medium-plus: 24px;
+  --spacing-large: 32px;
+  --spacing-huge: 48px;
+  --spacing-massive: 64px;
+
+  /**
+   * Toast
+   */
+  --toastify-text-color-light: var(--color-text-primary);
+  --toastify-color-info: var(--color-primary);
+  --toastify-color-success: var(--color-success);
+  --toastify-color-warning: var(--color-warning);
+  --toastify-color-error: var(--color-danger);
+
+  /**
+   * z-index
+   * 堆叠顺序
+   */
+  --index-under: -1;
+  --index-base: 1;
+  --index-middle: 100;
+  --index-top: 1000;
+  --index-poper: 2000;
+  --index-max: 10000;
+}

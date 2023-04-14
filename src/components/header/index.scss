@@ -1,0 +1,16 @@
+.header {
+  position: relative;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: drag;
+
+  &.border-bottom {
+    border-bottom: var(--border-width-base) solid var(--border-color-light);
+  }
+
+  .title {
+    font-size: 13px;
+  }
+}

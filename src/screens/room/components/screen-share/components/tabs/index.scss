@@ -1,0 +1,52 @@
+.screen-share-tabs {
+  height: 60px;
+  flex: 0 0 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: var(--spacing-medium-plus);
+  background-color: var(--background-color-base);
+  border-top: var(--border-width-base) solid var(--border-color-light);
+  border-bottom: var(--border-width-base) solid var(--border-color-light);
+  cursor: pointer;
+
+  .tab-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-right: var(--spacing-medium);
+    border-radius: var(--border-radius-base);
+    -webkit-user-drag: none;
+    user-select: none;
+
+    &:hover {
+      background-color: var(--color-primary-lighter);
+    }
+
+    &.active {
+      background-color: var(--color-primary-lighter);
+    }
+
+    .tab-all {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-small);
+      color: var(--color-text-white);
+      background-color: var(--color-primary);
+      border-radius: var(--border-radius-base);
+    }
+
+    .app-logo {
+      width: 28px;
+      height: 28px;
+      -webkit-user-drag: none;
+      user-select: none;
+      object-fit: contain;
+    }
+  }
+}

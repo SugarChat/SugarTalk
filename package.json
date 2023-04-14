@@ -1,0 +1,51 @@
+{
+  "name": "sugartalk",
+  "version": "0.0.1",
+  "main": "dist-electron/main/index.js",
+  "description": "sugar talk meeting",
+  "author": "sugartalk",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "electron",
+    "rollup",
+    "vite",
+    "vue3",
+    "vue"
+  ],
+  "bugs": {
+    "url": "https://github.com/SugarChat/SugarTalk/issues"
+  },
+  "homepage": "https://github.com/SugarChat/SugarTalk",
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:5173/"
+    }
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.1.0",
+    "electron": "^23.1.1",
+    "electron-builder": "^23.6.0",
+    "sass": "^1.60.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.1.4",
+    "vite-plugin-electron": "^0.11.1",
+    "vite-plugin-electron-renderer": "^0.13.14",
+    "vue": "^3.2.47",
+    "vue-tsc": "^1.2.0"
+  },
+  "dependencies": {
+    "@vueuse/core": "^9.13.0",
+    "element-plus": "^2.3.3",
+    "normalize.css": "^8.0.1",
+    "pinia": "^2.0.34",
+    "vue-router": "^4.1.6"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

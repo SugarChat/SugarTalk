@@ -1,0 +1,26 @@
+.container {
+  position: relative;
+  flex: 1;
+  padding: 20px 28px;
+
+  ::v-deep(.form-item) {
+    width: 100%;
+
+    .el-checkbox {
+      display: flex;
+      align-items: center;
+      font-weight: var(--font-weight-secondary);
+    }
+  }
+
+  .join-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 28px;
+    right: 28px;
+
+    ::v-deep(.el-button) {
+      width: 100%;
+    }
+  }
+}

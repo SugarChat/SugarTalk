@@ -1,0 +1,21 @@
+.header {
+  height: 50px;
+
+  ::v-deep(.title) {
+    font-size: var(--font-size-medium);
+    font-weight: var(--font-weight-primary);
+  }
+}
+
+.container {
+  flex: 1;
+  display: flex;
+
+  .left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 360px;
+    border-right: var(--border-width-base) solid var(--border-color-light);
+  }
+}
