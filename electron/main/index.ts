@@ -1,12 +1,7 @@
-import {
-  app,
-  BrowserWindow,
-  shell,
-  ipcMain,
-  BrowserWindowConstructorOptions,
-} from "electron";
+import { app, BrowserWindow, shell, ipcMain } from "electron";
 import { release } from "node:os";
 import { join } from "node:path";
+import { getNewWindowPoint } from "./utils";
 import "./handle";
 
 // The built directory structure
@@ -138,8 +133,13 @@ ipcMain.handle("open-main-win", () => {
 // New window example arg: new windows url
 ipcMain.handle(
   "open-win",
-  (_, arg, options: BrowserWindowConstructorOptions) => {
+  (_, arg, options: Electron.BrowserWindowConstructorOptions) => {
     const parentWin = BrowserWindow.getFocusedWindow();
+
+    const point = getNewWindowPoint(
+      options?.width ?? 800,
+      options?.height ?? 600
+    );
 
     const childWin = new BrowserWindow({
       icon: join(process.env.PUBLIC, "favicon.ico"),
@@ -148,6 +148,7 @@ ipcMain.handle(
         nodeIntegration: true,
         contextIsolation: true,
       },
+      ...point,
       ...options,
       parent: options?.parent ? parentWin : null,
       show: options?.show ?? false,
@@ -173,3 +174,7 @@ ipcMain.handle(
     }
   }
 );
+
+ipcMain.handle("getAppInfo", () => ({
+  name: app.getName(),
+}));

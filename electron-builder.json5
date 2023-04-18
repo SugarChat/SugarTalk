@@ -2,7 +2,7 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  appId: "YourAppID",
+  appId: "org.erb.SugarTalk",
   asar: true,
   icon: "public/favicon.ico",
   directories: {
@@ -12,6 +12,14 @@
   mac: {
     artifactName: "${productName}_${version}.${ext}",
     target: ["dmg"],
+    hardenedRuntime: true,
+    entitlements: "public/entitlements.mac.plist",
+    entitlementsInherit: "public/entitlements.mac.plist",
+    gatekeeperAssess: false,
+    extendInfo: {
+      NSMicrophoneUsageDescription: "SugarTalk将会在您使用发起会议、加入会议等功能时使用您的麦克风",
+      NSCameraUsageDescription: "SugarTalk将会在您使用发起会议、加入会议等功能时使用您的摄像头",
+    },
   },
   win: {
     target: [

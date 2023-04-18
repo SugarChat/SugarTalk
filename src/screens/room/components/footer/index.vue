@@ -1,8 +1,8 @@
 <template>
   <div class="footer">
     <div class="footer-left">
-      <ActionBtn title="静音" icon="icon-mic" disabled />
-      <OpenVideo />
+      <AudioManage />
+      <VideoManage />
     </div>
 
     <div class="footer-content">
@@ -20,7 +20,8 @@ import { toRefs } from "vue";
 import { ScreenSource } from "../../../../entity/types";
 import ActionBtn from "../action-btn/index.vue";
 import ScreenShare from "../screen-share/index.vue";
-import OpenVideo from "../open-video/index.vue";
+import VideoManage from "../video-manage/index.vue";
+import AudioManage from "../audio-manage/index.vue";
 
 interface Props {
   startShare?: (source: ScreenSource) => void;
