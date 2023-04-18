@@ -1,6 +1,7 @@
 {
   "name": "sugartalk",
   "version": "0.0.1",
+  "productName": "SugarTalk",
   "main": "dist-electron/main/index.js",
   "description": "sugar talk meeting",
   "author": "sugartalk",

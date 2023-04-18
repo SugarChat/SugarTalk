@@ -1,4 +1,13 @@
-import { BrowserWindow, ipcMain, desktopCapturer, dialog } from "electron";
+import {
+  BrowserWindow,
+  ipcMain,
+  desktopCapturer,
+  dialog,
+  systemPreferences,
+} from "electron";
+import { exec } from "child_process";
+
+ipcMain.handle("getPlatform", () => process.platform);
 
 ipcMain.handle("close-window", () => BrowserWindow.getFocusedWindow().close());
 
@@ -47,4 +56,25 @@ ipcMain.handle("close-win-with-hide", () => {
       event.preventDefault();
     }
   });
+});
+
+ipcMain.handle("askForMediaAccess", (_, mediaType: "microphone" | "camera") =>
+  systemPreferences.askForMediaAccess(mediaType)
+);
+
+ipcMain.handle(
+  "getMediaAccessStatus",
+  (_, mediaType: "microphone" | "camera" | "screen") =>
+    systemPreferences.getMediaAccessStatus(mediaType)
+);
+
+ipcMain.handle(
+  "showOpenDialogSync",
+  (_, options: Electron.MessageBoxSyncOptions) =>
+    dialog.showMessageBoxSync(BrowserWindow.getFocusedWindow(), options)
+);
+
+//www.mbsplugins.de/archive/2020-04-05/MacOS_System_Preference_Links/monkeybreadsoftware_blog_archive
+ipcMain.handle("execCommand", (_, command: string) => {
+  exec(command);
 });

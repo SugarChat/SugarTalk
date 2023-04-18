@@ -1,6 +1,10 @@
-import { useToggle } from "@vueuse/core";
-import { ref } from "vue";
+import { useToggle, useDebounceFn } from "@vueuse/core";
+import { onMounted, ref } from "vue";
 import { ScreenSource } from "../../../../entity/types";
+import {
+  getMediaDeviceAccessAndStatus,
+  getScreenCaptureAccess,
+} from "../../../../utils/media";
 
 export const useAction = () => {
   const [visible, onToggle] = useToggle();
@@ -19,7 +23,13 @@ export const useAction = () => {
 
   const isSharing = ref(false);
 
-  const onOpen = async () => {
+  onMounted(() => {
+    getScreenCaptureAccess();
+  });
+
+  const onOpen = useDebounceFn(async () => {
+    const pass = await getMediaDeviceAccessAndStatus("screen", true);
+    if (!pass) return;
     const sources = await window.desktopCapturer.getSources({
       types: ["window", "screen"],
       fetchWindowIcons: true,
@@ -36,7 +46,7 @@ export const useAction = () => {
     }, []);
     currentAppIcon.value = "";
     onToggle(true);
-  };
+  }, 300);
 
   const onClose = () => onToggle(false);
 

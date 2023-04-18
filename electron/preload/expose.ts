@@ -4,10 +4,12 @@ import {
   contextBridge,
   ipcRenderer,
 } from "electron";
-import { CurrentWindow } from "../../src/renderer";
+import { CurrentWindow, ISystemPreferences } from "../../src/renderer";
 import { ScreenSource } from "../../src/entity/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
+  platform: () => ipcRenderer.invoke("getPlatform"),
+  appInfo: () => ipcRenderer.invoke("getAppInfo"),
   openMainWindow: () => ipcRenderer.invoke("open-main-win"),
   createWindow: (
     path: string,
@@ -28,9 +30,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("close-win-with-dialog", options);
     ipcRenderer.on("onCloseWindow", callback);
   },
-  closeToHide: () => {
-    ipcRenderer.invoke("close-win-with-hide");
-  },
+  closeToHide: () => ipcRenderer.invoke("close-win-with-hide"),
+  execCommand: (command: string) => ipcRenderer.invoke("execCommand", command),
 });
 
 contextBridge.exposeInMainWorld("desktopCapturer", {
@@ -48,3 +49,17 @@ contextBridge.exposeInMainWorld("desktopCapturer", {
     })) as ScreenSource[];
   },
 });
+
+contextBridge.exposeInMainWorld("systemPreferences", {
+  askForMediaAccess: (mediaType: "microphone" | "camera") =>
+    ipcRenderer.invoke("askForMediaAccess", mediaType),
+  getMediaAccessStatus: (mediaType: "microphone" | "camera") =>
+    ipcRenderer.invoke("getMediaAccessStatus", mediaType),
+});
+
+contextBridge.exposeInMainWorld("dialog", {
+  showOpenDialogSync: (options: Electron.MessageBoxSyncOptions) =>
+    ipcRenderer.invoke("showOpenDialogSync", options),
+});
+
+contextBridge.exposeInMainWorld("settings", {});
