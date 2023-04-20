@@ -4,7 +4,11 @@ import {
   contextBridge,
   ipcRenderer,
 } from "electron";
-import { CurrentWindow, ISystemPreferences } from "../../src/renderer";
+import {
+  CurrentWindow,
+  ISystemPreferences,
+  PingConfig,
+} from "../../src/renderer";
 import { ScreenSource } from "../../src/entity/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
@@ -32,6 +36,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   closeToHide: () => ipcRenderer.invoke("close-win-with-hide"),
   execCommand: (command: string) => ipcRenderer.invoke("execCommand", command),
+  ping: (addr: string, config?: PingConfig) =>
+    ipcRenderer.invoke("ping", addr, config),
 });
 
 contextBridge.exposeInMainWorld("desktopCapturer", {

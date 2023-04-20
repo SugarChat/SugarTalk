@@ -16,6 +16,32 @@ interface BrowserWindowConstructorOptions
   parent?: boolean;
 }
 
+interface PingConfig {
+  numeric?: boolean;
+  timeout?: number;
+  deadline?: number;
+  min_reply?: number;
+  v6?: boolean;
+  sourceAddr?: string;
+  packetSize?: number;
+  extra?: string[];
+}
+
+interface PingResponse {
+  inputHost: string;
+  host: string;
+  numeric_host: string;
+  alive: boolean;
+  output: string;
+  time: number;
+  times: number[];
+  min: string;
+  max: string;
+  avg: string;
+  packetLoss: string;
+  stddev: string;
+}
+
 export interface IElectronAPI {
   platform: () => Promise<NodeJS.Platform>;
   appInfo: () => Promise<AppInfo>;
@@ -33,6 +59,7 @@ export interface IElectronAPI {
   ) => Promise<void>;
   closeToHide: () => void;
   execCommand: (command: string) => Promise<void>;
+  ping: (addr: string, config?: PingConfig) => Promise<PingResponse>;
 }
 
 export interface IDesktopCapturer {

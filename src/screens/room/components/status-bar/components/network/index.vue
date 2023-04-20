@@ -6,23 +6,59 @@
     :show-arrow="true"
   >
     <template #reference>
-      <div :class="['network', isOnline && 'online']">
+      <div v-if="initFinished" :class="['network', isOnline && 'online']">
         <i class="iconfont icon-network" />
         <i v-if="!isOnline" class="iconfont icon-close" />
       </div>
+      <div v-else />
     </template>
     <div class="network-container">
       <p class="online-status">
         {{ isOnline ? "网络连接正常" : "网络已断开，正在重连" }}
       </p>
+      <div class="network-item">
+        <p>延迟：</p>
+        <p>{{ delay }}</p>
+      </div>
     </div>
   </el-popover>
 </template>
 
 <script setup lang="ts">
-import { useNetwork } from "@vueuse/core";
+import { onMounted, ref, computed } from "vue";
+import { useNetwork, useTimeout } from "@vueuse/core";
+import { PingResponse } from "../../../../../../renderer";
 
-const { isOnline } = useNetwork();
+const networkState = useNetwork();
+
+const pingResponse = ref<PingResponse>();
+
+const initFinished = ref(false);
+
+const delay = computed(() =>
+  pingResponse.value?.alive && pingResponse.value?.time
+    ? `${Math.ceil(pingResponse.value.time)} ms`
+    : "未知"
+);
+
+const isOnline = computed(
+  () => networkState.isOnline.value && pingResponse.value?.alive
+);
+
+const { start } = useTimeout(2000, {
+  controls: true,
+  callback: () => {
+    window.electronAPI.ping("43.198.82.36").then((res) => {
+      pingResponse.value = res;
+      !initFinished.value && (initFinished.value = true);
+      start();
+    });
+  },
+});
+
+onMounted(() => {
+  start();
+});
 </script>
 
 <style scoped lang="scss">

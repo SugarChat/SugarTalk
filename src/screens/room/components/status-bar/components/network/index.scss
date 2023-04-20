@@ -36,4 +36,10 @@
   .online-status {
     font-size: var(--font-size-small);
   }
+
+  .network-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-small);
+  }
 }

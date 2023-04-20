@@ -43,6 +43,7 @@
     "@vueuse/core": "^9.13.0",
     "element-plus": "^2.3.3",
     "normalize.css": "^8.0.1",
+    "ping": "^0.4.4",
     "pinia": "^2.0.34",
     "vue-router": "^4.1.6"
   },
