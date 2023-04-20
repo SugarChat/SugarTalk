@@ -1,0 +1,12 @@
+.meeting-duration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 20px;
+  padding: 0 4px;
+  margin-left: 12px;
+  font-size: var(--font-size-small);
+  border: var(--border-width-base) solid var(--border-color-base);
+  user-select: none;
+}

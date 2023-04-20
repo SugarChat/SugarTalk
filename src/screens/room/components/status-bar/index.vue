@@ -1,7 +1,11 @@
 <template>
   <div class="status-bar">
+    <div class="left">
+      <Network />
+    </div>
     <div class="center"></div>
     <div class="right">
+      <MeetingDuration />
       <el-tooltip
         effect="light"
         :content="isFullscreen ? '退出全屏模式' : '进入全屏模式'"
@@ -23,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+import Network from "./components/network/index.vue";
+import MeetingDuration from "./components/meeting-duration/index.vue";
 import { useFullscreen } from "./hooks";
 
 const { isFullscreen, onExit, onEnter } = useFullscreen();

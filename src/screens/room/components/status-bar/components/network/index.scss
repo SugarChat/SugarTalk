@@ -1,0 +1,39 @@
+.network {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  font-size: var(--font-size-small);
+  border: var(--border-width-base) solid var(--border-color-base);
+  user-select: none;
+  box-sizing: border-box;
+  color: #d4d6d9;
+
+  &.online {
+    color: var(--color-success);
+  }
+
+  .icon-network {
+    width: 16px;
+    height: 18px;
+    font-size: var(--font-size-medium);
+  }
+
+  .icon-close {
+    position: absolute;
+    bottom: 0;
+    right: 1px;
+    font-size: var(--font-size-extra-small);
+    color: var(--color-danger);
+    font-weight: bold;
+  }
+}
+
+.network-container {
+  .online-status {
+    font-size: var(--font-size-small);
+  }
+}
