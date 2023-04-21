@@ -17,7 +17,7 @@
         {{ isOnline ? "网络连接正常" : "网络已断开，正在重连" }}
       </p>
       <div class="network-item">
-        <p>延迟：</p>
+        <p class="network-label">延迟：</p>
         <p>{{ delay }}</p>
       </div>
     </div>

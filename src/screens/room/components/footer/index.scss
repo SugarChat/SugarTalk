@@ -16,7 +16,7 @@
     padding-left: 12px;
 
     .box-item {
-      margin-right: 12px;
+      margin-right: 24px;
     }
   }
 
@@ -28,6 +28,10 @@
     align-items: center;
     justify-content: center;
     padding: 0 124px;
+
+    ::v-deep(> div) {
+      margin: 0 12px;
+    }
   }
 
   .footer-right {

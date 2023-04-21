@@ -34,12 +34,19 @@
 
 .network-container {
   .online-status {
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-base);
+    margin-bottom: 8px;
   }
 
   .network-item {
     display: flex;
     justify-content: space-between;
     font-size: var(--font-size-small);
+    margin-bottom: 4px;
+
+    .network-label {
+      width: 60px;
+      color: var(--color-text-secondary);
+    }
   }
 }
