@@ -68,4 +68,8 @@ contextBridge.exposeInMainWorld("dialog", {
     ipcRenderer.invoke("showOpenDialogSync", options),
 });
 
+contextBridge.exposeInMainWorld("clipboard", {
+  writeText: (text: string) => ipcRenderer.invoke("clipboard.writeText", text),
+});
+
 contextBridge.exposeInMainWorld("settings", {});

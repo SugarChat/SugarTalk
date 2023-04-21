@@ -58,5 +58,6 @@ const bgImage = ref(`url(${getMark()})`);
   left: 0;
   background: v-bind(bgImage) left top repeat;
   z-index: 9999;
+  pointer-events: none;
 }
 </style>

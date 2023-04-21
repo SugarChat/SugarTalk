@@ -4,6 +4,7 @@ import {
   desktopCapturer,
   dialog,
   systemPreferences,
+  clipboard,
 } from "electron";
 import { exec } from "child_process";
 import ping from "ping";
@@ -88,4 +89,8 @@ ipcMain.handle(
     addr: string = "https://talk.sjdistributors.com:5443/",
     config?: PingConfig
   ) => ping.promise.probe(addr, { timeout: 10, extra: ["-i", "2"], ...config })
+);
+
+ipcMain.handle("clipboard.writeText", (_, text: string) =>
+  clipboard.writeText(text)
 );

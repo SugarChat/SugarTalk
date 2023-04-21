@@ -81,11 +81,16 @@ export interface IDialog {
   ) => Promise<number>;
 }
 
+export interface IClipboard {
+  writeText: (text: string) => Promise<void>;
+}
+
 declare global {
   interface Window {
     electronAPI: IElectronAPI;
     desktopCapturer: IDesktopCapturer;
     systemPreferences: ISystemPreferences;
     dialog: IDialog;
+    clipboard: IClipboard;
   }
 }

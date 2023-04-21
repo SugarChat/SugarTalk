@@ -36,6 +36,7 @@
     width: 20px;
     height: 20px;
     border: var(--border-width-base) solid var(--border-color-base);
+    cursor: pointer;
 
     &.left {
       margin-left: 12px;
