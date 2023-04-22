@@ -27,8 +27,10 @@
       </div>
     </div>
     <div class="invite-footer">
-      <el-button class="btn">复制全部信息</el-button>
-      <el-button class="btn" type="primary">复制会议号</el-button>
+      <el-button class="btn" @click="onCopyAll">复制全部信息</el-button>
+      <el-button class="btn" type="primary" @click="onCopyMeeting"
+        >复制会议号</el-button
+      >
     </div>
   </el-dialog>
 </template>
@@ -39,6 +41,16 @@ import ActionBtn from "../../../action-btn/index.vue";
 import Header from "../../../../../../components/header/index.vue";
 
 const [visible, onToggle] = useToggle();
+
+const onCopyAll = () => {
+  window.clipboard.writeText(
+    "诸葛琴魔 邀请您加入使命召唤的个人会议室\n\r会议号：335 1774 4914"
+  );
+};
+
+const onCopyMeeting = () => {
+  window.clipboard.writeText("335 1774 4914");
+};
 </script>
 
 <style lang="scss">
