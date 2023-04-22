@@ -12,6 +12,7 @@
     </template>
     <template v-else>
       <UserPanel />
+      <Watermark text="Sugar Talk" />
     </template>
 
     <Footer :startShare="onStartShare" :stop-share="onStipShare">
@@ -23,15 +24,18 @@
 </template>
 
 <script setup lang="ts">
-import Header from "@components/header/index.vue";
+import { useRoute } from "vue-router";
+import Header from "../../components/header/index.vue";
 import StatusBar from "./components/status-bar/index.vue";
 import UserPanel from "./components/user-panel/index.vue";
 import UserList from "./components/user-list/index.vue";
 import Footer from "./components/footer/index.vue";
 import Player from "./components/player/index.vue";
 import LeaveRoom from "./components/leave-room/index.vue";
-
+import Watermark from "../../components/watermark/index.vue";
 import { useAction } from "./hooks";
+
+const { query } = useRoute();
 
 const { stream, onStartShare, onStipShare } = useAction();
 </script>

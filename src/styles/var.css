@@ -120,9 +120,9 @@
    */
   --background-color-popup: rgba(0, 0, 0, 0.5);
   /**
-   * 透明背景 rgba(0, 0, 0, 0)
+   * 透明背景 transparent
    */
-  --background-color-transparent: rgba(0, 0, 0, 0);
+  --background-color-transparent: transparent;
   /**
    * 禁用背景色#cccccc
    */

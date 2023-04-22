@@ -13,9 +13,17 @@
 
   .left {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
     width: 360px;
+    padding: 88px 0;
     border-right: var(--border-width-base) solid var(--border-color-light);
+
+    .room-btns {
+      width: 100%;
+      display: flex;
+      justify-content: space-evenly;
+    }
   }
 }

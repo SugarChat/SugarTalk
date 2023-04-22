@@ -46,14 +46,16 @@ const disabled = computed(() => !state.roomId);
 
 const onJoinRoom = () => {
   window.electronAPI.getCurrentWindow().close();
-  window.electronAPI.createWindow("/room", {
-    width: 960,
-    height: 640,
-    minWidth: 960,
-    minHeight: 640,
-    titleBarStyle: "hidden",
-    // alwaysOnTop: true,
-  });
+  window.electronAPI.createWindow(
+    `/room?roomId=${state.roomId}&nickname=${state.nickname}`,
+    {
+      width: 960,
+      height: 640,
+      minWidth: 960,
+      minHeight: 640,
+      titleBarStyle: "hidden",
+    }
+  );
 };
 </script>
 

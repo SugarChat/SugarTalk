@@ -16,6 +16,16 @@ export const useAction = () => {
     });
   };
 
+  const onQuickRoom = () => {
+    window.electronAPI.createWindow(`/room?roomId=${"room1"}&nickname=${""}`, {
+      width: 960,
+      height: 640,
+      minWidth: 960,
+      minHeight: 640,
+      titleBarStyle: "hidden",
+    });
+  };
+
   const onLogout = () => {
     window.electronAPI.getCurrentWindow().destroy();
     window.electronAPI.openMainWindow();
@@ -23,6 +33,7 @@ export const useAction = () => {
 
   return {
     onJoinRoom,
+    onQuickRoom,
     onLogout,
   };
 };

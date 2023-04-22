@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import ActionBtn from "../action-btn/index.vue";
-import Header from "@components/header/index.vue";
+import Header from "../../../../components/header/index.vue";
 import Screen from "./components/screen/index.vue";
 import Tabs from "./components/tabs/index.vue";
 import Footer from "./components/footer/index.vue";
