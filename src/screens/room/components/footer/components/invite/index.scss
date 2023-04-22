@@ -9,6 +9,44 @@
     display: none;
   }
 
+  .invite-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    z-index: 99;
+    -webkit-app-region: no-drag;
+
+    .close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 12px;
+      height: 12px;
+      background-color: #fd5f57;
+      border-radius: 50%;
+      cursor: pointer;
+
+      &:hover {
+        .iconfont {
+          display: block;
+        }
+      }
+
+      .iconfont {
+        display: none;
+        width: 6px;
+        height: 6px;
+        font-size: 6px;
+        font-weight: bold;
+      }
+    }
+  }
+
   .el-dialog__body {
     flex: 1;
     display: flex;
@@ -21,12 +59,43 @@
     }
 
     .invite-body {
+      position: relative;
       flex: 1;
       display: flex;
       flex-direction: column;
+      padding: 28px 42px;
       overflow-x: hidden;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-image: linear-gradient(
+          -45deg,
+          var(--color-primary-light),
+          transparent,
+          transparent
+        );
+        opacity: 0.3;
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 20px;
+        bottom: 40px;
+        left: 0;
+        background: url("../../../../../../assets//sugarTalkLogo.png") bottom
+          right no-repeat;
+        background-size: 128px;
+        opacity: 0.3;
+      }
 
       &::-webkit-scrollbar {
         width: 6px;
@@ -40,6 +109,45 @@
 
       &::-webkit-scrollbar-track {
         border-radius: 10px;
+      }
+
+      .title {
+        margin-bottom: 16px;
+        font-size: var(--font-size-base);
+        color: var(--color-text-primary);
+      }
+
+      .invite-item {
+        display: flex;
+      }
+    }
+
+    .invite-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 80px;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--border-width-base);
+        background-image: linear-gradient(
+          to right,
+          var(--border-color-base),
+          transparent
+        );
+      }
+
+      .btn {
+        width: 160px;
       }
     }
   }
