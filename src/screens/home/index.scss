@@ -1,5 +1,6 @@
 .header {
   height: 50px;
+  flex: 0 0 50px;
 
   ::v-deep(.title) {
     font-size: var(--font-size-medium);

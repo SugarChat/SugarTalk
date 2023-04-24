@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import Header from "@components/header/index.vue";
+import Header from "../../components/header/index.vue";
 import UserInfo from "./components/user-info/index.vue";
 import JoinBtn from "./components/join-btn/index.vue";
 import { useAction } from "./hooks";

@@ -4,11 +4,7 @@ import {
   contextBridge,
   ipcRenderer,
 } from "electron";
-import {
-  CurrentWindow,
-  ISystemPreferences,
-  PingConfig,
-} from "../../src/renderer";
+import { CurrentWindow, PingConfig } from "../../src/renderer";
 import { ScreenSource } from "../../src/entity/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
@@ -38,6 +34,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   execCommand: (command: string) => ipcRenderer.invoke("execCommand", command),
   ping: (addr: string, config?: PingConfig) =>
     ipcRenderer.invoke("ping", addr, config),
+  storeNotice: () => {},
 });
 
 contextBridge.exposeInMainWorld("desktopCapturer", {
@@ -72,4 +69,12 @@ contextBridge.exposeInMainWorld("clipboard", {
   writeText: (text: string) => ipcRenderer.invoke("clipboard.writeText", text),
 });
 
-contextBridge.exposeInMainWorld("settings", {});
+contextBridge.exposeInMainWorld("store", {
+  dispatch: (id: string, hash: string) =>
+    ipcRenderer.invoke("store-dispatch", id, hash),
+  subscribe: (callback: (id: string, hash: string) => void) => {
+    ipcRenderer.on("store-dispatch", (_, id: string, hash: string) =>
+      callback(id, hash)
+    );
+  },
+});

@@ -9,6 +9,7 @@ export interface CurrentWindow {
 
 interface AppInfo {
   name: string;
+  version: string;
 }
 
 interface BrowserWindowConstructorOptions
@@ -85,6 +86,11 @@ export interface IClipboard {
   writeText: (text: string) => Promise<void>;
 }
 
+export interface IStore {
+  dispatch: (id: string, hash: string) => Promise<void>;
+  subscribe: (callback: (id: string, hash: string) => void) => void;
+}
+
 declare global {
   interface Window {
     electronAPI: IElectronAPI;
@@ -92,5 +98,6 @@ declare global {
     systemPreferences: ISystemPreferences;
     dialog: IDialog;
     clipboard: IClipboard;
+    store: IStore;
   }
 }
