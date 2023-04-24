@@ -94,3 +94,10 @@ ipcMain.handle(
 ipcMain.handle("clipboard.writeText", (_, text: string) =>
   clipboard.writeText(text)
 );
+
+ipcMain.handle("store-dispatch", (_, id: string, hash: string) => {
+  const wins = BrowserWindow.getAllWindows();
+  wins.forEach((win) => {
+    win.webContents.send("store-dispatch", id, hash);
+  });
+});
