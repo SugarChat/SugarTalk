@@ -15,7 +15,7 @@
         @click="setActiveItem('about-us')"
       >
         <img class="image" src="../../assets/sugarTalkLogo.png" />
-        <p class="label">关于我们！</p>
+        <p class="label">关于我们</p>
       </div>
     </div>
     <div class="right">
