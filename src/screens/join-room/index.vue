@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import Header from "@components/header/index.vue";
+import Header from "../../components/header/index.vue";
 import { reactive, computed } from "vue";
 
 const state = reactive({
@@ -53,6 +53,7 @@ const onJoinRoom = () => {
       height: 640,
       minWidth: 960,
       minHeight: 640,
+      useContentSize: true,
       titleBarStyle: "hidden",
     }
   );

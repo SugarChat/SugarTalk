@@ -8,7 +8,7 @@
     <div class="footer-content">
       <ScreenShare :start-share="startShare" :stop-share="stopShare" />
       <Invite />
-      <ActionBtn title="设置" icon="icon-setting" />
+      <ActionBtn title="设置" icon="icon-setting" @click="onSettings" />
     </div>
 
     <div class="footer-right">
@@ -34,6 +34,23 @@ interface Props {
 const props = defineProps<Props>();
 
 const { startShare, stopShare } = toRefs(props);
+
+const onSettings = () => {
+  window.electronAPI.createWindow(`/settings`, {
+    width: 720,
+    height: 640,
+    useContentSize: true,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    titleBarStyle: "hidden",
+    alwaysOnTop: true,
+    trafficLightPosition: {
+      x: 12,
+      y: 16,
+    },
+  });
+};
 </script>
 
 <style scoped lang="scss">

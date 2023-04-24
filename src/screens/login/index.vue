@@ -32,7 +32,7 @@
       </div>
     </div>
     <el-tooltip effect="light" content="设置(待开发)" placement="bottom">
-      <div class="setting">
+      <div class="setting" @click="onSettings">
         <i class="iconfont icon-setting" />
       </div>
     </el-tooltip>
@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import Header from "@components/header/index.vue";
+import Header from "../../components/header/index.vue";
 
 const onLogin = () => {
   window.electronAPI.getCurrentWindow().close();
@@ -51,6 +51,23 @@ const onLogin = () => {
     resizable: false,
     maximizable: false,
     titleBarStyle: "hidden",
+    trafficLightPosition: {
+      x: 12,
+      y: 16,
+    },
+  });
+};
+
+const onSettings = () => {
+  window.electronAPI.createWindow(`/settings`, {
+    width: 720,
+    height: 640,
+    useContentSize: true,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    titleBarStyle: "hidden",
+    alwaysOnTop: true,
     trafficLightPosition: {
       x: 12,
       y: 16,

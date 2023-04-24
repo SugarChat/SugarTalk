@@ -9,6 +9,7 @@ export interface CurrentWindow {
 
 interface AppInfo {
   name: string;
+  version: string;
 }
 
 interface BrowserWindowConstructorOptions

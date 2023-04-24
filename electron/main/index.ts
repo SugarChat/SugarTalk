@@ -177,4 +177,5 @@ ipcMain.handle(
 
 ipcMain.handle("getAppInfo", () => ({
   name: app.getName(),
+  version: app.getVersion(),
 }));
