@@ -1,6 +1,6 @@
 <template>
   <ActionBtn
-    v-if="isSharing"
+    v-if="isShareScreen"
     title="结束共享"
     icon="icon-screen-end"
     @click="onStopShare"
@@ -58,17 +58,25 @@ import Tabs from "./components/tabs/index.vue";
 import Footer from "./components/footer/index.vue";
 import { useAction } from "./hooks";
 import { ScreenSource } from "../../../../entity/types";
+import { toRefs } from "vue";
 
 interface Props {
-  startShare?: (source: ScreenSource) => void;
-  stopShare?: () => void;
+  isShareScreen: boolean;
+}
+
+interface Emits {
+  (event: "startShare", source: ScreenSource): void;
+  (event: "stopShare"): void;
 }
 
 const props = defineProps<Props>();
 
+const emits = defineEmits<Emits>();
+
+const { isShareScreen } = toRefs(props);
+
 const {
   visible,
-  isSharing,
   currentSource,
   screenSources,
   appSources,
@@ -83,14 +91,12 @@ const {
 const onConfirm = () => {
   onClose();
   if (currentSource.value) {
-    isSharing.value = true;
-    props?.startShare?.(currentSource.value);
+    emits("startShare", currentSource.value);
   }
 };
 
 const onStopShare = () => {
-  isSharing.value = false;
-  props?.stopShare?.();
+  emits("stopShare");
 };
 </script>
 

@@ -21,8 +21,6 @@ export const useAction = () => {
 
   const currentAppIcon = ref("");
 
-  const isSharing = ref(false);
-
   onMounted(() => {
     getScreenCaptureAccess();
   });
@@ -75,7 +73,6 @@ export const useAction = () => {
 
   return {
     visible,
-    isSharing,
     currentSource,
     screenSources,
     appSources,
