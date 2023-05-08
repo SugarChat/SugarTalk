@@ -215,7 +215,7 @@ export class WebSocketAdaptor {
 
   sendPing() {
     setTimeout(() => {
-      this.wsConn.send(this.serialize({ command: "ping" }));
+      this.wsConn?.send(this.serialize({ command: "ping" }));
     }, this.pingInterval);
   }
 
@@ -231,7 +231,7 @@ export class WebSocketAdaptor {
       return;
     }
 
-    this.wsConn.send(text);
+    this.wsConn?.send(text);
 
     this.log(`发送消息：${text}`);
   }

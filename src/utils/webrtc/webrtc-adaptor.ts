@@ -245,22 +245,15 @@ export class WebRTCAdaptor {
    * 检查本地流，非 playMode 则初始化
    * 开始 websocket 连接
    */
-  initialize() {
+  async initialize() {
     if (
       !this.isPlayMode &&
       !this.onlyDataChannel &&
       !this.mediaManager.localStream
     ) {
-      this.mediaManager
-        .initLocalStream()
-        ?.then(() => {
-          this.initPlugins();
-          this.checkWebSocketConnection();
-        })
-        .catch((error) => {
-          console.error("initialize Error: ", error);
-        });
-      return;
+      await this.mediaManager.initLocalStream()?.catch((error) => {
+        console.error("initialize Error: ", error);
+      });
     }
     this.initPlugins();
     this.checkWebSocketConnection();
@@ -978,8 +971,12 @@ export class WebRTCAdaptor {
   /**
    * 启动远程流的声级计
    */
-  enableAudioLevel(stream: MediaStream, streamId: string) {
-    const soundMeter = new SoundMeter(this.audioContext);
+  enableAudioLevel(
+    stream: MediaStream,
+    streamId: string,
+    callback?: (streamId: string, instant: number) => void
+  ) {
+    const soundMeter = new SoundMeter(this.audioContext, streamId, callback);
     soundMeter.connectToSource(stream);
     this.soundMeters[streamId] = soundMeter;
   }
@@ -987,7 +984,9 @@ export class WebRTCAdaptor {
   getSoundLevelList(streamsList: string[]) {
     for (let i = 0; i < streamsList.length; i++) {
       const streamId = streamsList[i];
-      this.soundLevelList[streamId] = this.soundMeters[streamId].instant;
+      if (this.soundMeters[streamId]?.instant !== undefined) {
+        this.soundLevelList[streamId] = this.soundMeters[streamId].instant;
+      }
     }
     this.notifyEventListeners("gotSoundList", this.soundLevelList);
   }
@@ -1026,7 +1025,10 @@ export class WebRTCAdaptor {
     }
   }
 
-  enableAudioLevelForLocalStream(levelCallback?: (instant: number) => void) {
-    this.mediaManager.enableAudioLevelForLocalStream(levelCallback);
+  enableAudioLevelForLocalStream(
+    streamId: string,
+    levelCallback?: (streamId: string, instant: number) => void
+  ) {
+    this.mediaManager.enableAudioLevelForLocalStream(streamId, levelCallback);
   }
 }

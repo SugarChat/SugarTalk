@@ -342,9 +342,13 @@ export class MediaManager {
       .forEach((track) => (track.enabled = true));
   }
 
-  enableAudioLevelForLocalStream(levelCallback?: (instant: number) => void) {
+  enableAudioLevelForLocalStream(
+    streamId: string,
+    levelCallback?: (streamId: string, instant: number) => void
+  ) {
     const localStreamSoundMeter = new SoundMeter(
       this.audioContext,
+      streamId,
       levelCallback
     );
     localStreamSoundMeter.connectToSource(this.localStream!);

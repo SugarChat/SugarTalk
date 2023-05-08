@@ -4,7 +4,10 @@
   <div class="container">
     <StatusBar />
 
-    <UserPanel />
+    <UserPanel
+      :streams-list="streamsList"
+      :remote-sound-level-list="remoteSoundLevelList"
+    />
     <Watermark text="Sugar Talk" />
 
     <template v-if="videoStream">
@@ -34,6 +37,7 @@
       <template #content>
         <ScreenShare
           :is-share-screen="isShareScreen"
+          :before-open="beforeStartShare"
           @startShare="onStartShare"
           @stopShare="onStopShare"
         />
@@ -67,7 +71,9 @@ const {
   isShareScreen,
   streamsList,
   videoStream,
+  remoteSoundLevelList,
   updateMicMuteStatus,
+  beforeStartShare,
   onStartShare,
   onStopShare,
 } = useAction();

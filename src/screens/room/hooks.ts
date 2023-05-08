@@ -1,6 +1,7 @@
-import { nextTick, onMounted, ref, toRaw, watch } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
-import { ScreenSource } from "../../entity/types";
+import { ScreenSource, StreamItem } from "../../entity/types";
+import { ElMessage } from "element-plus";
 
 interface RoomInfo {
   maxTrackCount: number;
@@ -8,13 +9,6 @@ interface RoomInfo {
   streamId: string;
   streamList: string;
   streams: string[];
-}
-
-interface StreamItem {
-  stream: MediaStream;
-  track: MediaStreamTrack;
-  streamId: string;
-  trackId: string;
 }
 
 interface DataChannel {
@@ -60,34 +54,32 @@ export const useAction = () => {
    */
   const isShareScreen = ref(false);
 
+  /**
+   * 远程流音频声级
+   */
+  const remoteSoundLevelList = ref<Record<string, number>>({});
+
+  /**
+   * 远程流共享屏幕streamId
+   */
   const remoteShareScreenStreamId = ref("");
 
-  // watch([streamsList, localStream], () => {
-  //   if (!isShareScreen.value) {
-  //     const activeVideoStream = streamsList.value.find((streams) => {
-  //       return streams.stream?.getVideoTracks()[0].enabled;
-  //     });
-  //     if (activeVideoStream) {
-  //       if (remoteShareScreenStreamId.value !== activeVideoStream.streamId) {
-  //         remoteShareScreenStreamId.value = activeVideoStream.streamId;
-  //         videoStream.value = new MediaStream([
-  //           ...activeVideoStream.stream.getVideoTracks(),
-  //         ]);
-  //       }
-  //     } else {
-  //       videoStream.value = undefined;
-  //     }
-  //   }
-  // });
-
+  /**
+   * 监听远程流共享屏幕 video轨道是否活动状态
+   */
   watch([streamsList], () => {
     const newVideoTrack = streamsList.value
       .find((streams) => streams.streamId === remoteShareScreenStreamId.value)
       ?.stream?.getVideoTracks()[0];
+    if (!isShareScreen.value) {
+      if (!newVideoTrack || (newVideoTrack && !newVideoTrack.enabled)) {
+        remoteShareScreenStreamId.value = "";
+        videoStream.value = undefined;
+      }
+    }
 
-    if (!newVideoTrack || (newVideoTrack && !newVideoTrack.enabled)) {
-      remoteShareScreenStreamId.value = "";
-      videoStream.value = undefined;
+    if (streamsList.value.length > 0) {
+      console.log("发送消息询问有没有人在分享屏幕");
     }
   });
 
@@ -100,6 +92,14 @@ export const useAction = () => {
       },
       callback: (command: string, payload?: any) => {
         switch (command) {
+          // 已初始化完成
+          case "initialized":
+            /**
+             * 加入房间
+             */
+            webRTCAdaptor.value?.joinRoom("room1", "", "mcu");
+            break;
+          // 已加入房间回调
           case "joinedTheRoom":
             roomInfo.value = payload;
             /**
@@ -109,7 +109,9 @@ export const useAction = () => {
             /**
              * 本地流声级计
              */
-            webRTCAdaptor.value?.enableAudioLevelForLocalStream();
+            webRTCAdaptor.value?.enableAudioLevelForLocalStream(
+              payload?.streamId
+            );
 
             payload?.streams.forEach((streamId: string) => {
               /**
@@ -119,21 +121,14 @@ export const useAction = () => {
             });
 
             streamIds.value = payload?.streams ?? [];
-
-            setInterval(() => {
-              /**
-               * 每隔3秒获取一次房间信息
-               */
-              webRTCAdaptor.value?.getRoomInfo("room1", payload?.streamId);
-            }, 3000);
             break;
+          // 获取房间信息回调
           case "roomInformation":
             const currentStreamIds: string[] = payload.streams;
 
             currentStreamIds.forEach((streamId) => {
               if (!streamIds.value.includes(streamId)) {
                 /**
-                 * 获取房间信息回调
                  * 播放新的远程流
                  */
                 webRTCAdaptor.value?.play(streamId, roomInfo.value!.room);
@@ -151,8 +146,16 @@ export const useAction = () => {
               return true;
             });
 
+            setTimeout(() => {
+              /**
+               * 每隔3秒获取一次房间信息
+               */
+              webRTCAdaptor.value?.getRoomInfo("room1", payload?.streamId);
+            }, 3000);
+
             streamIds.value = payload.streams;
             break;
+          // 获取到新的远程流
           case "newStreamAvailable":
             console.log("newStreamAvailable", payload.stream?.getTracks());
             /**
@@ -170,9 +173,11 @@ export const useAction = () => {
               streamsList.value.push(payload);
             }
             break;
+          // 本地流回调
           case "localStream":
             localStream.value = payload;
             break;
+          // dataChannel 信息回调
           case "data_received":
             const notificationEvent: DataChannel = JSON.parse(payload.data);
             if (notificationEvent.streamId !== roomInfo.value!.streamId) {
@@ -191,17 +196,18 @@ export const useAction = () => {
               }
             }
             break;
+          // 获取远程流的声级计
+          case "gotSoundList":
+            remoteSoundLevelList.value = payload;
+
+            setTimeout(() => {
+              webRTCAdaptor.value?.getSoundLevelList(streamIds.value);
+            }, 200);
+            break;
         }
       },
       callbackError: () => {},
     });
-
-    setTimeout(() => {
-      /**
-       * 加入房间
-       */
-      webRTCAdaptor.value?.joinRoom("room1", "", "mcu");
-    }, 3000);
   };
 
   /**
@@ -215,6 +221,21 @@ export const useAction = () => {
     } else {
       webRTCAdaptor.value?.unmuteLocalMic();
     }
+  };
+
+  /**
+   * 屏幕分享之前判断是否已经其他人分享屏幕
+   * @returns boolean true：阻止弹窗
+   */
+  const beforeStartShare = () => {
+    if (remoteShareScreenStreamId.value) {
+      ElMessage({
+        message: "他人正在共享，此时无法发起共享",
+        type: "warning",
+      });
+      return true;
+    }
+    return false;
   };
 
   /**
@@ -259,9 +280,7 @@ export const useAction = () => {
 
   onMounted(() => {
     nextTick(() => {
-      setTimeout(() => {
-        init();
-      }, 3000);
+      init();
     });
 
     // window.electronAPI.onClose(
@@ -284,7 +303,9 @@ export const useAction = () => {
     isShareScreen,
     streamsList,
     videoStream,
+    remoteSoundLevelList,
     updateMicMuteStatus,
+    beforeStartShare,
     onStartShare,
     onStopShare,
   };

@@ -5,7 +5,7 @@
     icon="icon-screen-end"
     @click="onStopShare"
   />
-  <ActionBtn v-else title="共享屏幕" icon="icon-screen" @click="onOpen" />
+  <ActionBtn v-else title="共享屏幕" icon="icon-screen" @click="onStart" />
 
   <el-dialog
     class="screen-share-dialog"
@@ -62,6 +62,7 @@ import { toRefs } from "vue";
 
 interface Props {
   isShareScreen: boolean;
+  beforeOpen?: () => boolean;
 }
 
 interface Emits {
@@ -73,7 +74,7 @@ const props = defineProps<Props>();
 
 const emits = defineEmits<Emits>();
 
-const { isShareScreen } = toRefs(props);
+const { isShareScreen, beforeOpen } = toRefs(props);
 
 const {
   visible,
@@ -87,6 +88,12 @@ const {
   onSelect,
   onChangeAppIcon,
 } = useAction();
+
+const onStart = () => {
+  const isReject = beforeOpen?.value?.();
+  if (isReject) return;
+  onOpen();
+};
 
 const onConfirm = () => {
   onClose();
