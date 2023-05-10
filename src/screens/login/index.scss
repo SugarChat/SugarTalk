@@ -30,6 +30,8 @@
   }
 
   .login-btn {
+    width: 100%;
+
     .el-button {
       width: 100%;
     }
@@ -40,7 +42,7 @@
     font-size: var(--font-size-small);
     color: var(--color-text-secondary);
     text-align: center;
-    margin-top: 40px;
+    margin-top: 32px;
 
     &::before {
       content: "";
