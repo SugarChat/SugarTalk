@@ -2,7 +2,6 @@
   <div class="box-item" @click="onClick">
     <div :class="['box-icon', { disabled: disabled }]">
       <i :class="['iconfont', icon]" />
-      <div class="line" />
     </div>
     <p class="title">{{ title }}</p>
   </div>

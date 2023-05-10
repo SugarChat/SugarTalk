@@ -1,6 +1,9 @@
 import { onMounted } from "vue";
+import { useAppStore } from "../../stores/useAppStore";
 
 export const useAction = () => {
+  const appStore = useAppStore();
+
   onMounted(() => {
     window.electronAPI.closeToHide();
   });
@@ -27,6 +30,7 @@ export const useAction = () => {
   };
 
   const onLogout = () => {
+    appStore.logout();
     window.electronAPI.getCurrentWindow().destroy();
     window.electronAPI.openMainWindow();
   };

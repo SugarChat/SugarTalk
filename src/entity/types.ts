@@ -5,3 +5,10 @@ export interface ScreenSource {
   name: string;
   thumbnail: string;
 }
+
+export interface StreamItem {
+  stream: MediaStream;
+  track: MediaStreamTrack;
+  streamId: string;
+  trackId: string;
+}

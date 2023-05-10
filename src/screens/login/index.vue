@@ -5,77 +5,82 @@
       <img class="app-logo" src="../../assets/sugarTalkLogo.png" />
       <p class="app-name">Sugar Talk</p>
     </div>
-    <div class="login-btn">
-      <el-button type="primary" size="large" @click="onLogin"
-        >Foundation 登录</el-button
+    <template v-if="loaded">
+      <el-form
+        ref="formRef"
+        label-position="top"
+        size="large"
+        :model="userinfo"
+        :rules="rules"
       >
-    </div>
-    <div class="other-login">其他登录方式</div>
-    <div class="other-mode-list">
-      <div class="other-mode-item">
-        <div class="other-logo">
-          <img class="other-logo-img" src="../../assets/wechat.png" />
+        <el-form-item label="Username" prop="username">
+          <el-input v-model="userinfo.username" />
+        </el-form-item>
+        <el-form-item label="Password" prop="password">
+          <el-input v-model="userinfo.password" type="password" />
+        </el-form-item>
+        <el-form-item>
+          <div class="login-btn">
+            <el-button type="primary" @click="onLogin">LOGIN</el-button>
+          </div>
+          <div v-show="errorDescription" class="el-form-item__error">
+            {{ errorDescription }}
+          </div>
+        </el-form-item>
+      </el-form>
+      <div class="other-login">其他登录方式</div>
+      <div class="other-mode-list">
+        <div class="other-mode-item" @click="onDevelopingTip">
+          <div class="other-logo">
+            <img class="other-logo-img" src="../../assets/wechat.png" />
+          </div>
+          <p class="title">Wechat</p>
         </div>
-        <p class="title">Wechat</p>
-      </div>
-      <div class="other-mode-item">
-        <div class="other-logo">
-          <img class="other-logo-img" src="../../assets/google.png" />
+        <div class="other-mode-item" @click="onDevelopingTip">
+          <div class="other-logo">
+            <img class="other-logo-img" src="../../assets/google.png" />
+          </div>
+          <p class="title">Google</p>
         </div>
-        <p class="title">Google</p>
-      </div>
-      <div class="other-mode-item">
-        <div class="other-logo">
-          <img class="other-logo-img" src="../../assets/facebook.png" />
+        <div class="other-mode-item" @click="onDevelopingTip">
+          <div class="other-logo">
+            <img class="other-logo-img" src="../../assets/facebook.png" />
+          </div>
+          <p class="title">Facebook</p>
         </div>
-        <p class="title">Facebook</p>
       </div>
-    </div>
-    <el-tooltip effect="light" content="设置(待开发)" placement="bottom">
-      <div class="setting" @click="onSettings">
-        <i class="iconfont icon-setting" />
-      </div>
-    </el-tooltip>
+      <el-tooltip effect="light" content="设置" placement="bottom">
+        <div class="setting" @click="gotoSettings">
+          <i class="iconfont icon-setting" />
+        </div>
+      </el-tooltip>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import Header from "../../components/header/index.vue";
+import { useAction } from "./hooks";
 
-const onLogin = () => {
-  window.electronAPI.getCurrentWindow().close();
-  window.electronAPI.createWindow("/home", {
-    width: 960,
-    height: 640,
-    useContentSize: true,
-    resizable: false,
-    maximizable: false,
-    titleBarStyle: "hidden",
-    trafficLightPosition: {
-      x: 12,
-      y: 16,
-    },
-  });
-};
-
-const onSettings = () => {
-  window.electronAPI.createWindow(`/settings`, {
-    width: 720,
-    height: 640,
-    useContentSize: true,
-    resizable: false,
-    maximizable: false,
-    minimizable: false,
-    titleBarStyle: "hidden",
-    alwaysOnTop: true,
-    trafficLightPosition: {
-      x: 12,
-      y: 16,
-    },
-  });
-};
+const {
+  loaded,
+  formRef,
+  userinfo,
+  rules,
+  errorDescription,
+  onLogin,
+  gotoSettings,
+  onDevelopingTip,
+} = useAction();
 </script>
 
 <style scoped lang="scss">
 @import "./index.scss";
+</style>
+
+<style lang="scss">
+.login-message-box {
+  width: 100% !important;
+  max-width: 100% !important;
+}
 </style>

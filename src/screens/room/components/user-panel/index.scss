@@ -26,6 +26,12 @@
       .user-avatar {
         width: 72px;
         height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        color: var(--color-text-white);
+        background-color: var(--color-text-disabled);
         border-radius: 50%;
         overflow: hidden;
 
@@ -38,8 +44,49 @@
         }
       }
 
-      .title {
+      .user-info {
+        display: flex;
+        align-items: center;
         margin-top: 8px;
+
+        .title {
+          font-size: var(--font-size-small);
+        }
+
+        .mic-mute-status {
+          position: relative;
+          width: 14px;
+          height: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #146fff;
+          border-radius: 50%;
+          overflow: hidden;
+          margin-left: var(--spacing-tiny);
+
+          &.disabled::after {
+            content: "";
+            position: absolute;
+            top: 1px;
+            left: calc(50% - 1px);
+            width: 1px;
+            bottom: 1px;
+            background-color: var(--color-primary);
+            transform-origin: center;
+            transform: rotate(45deg);
+          }
+
+          .iconfont {
+            font-size: 24px;
+          }
+
+          .iconfont {
+            height: var(--font-size-small);
+            font-size: var(--font-size-small);
+            color: var(--color-text-white);
+          }
+        }
       }
     }
   }

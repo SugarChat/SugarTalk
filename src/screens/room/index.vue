@@ -4,18 +4,44 @@
   <div class="container">
     <StatusBar />
 
-    <template v-if="stream">
+    <UserPanel
+      :streams-list="streamsList"
+      :remote-sound-level-list="remoteSoundLevelList"
+    />
+    <Watermark text="Sugar Talk" />
+
+    <template v-if="videoStream">
       <div class="st-container">
-        <Player :stream="stream!" />
+        <Player :stream="videoStream" />
         <UserList />
       </div>
     </template>
-    <template v-else>
-      <UserPanel />
-      <Watermark text="Sugar Talk" />
-    </template>
 
-    <Footer :startShare="onStartShare" :stop-share="onStipShare">
+    <video width="0" height="0" id="stream-media" autoplay playsInline muted />
+
+    <video
+      width="0"
+      height="0"
+      v-for="stream in streamsList"
+      :key="stream.streamId"
+      autoplay
+      playsinline
+      :srcObject="stream.stream"
+    />
+
+    <Footer>
+      <template #left>
+        <AudioManage :isMuted="isMuted" @update="updateMicMuteStatus" />
+        <!-- <VideoManage /> -->
+      </template>
+      <template #content>
+        <ScreenShare
+          :is-share-screen="isShareScreen"
+          :before-open="beforeStartShare"
+          @startShare="onStartShare"
+          @stopShare="onStopShare"
+        />
+      </template>
       <template #right>
         <LeaveRoom />
       </template>
@@ -33,11 +59,24 @@ import Footer from "./components/footer/index.vue";
 import Player from "./components/player/index.vue";
 import LeaveRoom from "./components/leave-room/index.vue";
 import Watermark from "../../components/watermark/index.vue";
+// import VideoManage from "./components/video-manage/index.vue";
+import AudioManage from "./components/audio-manage/index.vue";
+import ScreenShare from "./components/screen-share/index.vue";
 import { useAction } from "./hooks";
 
 const { query } = useRoute();
 
-const { stream, onStartShare, onStipShare } = useAction();
+const {
+  isMuted,
+  isShareScreen,
+  streamsList,
+  videoStream,
+  remoteSoundLevelList,
+  updateMicMuteStatus,
+  beforeStartShare,
+  onStartShare,
+  onStopShare,
+} = useAction();
 </script>
 
 <style scoped lang="scss">
