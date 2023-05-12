@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useAppStore } from "../../stores/useAppStore";
 import { ElMessage } from "element-plus";
+import config from "../../config";
 
 export const Api = axios.create({
-  baseURL: "https://sugartalktest.yamimeal.ca",
+  baseURL: config.baseURL,
   timeout: 50000,
   headers: {
     "Content-Type": "application/json",

@@ -1,0 +1,30 @@
+.avatar-container {
+  --avatar-bg-color: var(--el-text-color-disabled);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  background-color: var(--avatar-bg-color);
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: var(--avatar-cursor);
+  user-select: none;
+  -webkit-user-drag: none;
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: var(--avatar-fit);
+  }
+
+  .avatar-nickname {
+    font-size: var(--avatar-font-size);
+    color: var(--color-text-white);
+  }
+
+  .iconfont {
+    font-size: var(--avatar-font-size);
+    color: var(--color-text-white);
+  }
+}

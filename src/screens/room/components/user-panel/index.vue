@@ -7,13 +7,7 @@
           v-for="(item, index) in streamsList"
           :key="item.streamId"
         >
-          <div class="user-avatar">
-            <!-- <img
-              class="user-avatar-img"
-              src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
-            /> -->
-            <span>{{ item.streamId[0] }}</span>
-          </div>
+          <Avatar :size="72" :font-size="36" :name="item.streamId" />
           <div class="user-info">
             <span class="title">{{ item.streamId }}</span>
             <div
@@ -34,6 +28,7 @@
 <script setup lang="ts">
 import { toRefs } from "vue";
 import { StreamItem } from "../../../../entity/types";
+import Avatar from "../../../../components/avatar/index.vue";
 
 interface Props {
   streamsList: StreamItem[];

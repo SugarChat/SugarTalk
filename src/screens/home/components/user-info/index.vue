@@ -8,22 +8,12 @@
       :show-arrow="true"
     >
       <template #reference>
-        <div class="user-avatar">
-          <img
-            class="user-avatar-img"
-            src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
-          />
-        </div>
+        <Avatar :size="36" cursor="pointer" :name="appStore.userName" />
       </template>
       <div class="user-info-container">
         <div class="user-info">
-          <div class="user-avatar">
-            <img
-              class="user-avatar-img"
-              src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
-            />
-          </div>
-          <span class="nickname">使命召唤</span>
+          <Avatar :size="42" :name="appStore.userName" />
+          <span class="nickname">{{ appStore.userName }}</span>
         </div>
       </div>
       <div class="logout-btn">
@@ -34,9 +24,14 @@
 </template>
 
 <script setup lang="ts">
+import Avatar from "../../../../components/avatar/index.vue";
+import { useAction } from "./hooks";
+
 interface Emits {
   (event: "logout"): void;
 }
+
+const { appStore } = useAction();
 
 const emits = defineEmits<Emits>();
 

@@ -11,12 +11,7 @@
           :key="item"
           :class="['user-box', item === 3 && 'active']"
         >
-          <div class="user-avatar">
-            <img
-              class="user-avatar-img"
-              src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
-            />
-          </div>
+          <Avatar :size="40" />
           <div class="user-box-footer">
             <p class="nickname">使命召唤</p>
           </div>
@@ -33,6 +28,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useDraggResize } from "./hooks";
+import Avatar from "../../../../components/avatar/index.vue";
 
 const { width, target, handle } = useDraggResize();
 
