@@ -9,8 +9,8 @@ import "normalize.css";
 import "./styles/index.scss";
 
 createApp(App)
-  .use(router)
   .use(pinia)
+  .use(router)
   .use(ElementPlus)
   .mount("#app")
   .$nextTick(() => {

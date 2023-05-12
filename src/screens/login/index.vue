@@ -51,7 +51,7 @@
       </div>
       <el-tooltip effect="light" content="设置" placement="bottom">
         <div class="setting" @click="gotoSettings">
-          <i class="iconfont icon-setting" />
+          <i class="iconfont icon-settings" />
         </div>
       </el-tooltip>
     </template>

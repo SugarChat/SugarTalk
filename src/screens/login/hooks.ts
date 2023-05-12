@@ -1,10 +1,13 @@
 import { nextTick, onMounted, reactive, ref } from "vue";
 import { ElLoading, ElMessage, FormInstance, FormRules } from "element-plus";
-import { LoginResponse } from "../../entity/response";
 import { useAppStore } from "../../stores/useAppStore";
+import { LoginApi } from "../../services";
+import { useNavigation } from "../../hooks/useNavigation";
 
 export const useAction = () => {
   const appStore = useAppStore();
+
+  const navigation = useNavigation();
 
   const formRef = ref<FormInstance>();
 
@@ -32,35 +35,15 @@ export const useAction = () => {
     formRef.value?.validate((valid) => {
       if (valid) {
         const loadingInstance = ElLoading.service({ fullscreen: true });
-        fetch(new URL("http://passtest.wiltechs.com/token"), {
-          method: "POST",
-          headers: {
-            Authorization: "Basic NDUwYzZjMDNmYzQ0YzQzYjo3OWQ5MDJkYmZlM2Q3ODFm",
-            "Content-type": "application/x-www-form-urlencoded;charset=UTF-8",
-          },
-          body: `grant_type=${userinfo.grant_type}&username=${userinfo.username}&password=${userinfo.password}`,
-        })
-          .then(async (response) => {
-            if (response.ok) {
-              const data: LoginResponse = await response.json();
-              if (data?.access_token) {
-                appStore.userName = data.userName;
-                appStore.access_token = data.access_token;
-                appStore.expires = data[".expires"];
-                gotoHome();
-              }
-            } else {
-              const data = await response.json();
-              errorDescription.value = data?.error_description ?? "";
+        LoginApi(userinfo)
+          .then((response) => {
+            if (response?.access_token) {
+              appStore.login(response);
+              gotoHome();
             }
           })
           .catch((error) => {
-            ElMessage({
-              customClass: "login-error-message-box",
-              offset: 36,
-              message: error.toString(),
-              type: "error",
-            });
+            errorDescription.value = error?.toString();
           })
           .finally(() => {
             loadingInstance.close();
@@ -69,38 +52,9 @@ export const useAction = () => {
     });
   };
 
-  const gotoHome = async () => {
-    await window.electronAPI.getCurrentWindow().close();
-    window.electronAPI.createWindow("/home", {
-      width: 960,
-      height: 640,
-      useContentSize: true,
-      resizable: false,
-      maximizable: false,
-      titleBarStyle: "hidden",
-      trafficLightPosition: {
-        x: 12,
-        y: 16,
-      },
-    });
-  };
+  const gotoHome = () => navigation.close().navigate("/home");
 
-  const gotoSettings = () => {
-    window.electronAPI.createWindow(`/settings`, {
-      width: 720,
-      height: 640,
-      useContentSize: true,
-      resizable: false,
-      maximizable: false,
-      minimizable: false,
-      titleBarStyle: "hidden",
-      alwaysOnTop: true,
-      trafficLightPosition: {
-        x: 12,
-        y: 16,
-      },
-    });
-  };
+  const gotoSettings = () => navigation.navigate("/settings");
 
   const onDevelopingTip = () => {
     ElMessage({

@@ -12,10 +12,7 @@ import { PingConfig } from "../../src/renderer";
 
 ipcMain.handle("getPlatform", () => process.platform);
 
-ipcMain.handle("close-window", () => {
-  const length = BrowserWindow.getAllWindows().length - 1;
-  BrowserWindow.getAllWindows()[length]?.close();
-});
+ipcMain.handle("close-window", () => BrowserWindow.getAllWindows()[0]?.close());
 
 ipcMain.handle("destroy-window", () =>
   BrowserWindow.getFocusedWindow().destroy()

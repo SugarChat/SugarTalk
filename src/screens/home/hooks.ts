@@ -1,43 +1,72 @@
 import { onMounted } from "vue";
 import { useAppStore } from "../../stores/useAppStore";
+import { useNavigation } from "../../hooks/useNavigation";
+import { meetingCreateApi, meetingJoinApi } from "../../services";
+import { ElLoading, ElMessage } from "element-plus";
+import { useSettingsStore } from "../../stores/useSettingsStore";
 
 export const useAction = () => {
   const appStore = useAppStore();
 
+  const settingsStore = useSettingsStore();
+
+  const navigation = useNavigation();
+
   onMounted(() => {
-    window.electronAPI.closeToHide();
+    navigation.closeToHide();
   });
 
-  const onJoinRoom = () => {
-    window.electronAPI.createWindow("/join-room", {
-      width: 375,
-      height: 667,
-      titleBarStyle: "hidden",
-      resizable: false,
-      maximizable: false,
-      useContentSize: true,
-    });
+  const onJoinRoom = () => navigation.navigate("/join-room");
+
+  const onQuickRoom = async () => {
+    const loading = ElLoading.service({ fullscreen: true });
+    try {
+      const { code, data, msg } = await meetingCreateApi({
+        meetingStreamMode: 0,
+      });
+      if (code === 200) {
+        const result = await meetingJoinApi({
+          meetingNumber: data?.roomId,
+          isMuted: !settingsStore.enableMicrophone,
+        });
+        if (result?.code === 200) {
+          navigation.navigate("/room", {
+            audio: settingsStore.enableMicrophone,
+            microphone: true,
+            camera: false,
+            roomId: data?.roomId,
+            userName: appStore.userName,
+          });
+        } else {
+          ElMessage({
+            offset: 50,
+            message: result.msg,
+            type: "error",
+          });
+        }
+      } else {
+        ElMessage({
+          offset: 50,
+          message: msg,
+          type: "error",
+        });
+      }
+    } finally {
+      loading.close();
+    }
   };
 
-  const onQuickRoom = () => {
-    window.electronAPI.createWindow(`/room?roomId=${"room1"}&nickname=${""}`, {
-      width: 960,
-      height: 640,
-      minWidth: 960,
-      minHeight: 640,
-      titleBarStyle: "hidden",
-    });
-  };
+  const gotoSettings = () => navigation.navigate("/settings");
 
   const onLogout = () => {
     appStore.logout();
-    window.electronAPI.getCurrentWindow().destroy();
-    window.electronAPI.openMainWindow();
+    navigation.destroy().openMainWindow();
   };
 
   return {
     onJoinRoom,
     onQuickRoom,
+    gotoSettings,
     onLogout,
   };
 };

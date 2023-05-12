@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^9.13.0",
+    "axios": "^1.4.0",
     "element-plus": "^2.3.3",
     "normalize.css": "^8.0.1",
     "ping": "^0.4.4",
