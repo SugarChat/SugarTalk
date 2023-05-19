@@ -1,6 +1,6 @@
 <template>
   <div class="settings-about-us">
-    <img src="../../../../assets/sugarTalkLogo.png" />
+    <img src="../../../../assets/images/sugarTalkLogo.png" />
     <p v-if="appInfo?.name" class="app-name">{{ appInfo.name }}</p>
     <p v-if="appInfo?.version" class="app-version">V {{ appInfo.version }}</p>
   </div>

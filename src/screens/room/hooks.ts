@@ -85,7 +85,8 @@ export const useAction = () => {
 
   const init = () => {
     webRTCAdaptor.value = new WebRTCAdaptor({
-      websocket_url: "wss://talk.sjdistributors.com:5443/WebRTCAppEE/websocket",
+      // websocket_url: "wss://talk.sjdistributors.com:5443/WebRTCAppEE/websocket",
+      websocket_url: "wss://talk.sjdistributors.com:5443/LiveApp/websocket",
       debug: false,
       peerconnection_config: {
         iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
@@ -97,7 +98,7 @@ export const useAction = () => {
             /**
              * 加入房间
              */
-            webRTCAdaptor.value?.joinRoom("room1", "", "mcu");
+            webRTCAdaptor.value?.joinRoom("room12", "", "mcu");
             break;
           // 已加入房间回调
           case "joinedTheRoom":
@@ -146,11 +147,11 @@ export const useAction = () => {
               return true;
             });
 
-            setTimeout(() => {
+            setInterval(() => {
               /**
                * 每隔3秒获取一次房间信息
                */
-              webRTCAdaptor.value?.getRoomInfo("room1", payload?.streamId);
+              webRTCAdaptor.value?.getRoomInfo("room12", payload?.streamId);
             }, 3000);
 
             streamIds.value = payload.streams;
@@ -280,7 +281,9 @@ export const useAction = () => {
 
   onMounted(() => {
     nextTick(() => {
-      init();
+      setTimeout(() => {
+        init();
+      }, 2000);
     });
 
     // window.electronAPI.onClose(

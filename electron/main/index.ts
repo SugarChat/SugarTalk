@@ -147,6 +147,7 @@ ipcMain.handle(
         preload,
         nodeIntegration: true,
         contextIsolation: true,
+        webSecurity: true,
       },
       ...point,
       ...options,

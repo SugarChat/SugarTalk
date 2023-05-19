@@ -17,25 +17,13 @@
 </template>
 
 <script setup lang="ts">
+import { useNavigation } from "../../../../hooks/useNavigation";
 import ActionBtn from "../action-btn/index.vue";
 import Invite from "./components/invite/index.vue";
 
-const onSettings = () => {
-  window.electronAPI.createWindow(`/settings`, {
-    width: 720,
-    height: 640,
-    useContentSize: true,
-    resizable: false,
-    maximizable: false,
-    minimizable: false,
-    titleBarStyle: "hidden",
-    alwaysOnTop: true,
-    trafficLightPosition: {
-      x: 12,
-      y: 16,
-    },
-  });
-};
+const navigation = useNavigation();
+
+const onSettings = () => navigation.navigate("/settings");
 </script>
 
 <style scoped lang="scss">

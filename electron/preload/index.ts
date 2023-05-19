@@ -34,7 +34,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   execCommand: (command: string) => ipcRenderer.invoke("execCommand", command),
   ping: (addr: string, config?: PingConfig) =>
     ipcRenderer.invoke("ping", addr, config),
-  storeNotice: () => {},
+  getLocalAudioArrayBuffer: () =>
+    ipcRenderer.invoke("get-local-audio-arraybuffer"),
 });
 
 contextBridge.exposeInMainWorld("desktopCapturer", {
@@ -77,4 +78,12 @@ contextBridge.exposeInMainWorld("store", {
       callback(id, hash)
     );
   },
+});
+
+contextBridge.exposeInMainWorld("loudness", {
+  getVolume: () => ipcRenderer.invoke("loudness.getVolume"),
+  setVolume: (volume: number) =>
+    ipcRenderer.invoke("loudness.setVolume", volume),
+  getMuted: () => ipcRenderer.invoke("loudness.getMuted"),
+  setMuted: (muted: boolean) => ipcRenderer.invoke("loudness.setMuted", muted),
 });

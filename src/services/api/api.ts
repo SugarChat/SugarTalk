@@ -25,7 +25,6 @@ Api.interceptors.response.use(
   },
   (error) => {
     const errorStr = error?.response?.data?.error ?? error?.toString() ?? "";
-    console.log(error, { errorStr });
     errorStr &&
       ElMessage({
         offset: 50,

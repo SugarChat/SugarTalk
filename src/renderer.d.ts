@@ -61,6 +61,7 @@ export interface IElectronAPI {
   closeToHide: () => void;
   execCommand: (command: string) => Promise<void>;
   ping: (addr: string, config?: PingConfig) => Promise<PingResponse>;
+  getLocalAudioArrayBuffer: () => Promise<ArrayBuffer>;
 }
 
 export interface IDesktopCapturer {
@@ -91,6 +92,13 @@ export interface IStore {
   subscribe: (callback: (id: string, hash: string) => void) => void;
 }
 
+interface ILoudness {
+  getVolume: () => Promise<number>;
+  setVolume: (volume: number) => Promise<void>;
+  getMuted: () => Promise<boolean>;
+  setMuted: (muted: boolean) => Promise<void>;
+}
+
 declare global {
   interface Window {
     electronAPI: IElectronAPI;
@@ -99,5 +107,10 @@ declare global {
     dialog: IDialog;
     clipboard: IClipboard;
     store: IStore;
+    loudness: ILoudness;
+  }
+
+  interface AudioContext {
+    setSinkId(sinkId: string): Promise<void>;
   }
 }

@@ -4,7 +4,6 @@
       popper-class="user-info-popover"
       placement="bottom"
       :width="320"
-      trigger="click"
       :show-arrow="true"
     >
       <template #reference>
