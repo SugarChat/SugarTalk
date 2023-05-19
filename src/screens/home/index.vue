@@ -1,7 +1,14 @@
 <template>
   <Header class="header" borderBottom title="Sugar Talk">
     <template #right>
-      <UserInfo @logout="onLogout" />
+      <div class="header-right">
+        <el-tooltip effect="light" content="设置" placement="bottom">
+          <div class="settings" @click="gotoSettings">
+            <i class="iconfont icon-settings" />
+          </div>
+        </el-tooltip>
+        <UserInfo @logout="onLogout" />
+      </div>
     </template>
   </Header>
   <div class="container">
@@ -20,7 +27,7 @@ import UserInfo from "./components/user-info/index.vue";
 import JoinBtn from "./components/join-btn/index.vue";
 import { useAction } from "./hooks";
 
-const { onJoinRoom, onQuickRoom, onLogout } = useAction();
+const { onJoinRoom, onQuickRoom, gotoSettings, onLogout } = useAction();
 </script>
 
 <style scoped lang="scss">

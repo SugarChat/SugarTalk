@@ -11,9 +11,9 @@
    * light - 80%
    * lighter - 90%
    */
-  --color-primary: #ce2664;
-  --color-primary-light: #f5d4e0;
-  --color-primary-lighter: #f5d4e0;
+  --color-primary: #409eff;
+  --color-primary-light: #d9ecff;
+  --color-primary-lighter: #ecf5ff;
 
   /**
    * 成功颜色

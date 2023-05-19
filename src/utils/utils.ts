@@ -22,3 +22,8 @@ export const GUID = (): string => {
     })
     .toUpperCase();
 };
+
+export const handlerPathParams = (params: Record<string, any>) =>
+  Object.keys(params)
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");

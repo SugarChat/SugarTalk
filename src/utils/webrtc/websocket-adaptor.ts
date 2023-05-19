@@ -159,7 +159,7 @@ export class WebSocketAdaptor {
           }
           break;
         case "pong":
-          // this.sendPing();
+          this.sendPing();
           this.callback(obj.command);
           break;
         case "connectWithNewId":

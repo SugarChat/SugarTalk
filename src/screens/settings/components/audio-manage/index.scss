@@ -1,0 +1,41 @@
+.audio-manage-container {
+  .title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-primary);
+    margin-bottom: var(--spacing-small);
+  }
+
+  .device-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-small);
+
+    .el-select {
+      flex: 1;
+    }
+
+    .el-button {
+      width: 102px;
+      margin-left: var(--spacing-small);
+    }
+  }
+
+  .volume-manage {
+    display: flex;
+    align-items: center;
+
+    .volume-muted {
+      cursor: pointer;
+      margin-left: var(--spacing-small);
+    }
+
+    .iconfont {
+      color: var(--color-primary);
+    }
+
+    .volume-manage-content {
+      flex: 1;
+      margin-left: var(--spacing-medium);
+    }
+  }
+}

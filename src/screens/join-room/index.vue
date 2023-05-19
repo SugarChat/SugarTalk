@@ -1,22 +1,34 @@
 <template>
   <Header title="加入会议" />
   <div class="container">
-    <el-form label-position="top">
-      <el-form-item label="会议号">
-        <el-input v-model="state.roomId" placeholder="请输入会议号" clearable />
-      </el-form-item>
-      <el-form-item label="您的名称">
+    <el-form
+      ref="formRef"
+      label-position="top"
+      :model="state"
+      size="large"
+      :rules="rules"
+    >
+      <el-form-item label="会议号" prop="roomId">
         <el-input
-          v-model="state.nickname"
+          v-model="state.roomId"
+          placeholder="请输入会议号"
+          clearable
+          :maxlength="5"
+          :minlength="5"
+        />
+      </el-form-item>
+      <el-form-item label="您的名称" prop="userName">
+        <el-input
+          v-model="state.userName"
           placeholder="请输入您的名称"
           clearable
         />
       </el-form-item>
       <el-form-item label="会议设置">
         <div class="form-item">
-          <el-checkbox label="自动连接音频" />
-          <el-checkbox label="入会开启摄像头" />
-          <el-checkbox label="入会开启麦克风" />
+          <el-checkbox label="自动连接音频" v-model="state.audio" disabled />
+          <el-checkbox label="入会开启摄像头" v-model="state.camera" disabled />
+          <el-checkbox label="入会开启麦克风" v-model="state.microphone" />
         </div>
       </el-form-item>
     </el-form>
@@ -35,29 +47,9 @@
 
 <script setup lang="ts">
 import Header from "../../components/header/index.vue";
-import { reactive, computed } from "vue";
+import { useAction } from "./hooks";
 
-const state = reactive({
-  roomId: "room1",
-  nickname: "",
-});
-
-const disabled = computed(() => !state.roomId);
-
-const onJoinRoom = () => {
-  window.electronAPI.getCurrentWindow().close();
-  window.electronAPI.createWindow(
-    `/room?roomId=${state.roomId}&nickname=${state.nickname}`,
-    {
-      width: 960,
-      height: 640,
-      minWidth: 960,
-      minHeight: 640,
-      useContentSize: true,
-      titleBarStyle: "hidden",
-    }
-  );
-};
+const { formRef, rules, state, disabled, onJoinRoom } = useAction();
 </script>
 
 <style scoped lang="scss">

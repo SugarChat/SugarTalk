@@ -9,13 +9,13 @@ import {
 import { exec } from "child_process";
 import ping from "ping";
 import { PingConfig } from "../../src/renderer";
+import loudness from "loudness";
+import fs from "node:fs";
+import { join } from "node:path";
 
 ipcMain.handle("getPlatform", () => process.platform);
 
-ipcMain.handle("close-window", () => {
-  const length = BrowserWindow.getAllWindows().length - 1;
-  BrowserWindow.getAllWindows()[length]?.close();
-});
+ipcMain.handle("close-window", () => BrowserWindow.getAllWindows()[0]?.close());
 
 ipcMain.handle("destroy-window", () =>
   BrowserWindow.getFocusedWindow().destroy()
@@ -103,4 +103,23 @@ ipcMain.handle("store-dispatch", (_, id: string, hash: string) => {
   wins.forEach((win) => {
     win.webContents.send("store-dispatch", id, hash);
   });
+});
+
+ipcMain.handle("loudness.getVolume", () => loudness.getVolume());
+
+ipcMain.handle("loudness.setVolume", (_, volume: number) =>
+  loudness.setVolume(volume)
+);
+
+ipcMain.handle("loudness.getMuted", () => loudness.getMuted());
+
+ipcMain.handle("loudness.setMuted", (_, muted: boolean) =>
+  loudness.setMuted(muted)
+);
+
+ipcMain.handle("get-local-audio-arraybuffer", () => {
+  const path = join(process.env.PUBLIC, "horse.mp3");
+  const buffer = fs.readFileSync(path);
+  const arraybuffer = new Uint8Array(buffer);
+  return arraybuffer.buffer;
 });
