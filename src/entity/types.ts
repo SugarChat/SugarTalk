@@ -12,3 +12,11 @@ export interface StreamItem {
   streamId: string;
   trackId: string;
 }
+
+export interface MeetingQuery {
+  audio: boolean;
+  microphone: boolean;
+  camera: boolean;
+  roomId: string;
+  userName: string;
+}

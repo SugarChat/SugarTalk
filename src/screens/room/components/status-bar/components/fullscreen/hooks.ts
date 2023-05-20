@@ -1,5 +1,5 @@
 import { computed, onMounted } from "vue";
-import { useAppStore } from "../../../../stores/useAppStore";
+import { useAppStore } from "../../../../../../stores/useAppStore";
 
 export const useFullscreen = () => {
   const appStore = useAppStore();

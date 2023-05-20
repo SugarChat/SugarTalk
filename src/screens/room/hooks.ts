@@ -1,7 +1,9 @@
-import { nextTick, onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, reactive, ref, toRef, watch } from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
-import { ScreenSource, StreamItem } from "../../entity/types";
+import { MeetingQuery, ScreenSource, StreamItem } from "../../entity/types";
 import { ElMessage } from "element-plus";
+import { useRoute } from "vue-router";
+import { Meeting } from "../../entity/response";
 
 interface RoomInfo {
   maxTrackCount: number;
@@ -17,6 +19,10 @@ interface DataChannel {
 }
 
 export const useAction = () => {
+  const { query } = useRoute();
+
+  const meetingQuery = reactive<MeetingQuery>(query as any);
+
   const webRTCAdaptor = ref<WebRTCAdaptor>();
 
   /**
@@ -282,7 +288,7 @@ export const useAction = () => {
   onMounted(() => {
     nextTick(() => {
       setTimeout(() => {
-        init();
+        // init();
       }, 2000);
     });
 
@@ -304,6 +310,7 @@ export const useAction = () => {
   return {
     isMuted,
     isShareScreen,
+    meetingQuery,
     streamsList,
     videoStream,
     remoteSoundLevelList,

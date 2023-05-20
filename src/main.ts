@@ -7,6 +7,7 @@ import "element-plus/dist/index.css";
 import "normalize.css";
 import "./styles/index.scss";
 import { useSettingsStore } from "./stores/useSettingsStore";
+import { useAppStore } from "./stores/useAppStore";
 
 createApp(App)
   .use(pinia)
@@ -14,5 +15,6 @@ createApp(App)
   .use(ElementPlus)
   .mount("#app")
   .$nextTick(async () => {
+    useAppStore().init();
     useSettingsStore().init();
   });

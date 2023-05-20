@@ -10,7 +10,7 @@
     :show-close="false"
     :align-center="true"
   >
-    <Header title="会议号：335 1774 4914" borderBottom>
+    <Header :title="`会议号：${meetingQuery.roomId}`" borderBottom>
       <template #right>
         <div class="invite-header">
           <div class="close-btn" @click="() => onToggle(false)">
@@ -20,10 +20,12 @@
       </template>
     </Header>
     <div class="invite-body">
-      <div class="title">诸葛琴魔 邀请您加入使命召唤的个人会议室</div>
+      <div class="title">
+        {{ meetingQuery.userName }} 邀请您加入***的个人会议室
+      </div>
       <div class="invite-item">
         <p>会议号：</p>
-        <p>335 1774 4914</p>
+        <p>{{ meetingQuery.roomId }}</p>
       </div>
     </div>
     <div class="invite-footer">
@@ -37,19 +39,42 @@
 
 <script setup lang="ts">
 import { useToggle } from "@vueuse/core";
-import ActionBtn from "../../../action-btn/index.vue";
-import Header from "../../../../../../components/header/index.vue";
+import ActionBtn from "../action-btn/index.vue";
+import Header from "../../../../components/header/index.vue";
+import { MeetingQuery } from "../../../../entity/types";
+import { ElMessage } from "element-plus";
+import { useAppStore } from "../../../../stores/useAppStore";
+
+interface Props {
+  meetingQuery: MeetingQuery;
+}
+
+const { meetingQuery } = defineProps<Props>();
+
+const appStore = useAppStore();
 
 const [visible, onToggle] = useToggle();
 
 const onCopyAll = () => {
   window.clipboard.writeText(
-    "诸葛琴魔 邀请您加入使命召唤的个人会议室\n\r会议号：335 1774 4914"
+    `${meetingQuery.userName} 邀请您加入***的个人会议室\n\r会议号：${meetingQuery.roomId}`
   );
+  ElMessage({
+    offset: 28,
+    message: "会议邀请已复制到剪切板",
+    type: "success",
+  });
 };
 
 const onCopyMeeting = () => {
-  window.clipboard.writeText("335 1774 4914");
+  window.clipboard.writeText(
+    `#${appStore.appInfo.name}：${meetingQuery.roomId}`
+  );
+  ElMessage({
+    offset: 28,
+    message: "会议号已复制到粘贴板",
+    type: "success",
+  });
 };
 </script>
 

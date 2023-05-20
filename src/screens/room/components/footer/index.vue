@@ -6,7 +6,6 @@
 
     <div class="footer-content">
       <slot name="content"></slot>
-      <Invite />
       <ActionBtn title="设置" icon="icon-setting" @click="onSettings" />
     </div>
 
@@ -19,7 +18,6 @@
 <script setup lang="ts">
 import { useNavigation } from "../../../../hooks/useNavigation";
 import ActionBtn from "../action-btn/index.vue";
-import Invite from "./components/invite/index.vue";
 
 const navigation = useNavigation();
 

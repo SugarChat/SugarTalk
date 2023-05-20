@@ -34,24 +34,28 @@ export const useAction = () => {
   const onJoinRoom = () => {
     formRef.value?.validate(async (valid) => {
       if (valid) {
-        const loading = ElLoading.service({ fullscreen: true });
-        try {
-          const { code, msg } = await meetingJoinApi({
-            meetingNumber: state.roomId,
-            isMuted: !state.microphone,
-          });
-          if (code === 200) {
-            navigation.close().navigate("/room", state);
-          } else {
-            ElMessage({
-              offset: 36,
-              message: msg,
-              type: "error",
-            });
-          }
-        } finally {
-          loading.close();
-        }
+        navigation.close().navigate("/room", state);
+
+        // const loading = ElLoading.service({ fullscreen: true });
+        // try {
+        //   const { code, data, msg } = await meetingJoinApi({
+        //     meetingNumber: state.roomId,
+        //     isMuted: !state.microphone,
+        //   });
+        //   if (code === 200) {
+        //     navigation
+        //       .close()
+        //       .navigate("/room", { ...state, meetingInfo: data });
+        //   } else {
+        //     ElMessage({
+        //       offset: 36,
+        //       message: msg,
+        //       type: "error",
+        //     });
+        //   }
+        // } finally {
+        //   loading.close();
+        // }
       }
     });
   };

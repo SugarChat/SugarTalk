@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { LoginResponse } from "../entity/response";
+import { AppInfo } from "../renderer";
 
 export const useAppStore = defineStore("appStore", {
   state: () => ({
@@ -7,8 +8,12 @@ export const useAppStore = defineStore("appStore", {
     userName: "",
     access_token: "",
     expires: "",
+    appInfo: {} as AppInfo,
   }),
   actions: {
+    async init() {
+      this.appInfo = await window.electronAPI.appInfo();
+    },
     login(response: LoginResponse) {
       this.userName = response.userName;
       this.access_token = response.access_token;
