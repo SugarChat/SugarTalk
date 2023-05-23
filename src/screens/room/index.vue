@@ -5,10 +5,11 @@
     <StatusBar :meeting-query="meetingQuery" />
 
     <UserPanel
+      :meeting-query="meetingQuery"
       :streams-list="streamsList"
       :remote-sound-level-list="remoteSoundLevelList"
     />
-    <Watermark text="Sugar Talk" />
+    <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" />
 
     <template v-if="videoStream">
       <div class="st-container">
@@ -31,7 +32,10 @@
 
     <Footer>
       <template #left>
-        <AudioManage :isMuted="isMuted" @update="updateMicMuteStatus" />
+        <AudioManage
+          :isMuted="meetingQuery.isMuted"
+          @update="updateMicMuteStatus"
+        />
         <!-- <VideoManage /> -->
       </template>
       <template #content>
@@ -44,7 +48,7 @@
         <Invite :meeting-query="meetingQuery" />
       </template>
       <template #right>
-        <LeaveRoom />
+        <LeaveRoom ref="leaveRoomRef" @on-confirm="leaveMeeting" />
       </template>
     </Footer>
   </div>
@@ -66,7 +70,7 @@ import Invite from "./components/invite/index.vue";
 import { useAction } from "./hooks";
 
 const {
-  isMuted,
+  leaveRoomRef,
   isShareScreen,
   meetingQuery,
   streamsList,
@@ -76,6 +80,7 @@ const {
   beforeStartShare,
   onStartShare,
   onStopShare,
+  leaveMeeting,
 } = useAction();
 </script>
 

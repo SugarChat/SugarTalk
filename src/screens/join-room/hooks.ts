@@ -13,7 +13,7 @@ export const useAction = () => {
 
   const state = reactive({
     audio: true,
-    microphone: true,
+    microphone: false,
     camera: false,
     roomId: "",
     userName: appStore.userName,
@@ -34,7 +34,9 @@ export const useAction = () => {
   const onJoinRoom = () => {
     formRef.value?.validate(async (valid) => {
       if (valid) {
-        navigation.close().navigate("/room", state);
+        navigation
+          .close()
+          .navigate("/room", { ...state, isMuted: !state.microphone });
 
         // const loading = ElLoading.service({ fullscreen: true });
         // try {
@@ -45,7 +47,7 @@ export const useAction = () => {
         //   if (code === 200) {
         //     navigation
         //       .close()
-        //       .navigate("/room", { ...state, meetingInfo: data });
+        //       .navigate("/room", { ...state, isMuted: !state.microphone });
         //   } else {
         //     ElMessage({
         //       offset: 36,

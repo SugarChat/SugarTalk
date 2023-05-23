@@ -27,9 +27,9 @@ export const useAction = () => {
       if (code === 200) {
         navigation.navigate("/room", {
           audio: settingsStore.enableMicrophone,
-          microphone: true,
+          isMuted: true,
           camera: false,
-          roomId: data?.roomId,
+          roomId: data?.meetingNumber,
           userName: appStore.userName,
         });
 
@@ -40,7 +40,7 @@ export const useAction = () => {
         // if (result?.code === 200) {
         //   navigation.navigate("/room", {
         //     audio: settingsStore.enableMicrophone,
-        //     microphone: true,
+        //     isMuted: true,
         //     camera: false,
         //     roomId: data?.roomId,
         //     userName: appStore.userName,

@@ -6,7 +6,9 @@
     </div>
     <div class="center"></div>
     <div class="right">
-      <MeetingDuration />
+      <template v-if="settingsStore.showMeetingDuration">
+        <MeetingDuration />
+      </template>
       <Fullscreen />
     </div>
   </div>
@@ -18,12 +20,15 @@ import MeetingInfo from "./components/meeting-info/index.vue";
 import MeetingDuration from "./components/meeting-duration/index.vue";
 import Fullscreen from "./components/fullscreen/index.vue";
 import { MeetingQuery } from "../../../../entity/types";
+import { useSettingsStore } from "../../../../stores/useSettingsStore";
 
 interface Props {
   meetingQuery: MeetingQuery;
 }
 
 const { meetingQuery } = defineProps<Props>();
+
+const settingsStore = useSettingsStore();
 </script>
 
 <style scoped lang="scss">

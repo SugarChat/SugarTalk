@@ -13,15 +13,6 @@ export interface LoginResponse {
   userName: string;
 }
 
-export interface MeetingSchedule {
-  startDate: number;
-  endDate: number;
-  mode: "mcu" | "legacy";
-  originAdress: string;
-  roomId: string;
-  roomStreamList: any[];
-}
-
 export interface UserSession {
   id: number;
   createdDate: string;
@@ -32,12 +23,13 @@ export interface UserSession {
 }
 
 export interface Meeting {
-  endDate: number;
   id: string;
+  startDate: number;
+  endDate: number;
+  meetingMasterUserId: number;
   meetingNumber: string;
   meetingStreamMode: number;
-  mode: string;
-  originAddress: string;
-  startDate: number;
+  mergedStream: string;
+  originAdress: string;
   userSessions: UserSession[];
 }

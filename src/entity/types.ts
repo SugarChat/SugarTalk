@@ -15,7 +15,7 @@ export interface StreamItem {
 
 export interface MeetingQuery {
   audio: boolean;
-  microphone: boolean;
+  isMuted: boolean;
   camera: boolean;
   roomId: string;
   userName: string;

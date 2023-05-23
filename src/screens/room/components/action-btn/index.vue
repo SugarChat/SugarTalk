@@ -1,6 +1,6 @@
 <template>
   <div class="box-item" @click="onClick">
-    <div :class="['box-icon', { disabled: disabled }]">
+    <div :class="['box-icon', { disabled }]">
       <i :class="['iconfont', icon]" />
     </div>
     <p class="title">{{ title }}</p>
@@ -8,6 +8,8 @@
 </template>
 
 <script setup lang="ts">
+import { toRefs } from "vue";
+
 interface Props {
   title: string;
   icon: string;
@@ -18,7 +20,9 @@ interface Emits {
   (event: "click"): void;
 }
 
-const { title, icon, disabled } = defineProps<Props>();
+const props = defineProps<Props>();
+
+const { title, icon, disabled } = toRefs(props);
 
 const emits = defineEmits<Emits>();
 

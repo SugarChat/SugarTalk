@@ -58,6 +58,7 @@ export interface IElectronAPI {
     options: Electron.MessageBoxSyncOptions,
     callback: () => void
   ) => Promise<void>;
+  blockClose: (callback: () => void) => void;
   closeToHide: () => void;
   execCommand: (command: string) => Promise<void>;
   ping: (addr: string, config?: PingConfig) => Promise<PingResponse>;

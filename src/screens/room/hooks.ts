@@ -1,9 +1,11 @@
-import { nextTick, onMounted, reactive, ref, toRef, watch } from "vue";
+import { nextTick, onMounted, reactive, ref, watch } from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
 import { MeetingQuery, ScreenSource, StreamItem } from "../../entity/types";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
-import { Meeting } from "../../entity/response";
+import { meetingJoinApi } from "../../services";
+import { useSettingsStore } from "../../stores/useSettingsStore";
+import { useNavigation } from "../../hooks/useNavigation";
 
 interface RoomInfo {
   maxTrackCount: number;
@@ -21,9 +23,24 @@ interface DataChannel {
 export const useAction = () => {
   const { query } = useRoute();
 
-  const meetingQuery = reactive<MeetingQuery>(query as any);
+  const settingsStore = useSettingsStore();
+
+  const navigation = useNavigation();
+
+  const meetingQuery = reactive<MeetingQuery>({
+    audio: query.audio === "true",
+    isMuted: query.isMuted === "true",
+    camera: query.camera === "true",
+    roomId: query.roomId as string,
+    userName: query.userName as string,
+  });
 
   const webRTCAdaptor = ref<WebRTCAdaptor>();
+
+  const leaveRoomRef = ref<{
+    open: () => boolean;
+    close: () => boolean;
+  }>();
 
   /**
    * 房间信息
@@ -49,11 +66,6 @@ export const useAction = () => {
    * 远程对等连接id
    */
   const streamIds = ref<string[]>([]);
-
-  /**
-   * 本地流是否静音状态
-   */
-  const isMuted = ref(false);
 
   /**
    * 是否共享屏幕
@@ -85,14 +97,47 @@ export const useAction = () => {
     }
 
     if (streamsList.value.length > 0) {
-      console.log("发送消息询问有没有人在分享屏幕");
+      // 发送消息询问有没有人在分享屏幕
     }
   });
 
+  /**
+   * 加入会议
+   */
+  const joinMeeting = async (streamId: string) => {
+    const { code, data, msg } = await meetingJoinApi({
+      meetingNumber: meetingQuery.roomId,
+      isMuted: meetingQuery.isMuted,
+      streamId,
+    });
+    if (code === 200) {
+    } else {
+      ElMessage({
+        offset: 28,
+        message: msg,
+        type: "error",
+      });
+    }
+  };
+
+  /**
+   * 离开会议
+   */
+  const leaveMeeting = () => {
+    webRTCAdaptor.value?.leaveFromRoom(meetingQuery.roomId);
+
+    if (roomInfo.value?.streamId) {
+      webRTCAdaptor.value?.stop(roomInfo.value.streamId);
+      webRTCAdaptor.value?.closePeerConnection(roomInfo.value.streamId);
+      webRTCAdaptor.value?.closeWebSocket();
+    }
+
+    navigation.destroy();
+  };
+
   const init = () => {
     webRTCAdaptor.value = new WebRTCAdaptor({
-      // websocket_url: "wss://talk.sjdistributors.com:5443/WebRTCAppEE/websocket",
-      websocket_url: "wss://talk.sjdistributors.com:5443/LiveApp/websocket",
+      websocket_url: settingsStore.websocketURL,
       debug: false,
       peerconnection_config: {
         iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
@@ -104,7 +149,7 @@ export const useAction = () => {
             /**
              * 加入房间
              */
-            webRTCAdaptor.value?.joinRoom("room12", "", "mcu");
+            webRTCAdaptor.value?.joinRoom(meetingQuery.roomId, "", "mcu");
             break;
           // 已加入房间回调
           case "joinedTheRoom":
@@ -120,12 +165,24 @@ export const useAction = () => {
               payload?.streamId
             );
 
+            // 判断初始化是否静音
+            updateMicMuteStatus(meetingQuery.isMuted);
+
             payload?.streams.forEach((streamId: string) => {
               /**
                * 播放远程流
                */
               webRTCAdaptor.value?.play(streamId, payload.room);
             });
+
+            // 获取一次房间信息
+            webRTCAdaptor.value?.getRoomInfo(
+              meetingQuery.roomId,
+              payload?.streamId
+            );
+
+            // 获取一次远程流的声级计
+            webRTCAdaptor.value?.getSoundLevelList(payload?.streams);
 
             streamIds.value = payload?.streams ?? [];
             break;
@@ -153,18 +210,20 @@ export const useAction = () => {
               return true;
             });
 
-            setInterval(() => {
+            setTimeout(() => {
               /**
                * 每隔3秒获取一次房间信息
                */
-              webRTCAdaptor.value?.getRoomInfo("room12", payload?.streamId);
+              webRTCAdaptor.value?.getRoomInfo(
+                meetingQuery.roomId,
+                roomInfo.value!.streamId
+              );
             }, 3000);
 
             streamIds.value = payload.streams;
             break;
           // 获取到新的远程流
           case "newStreamAvailable":
-            console.log("newStreamAvailable", payload.stream?.getTracks());
             /**
              * 启动远程流的声级计
              */
@@ -206,6 +265,7 @@ export const useAction = () => {
           // 获取远程流的声级计
           case "gotSoundList":
             remoteSoundLevelList.value = payload;
+            console.log("gotSoundList", payload);
 
             setTimeout(() => {
               webRTCAdaptor.value?.getSoundLevelList(streamIds.value);
@@ -222,7 +282,7 @@ export const useAction = () => {
    * @param status true: 静音, false: 取消静音
    */
   const updateMicMuteStatus = (status: boolean) => {
-    isMuted.value = status;
+    meetingQuery.isMuted = status;
     if (status) {
       webRTCAdaptor.value?.muteLocalMic();
     } else {
@@ -287,28 +347,21 @@ export const useAction = () => {
 
   onMounted(() => {
     nextTick(() => {
-      setTimeout(() => {
-        // init();
-      }, 2000);
+      init();
+      // setTimeout(() => {
+      // }, 2000);
     });
 
-    // window.electronAPI.onClose(
-    //   {
-    //     type: "info",
-    //     title: "离开会议",
-    //     message: "离开会议后，您仍可使用此会议号再次加入会议。",
-    //     buttons: ["离开会议", "取消"],
-    //     defaultId: 0,
-    //     cancelId: 1,
-    //   },
-    //   () => {
-    //     // 关闭窗口回调
-    //   }
-    // );
+    /**
+     * 阻止窗口关闭，唤起自定义关闭窗口
+     */
+    navigation.blockClose(() => {
+      leaveRoomRef.value?.open();
+    });
   });
 
   return {
-    isMuted,
+    leaveRoomRef,
     isShareScreen,
     meetingQuery,
     streamsList,
@@ -318,5 +371,6 @@ export const useAction = () => {
     beforeStartShare,
     onStartShare,
     onStopShare,
+    leaveMeeting,
   };
 };

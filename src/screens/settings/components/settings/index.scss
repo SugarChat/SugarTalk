@@ -1,0 +1,7 @@
+::v-deep(.el-form) {
+  .el-form-item {
+    .el-form-item__label {
+      color: var(--color-text-primary);
+    }
+  }
+}

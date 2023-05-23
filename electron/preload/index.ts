@@ -30,6 +30,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("close-win-with-dialog", options);
     ipcRenderer.on("onCloseWindow", callback);
   },
+  blockClose: (callback: () => void) => {
+    ipcRenderer.invoke("block-win-close");
+    ipcRenderer.on("onBlockWindowClose", callback);
+  },
   closeToHide: () => ipcRenderer.invoke("close-win-with-hide"),
   execCommand: (command: string) => ipcRenderer.invoke("execCommand", command),
   ping: (addr: string, config?: PingConfig) =>
