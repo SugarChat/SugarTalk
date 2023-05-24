@@ -48,7 +48,7 @@ import AudioManage from "./components/audio-manage/index.vue";
 
 const carousel = ref();
 
-const carouselItemName = ref("audio");
+const carouselItemName = ref("settings");
 
 const setActiveItem = (name: string) => {
   carousel.value?.setActiveItem(name);

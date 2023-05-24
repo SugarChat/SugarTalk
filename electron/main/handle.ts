@@ -54,6 +54,15 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle("block-win-close", () => {
+  const win = BrowserWindow.getAllWindows()?.[0];
+  win.on("close", (event) => {
+    event.preventDefault();
+    // 关闭窗口
+    win.webContents.send("onBlockWindowClose");
+  });
+});
+
 ipcMain.handle("close-win-with-hide", () => {
   const win = BrowserWindow.getAllWindows()?.[0];
   win.on("close", (event) => {

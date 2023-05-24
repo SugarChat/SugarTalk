@@ -2,13 +2,14 @@
   <Header borderBottom title="Sugar Talk会议" />
 
   <div class="container">
-    <StatusBar />
+    <StatusBar :meeting-query="meetingQuery" />
 
     <UserPanel
+      :meeting-query="meetingQuery"
       :streams-list="streamsList"
       :remote-sound-level-list="remoteSoundLevelList"
     />
-    <Watermark text="Sugar Talk" />
+    <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" />
 
     <template v-if="videoStream">
       <div class="st-container">
@@ -31,7 +32,10 @@
 
     <Footer>
       <template #left>
-        <AudioManage :isMuted="isMuted" @update="updateMicMuteStatus" />
+        <AudioManage
+          :isMuted="meetingQuery.isMuted"
+          @update="updateMicMuteStatus"
+        />
         <!-- <VideoManage /> -->
       </template>
       <template #content>
@@ -41,16 +45,16 @@
           @startShare="onStartShare"
           @stopShare="onStopShare"
         />
+        <Invite :meeting-query="meetingQuery" />
       </template>
       <template #right>
-        <LeaveRoom />
+        <LeaveRoom ref="leaveRoomRef" @on-confirm="leaveMeeting" />
       </template>
     </Footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
 import Header from "../../components/header/index.vue";
 import StatusBar from "./components/status-bar/index.vue";
 import UserPanel from "./components/user-panel/index.vue";
@@ -62,13 +66,13 @@ import Watermark from "../../components/watermark/index.vue";
 // import VideoManage from "./components/video-manage/index.vue";
 import AudioManage from "./components/audio-manage/index.vue";
 import ScreenShare from "./components/screen-share/index.vue";
+import Invite from "./components/invite/index.vue";
 import { useAction } from "./hooks";
 
-const { query } = useRoute();
-
 const {
-  isMuted,
+  leaveRoomRef,
   isShareScreen,
+  meetingQuery,
   streamsList,
   videoStream,
   remoteSoundLevelList,
@@ -76,6 +80,7 @@ const {
   beforeStartShare,
   onStartShare,
   onStopShare,
+  leaveMeeting,
 } = useAction();
 </script>
 

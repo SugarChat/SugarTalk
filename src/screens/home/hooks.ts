@@ -25,25 +25,34 @@ export const useAction = () => {
         meetingStreamMode: 0,
       });
       if (code === 200) {
-        const result = await meetingJoinApi({
-          meetingNumber: data?.roomId,
-          isMuted: !settingsStore.enableMicrophone,
+        navigation.navigate("/room", {
+          audio: settingsStore.enableMicrophone,
+          isMuted: true,
+          camera: false,
+          roomId: data?.meetingNumber,
+          userName: appStore.userName,
         });
-        if (result?.code === 200) {
-          navigation.navigate("/room", {
-            audio: settingsStore.enableMicrophone,
-            microphone: true,
-            camera: false,
-            roomId: data?.roomId,
-            userName: appStore.userName,
-          });
-        } else {
-          ElMessage({
-            offset: 50,
-            message: result.msg,
-            type: "error",
-          });
-        }
+
+        // const result = await meetingJoinApi({
+        //   meetingNumber: data?.roomId,
+        //   isMuted: !settingsStore.enableMicrophone,
+        // });
+        // if (result?.code === 200) {
+        //   navigation.navigate("/room", {
+        //     audio: settingsStore.enableMicrophone,
+        //     isMuted: true,
+        //     camera: false,
+        //     roomId: data?.roomId,
+        //     userName: appStore.userName,
+        //     meetingInfo: result.data,
+        //   });
+        // } else {
+        //   ElMessage({
+        //     offset: 50,
+        //     message: result.msg,
+        //     type: "error",
+        //   });
+        // }
       } else {
         ElMessage({
           offset: 50,

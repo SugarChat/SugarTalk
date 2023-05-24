@@ -11,23 +11,42 @@
       </div>
     </template>
     <div class="meeting-info-container">
-      <p class="title">使命召唤的个人会议室</p>
+      <p class="title">***的个人会议室</p>
       <div class="info-item">
         <p class="info-label">会议号：</p>
-        <p>335 1774 4914</p>
+        <p>{{ meetingQuery?.roomId }}</p>
         <i class="iconfont icon-copy" @click="onCopy" />
       </div>
       <div class="info-item">
         <p class="info-label">主持人：</p>
-        <p>使命召唤</p>
+        <p>***</p>
       </div>
     </div>
   </el-popover>
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from "element-plus";
+import { MeetingQuery } from "../../../../../../entity/types";
+import { useAppStore } from "../../../../../../stores/useAppStore";
+
+interface Props {
+  meetingQuery: MeetingQuery;
+}
+
+const { meetingQuery } = defineProps<Props>();
+
+const appStore = useAppStore();
+
 const onCopy = () => {
-  window.clipboard.writeText("335 1774 4914");
+  window.clipboard.writeText(
+    `#${appStore.appInfo.name}：${meetingQuery.roomId}`
+  );
+  ElMessage({
+    offset: 28,
+    message: "会议号已复制到粘贴板",
+    type: "success",
+  });
 };
 </script>
 

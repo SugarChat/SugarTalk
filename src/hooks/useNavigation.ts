@@ -91,6 +91,11 @@ class Navigation {
     window.electronAPI.closeToHide();
     return this;
   }
+
+  blockClose(callback: () => void) {
+    window.electronAPI.blockClose(callback);
+    return this;
+  }
 }
 
 const navigation = new Navigation();

@@ -42,6 +42,11 @@ const onConfirm = () => {
   onClose();
   emits("onConfirm");
 };
+
+defineExpose({
+  open: onOpen,
+  close: onClose,
+});
 </script>
 
 <style lang="scss">

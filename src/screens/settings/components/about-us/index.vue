@@ -7,14 +7,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { AppInfo } from "../../../../renderer";
+import { useAppStore } from "../../../../stores/useAppStore";
+import { computed } from "vue";
 
-const appInfo = ref<AppInfo>();
+const appStore = useAppStore();
 
-onMounted(async () => {
-  appInfo.value = await window.electronAPI.appInfo();
-});
+const appInfo = computed(() => appStore.appInfo);
 </script>
 
 <style scoped lang="scss">
