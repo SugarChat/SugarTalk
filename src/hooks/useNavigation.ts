@@ -1,7 +1,7 @@
 import { BrowserWindowConstructorOptions } from "../renderer";
 import { handlerPathParams } from "../utils/utils";
 
-type RoutePath = "/home" | "/settings" | "/join-room" | "/room";
+type RoutePath = "/home" | "/settings" | "/join-meeting" | "/meeting";
 
 class Navigation {
   navigate(
@@ -46,7 +46,7 @@ class Navigation {
           ...options,
         });
         break;
-      case "/join-room":
+      case "/join-meeting":
         window.electronAPI.createWindow(path, {
           width: 375,
           height: 667,
@@ -57,7 +57,7 @@ class Navigation {
           ...options,
         });
         break;
-      case "/room":
+      case "/meeting":
         window.electronAPI.createWindow(path, {
           width: 960,
           height: 640,

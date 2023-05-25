@@ -13,3 +13,7 @@ export interface MeetingCreateRequest {
 }
 
 export interface MeetingCreateResponse extends Meeting {}
+
+export interface GetMeetingInfoRequest {
+  meetingNumber: string;
+}

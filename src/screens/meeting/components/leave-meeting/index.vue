@@ -2,7 +2,7 @@
   <el-button type="danger" plain @click="onOpen">离开会议</el-button>
 
   <el-dialog
-    class="leave-room-dialog"
+    class="leave-meeting-dialog"
     v-model="visible"
     :append-to-body="true"
     :show-close="false"

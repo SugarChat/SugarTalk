@@ -14,7 +14,7 @@
       <p class="title">***的个人会议室</p>
       <div class="info-item">
         <p class="info-label">会议号：</p>
-        <p>{{ meetingQuery?.roomId }}</p>
+        <p>{{ meetingQuery?.meetingNumber }}</p>
         <i class="iconfont icon-copy" @click="onCopy" />
       </div>
       <div class="info-item">
@@ -40,7 +40,7 @@ const appStore = useAppStore();
 
 const onCopy = () => {
   window.clipboard.writeText(
-    `#${appStore.appInfo.name}：${meetingQuery.roomId}`
+    `#${appStore.appInfo.name}：${meetingQuery.meetingNumber}`
   );
   ElMessage({
     offset: 28,

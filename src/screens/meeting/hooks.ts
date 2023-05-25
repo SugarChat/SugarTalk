@@ -1,4 +1,4 @@
-import { nextTick, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
 import { MeetingQuery, ScreenSource, StreamItem } from "../../entity/types";
 import { ElMessage } from "element-plus";
@@ -6,8 +6,9 @@ import { useRoute } from "vue-router";
 import { meetingJoinApi } from "../../services";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useNavigation } from "../../hooks/useNavigation";
+import { MeetingStreamMode } from "../../entity/enum";
 
-interface RoomInfo {
+interface MeetingInfo {
   maxTrackCount: number;
   room: string;
   streamId: string;
@@ -31,13 +32,14 @@ export const useAction = () => {
     audio: query.audio === "true",
     isMuted: query.isMuted === "true",
     camera: query.camera === "true",
-    roomId: query.roomId as string,
+    meetingNumber: query.meetingNumber as string,
     userName: query.userName as string,
+    meetingStreamMode: query.meetingStreamMode as any,
   });
 
   const webRTCAdaptor = ref<WebRTCAdaptor>();
 
-  const leaveRoomRef = ref<{
+  const leaveMeetingRef = ref<{
     open: () => boolean;
     close: () => boolean;
   }>();
@@ -45,7 +47,7 @@ export const useAction = () => {
   /**
    * 房间信息
    */
-  const roomInfo = ref<RoomInfo>();
+  const meetingInfo = ref<MeetingInfo>();
 
   /**
    * 本地流
@@ -82,6 +84,10 @@ export const useAction = () => {
    */
   const remoteShareScreenStreamId = ref("");
 
+  const isMCU = computed(
+    () => meetingQuery.meetingStreamMode === MeetingStreamMode.MCU
+  );
+
   /**
    * 监听远程流共享屏幕 video轨道是否活动状态
    */
@@ -106,7 +112,7 @@ export const useAction = () => {
    */
   const joinMeeting = async (streamId: string) => {
     const { code, data, msg } = await meetingJoinApi({
-      meetingNumber: meetingQuery.roomId,
+      meetingNumber: meetingQuery.meetingNumber,
       isMuted: meetingQuery.isMuted,
       streamId,
     });
@@ -124,11 +130,11 @@ export const useAction = () => {
    * 离开会议
    */
   const leaveMeeting = () => {
-    webRTCAdaptor.value?.leaveFromRoom(meetingQuery.roomId);
+    webRTCAdaptor.value?.leaveFromRoom(meetingQuery.meetingNumber);
 
-    if (roomInfo.value?.streamId) {
-      webRTCAdaptor.value?.stop(roomInfo.value.streamId);
-      webRTCAdaptor.value?.closePeerConnection(roomInfo.value.streamId);
+    if (meetingInfo.value?.streamId) {
+      webRTCAdaptor.value?.stop(meetingInfo.value.streamId);
+      webRTCAdaptor.value?.closePeerConnection(meetingInfo.value.streamId);
       webRTCAdaptor.value?.closeWebSocket();
     }
 
@@ -149,11 +155,15 @@ export const useAction = () => {
             /**
              * 加入房间
              */
-            webRTCAdaptor.value?.joinRoom(meetingQuery.roomId, "", "mcu");
+            webRTCAdaptor.value?.joinRoom(
+              meetingQuery.meetingNumber,
+              "nDTaGZimKLqmXLtA",
+              isMCU ? "mcu" : "legacy"
+            );
             break;
           // 已加入房间回调
           case "joinedTheRoom":
-            roomInfo.value = payload;
+            meetingInfo.value = payload;
             /**
              * 发布本地流
              */
@@ -177,7 +187,7 @@ export const useAction = () => {
 
             // 获取一次房间信息
             webRTCAdaptor.value?.getRoomInfo(
-              meetingQuery.roomId,
+              meetingQuery.meetingNumber,
               payload?.streamId
             );
 
@@ -195,7 +205,7 @@ export const useAction = () => {
                 /**
                  * 播放新的远程流
                  */
-                webRTCAdaptor.value?.play(streamId, roomInfo.value!.room);
+                webRTCAdaptor.value?.play(streamId, meetingInfo.value!.room);
               }
             });
 
@@ -215,8 +225,8 @@ export const useAction = () => {
                * 每隔3秒获取一次房间信息
                */
               webRTCAdaptor.value?.getRoomInfo(
-                meetingQuery.roomId,
-                roomInfo.value!.streamId
+                meetingQuery.meetingNumber,
+                meetingInfo.value!.streamId
               );
             }, 3000);
 
@@ -246,7 +256,7 @@ export const useAction = () => {
           // dataChannel 信息回调
           case "data_received":
             const notificationEvent: DataChannel = JSON.parse(payload.data);
-            if (notificationEvent.streamId !== roomInfo.value!.streamId) {
+            if (notificationEvent.streamId !== meetingInfo.value!.streamId) {
               if (notificationEvent.eventType === "START_SHARE_SCREEN") {
                 remoteShareScreenStreamId.value = notificationEvent.streamId;
                 const newVideoTrack = streamsList.value
@@ -312,14 +322,14 @@ export const useAction = () => {
   const onStartShare = async (source: ScreenSource) => {
     isShareScreen.value = true;
     webRTCAdaptor.value?.sendData(
-      roomInfo.value!.streamId,
+      meetingInfo.value!.streamId,
       JSON.stringify({
         eventType: "START_SHARE_SCREEN",
-        streamId: roomInfo.value!.streamId,
+        streamId: meetingInfo.value!.streamId,
       })
     );
     await webRTCAdaptor.value?.startDesktopCapture(
-      roomInfo.value!.streamId,
+      meetingInfo.value!.streamId,
       source.id
     );
     if (localStream.value?.getVideoTracks()) {
@@ -336,32 +346,32 @@ export const useAction = () => {
     isShareScreen.value = false;
     videoStream.value = undefined;
     webRTCAdaptor.value?.sendData(
-      roomInfo.value!.streamId,
+      meetingInfo.value!.streamId,
       JSON.stringify({
         eventType: "END_SHARE_SCREEN",
-        streamId: roomInfo.value!.streamId,
+        streamId: meetingInfo.value!.streamId,
       })
     );
-    webRTCAdaptor.value?.stopDesktopCapture(roomInfo.value?.streamId!);
+    webRTCAdaptor.value?.stopDesktopCapture(meetingInfo.value?.streamId!);
   };
 
   onMounted(() => {
     nextTick(() => {
-      init();
-      // setTimeout(() => {
-      // }, 2000);
+      setTimeout(() => {
+        init();
+      }, 2000);
     });
 
     /**
      * 阻止窗口关闭，唤起自定义关闭窗口
      */
     navigation.blockClose(() => {
-      leaveRoomRef.value?.open();
+      leaveMeetingRef.value?.open();
     });
   });
 
   return {
-    leaveRoomRef,
+    leaveMeetingRef,
     isShareScreen,
     meetingQuery,
     streamsList,

@@ -13,9 +13,9 @@
   </Header>
   <div class="container">
     <div class="left">
-      <div class="room-btns">
-        <JoinBtn title="加入会议" icon="icon-add" @click="onJoinRoom" />
-        <JoinBtn title="快速会议" icon="icon-quick" @click="onQuickRoom" />
+      <div class="meeting-btns">
+        <JoinBtn title="加入会议" icon="icon-add" @click="onJoinMeeting" />
+        <JoinBtn title="快速会议" icon="icon-quick" @click="onQuickMeeting" />
       </div>
     </div>
   </div>
@@ -27,7 +27,7 @@ import UserInfo from "./components/user-info/index.vue";
 import JoinBtn from "./components/join-btn/index.vue";
 import { useAction } from "./hooks";
 
-const { onJoinRoom, onQuickRoom, gotoSettings, onLogout } = useAction();
+const { onJoinMeeting, onQuickMeeting, gotoSettings, onLogout } = useAction();
 </script>
 
 <style scoped lang="scss">

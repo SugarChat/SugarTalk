@@ -1,3 +1,5 @@
+import { MeetingStreamMode } from "./enum";
+
 export interface ScreenSource {
   appIcon: string;
   display_id: string;
@@ -17,6 +19,7 @@ export interface MeetingQuery {
   audio: boolean;
   isMuted: boolean;
   camera: boolean;
-  roomId: string;
+  meetingNumber: string;
   userName: string;
+  meetingStreamMode: MeetingStreamMode;
 }

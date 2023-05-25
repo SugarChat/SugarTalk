@@ -1,6 +1,7 @@
 import { ResponseResult } from "../../../entity/response";
 import { Api } from "../../api/api";
 import {
+  GetMeetingInfoRequest,
   MeetingCreateRequest,
   MeetingCreateResponse,
   MeetingJoinRequest,
@@ -27,4 +28,16 @@ export const meetingCreateApi = async (data: MeetingCreateRequest) =>
       "/Meeting/schedule",
       data
     )
+  ).data;
+
+/**
+ * 获取会议信息
+ * @param params GetMeetingInfoRequest
+ * @returns
+ */
+export const getMeetingInfo = async (params: GetMeetingInfoRequest) =>
+  (
+    await Api.get<ResponseResult<MeetingCreateResponse>>("/Meeting/get", {
+      params,
+    })
   ).data;
