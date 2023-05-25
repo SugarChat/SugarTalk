@@ -1,19 +1,30 @@
 import { Meeting } from "../../../entity/response";
 
-export interface MeetingJoinRequest {
+export interface JoinMeetingRequest {
   meetingNumber: string;
   isMuted: boolean;
   streamId: string;
 }
 
-export interface MeetingJoinResponse extends Meeting {}
+export interface JoinMeetingResponse extends Meeting {}
 
-export interface MeetingCreateRequest {
+export interface CreateMeetingRequest {
   meetingStreamMode: number;
 }
 
-export interface MeetingCreateResponse extends Meeting {}
+export interface CreateMeetingResponse extends Meeting {}
 
 export interface GetMeetingInfoRequest {
+  meetingNumber: string;
+}
+
+export interface GetMeetingInfoResponse extends Meeting {}
+
+export interface OutMeetingRequest {
+  meetingId: string;
+  streamId: string;
+}
+
+export interface EndMeetingRequest {
   meetingNumber: string;
 }

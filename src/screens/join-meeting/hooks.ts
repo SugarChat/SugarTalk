@@ -2,7 +2,7 @@ import { reactive, computed, ref } from "vue";
 import { useNavigation } from "../../hooks/useNavigation";
 import { useAppStore } from "../../stores/useAppStore";
 import { ElLoading, ElMessage, FormInstance, FormRules } from "element-plus";
-import { getMeetingInfo } from "../../services";
+import { getMeetingInfoApi } from "../../services";
 
 export const useAction = () => {
   const appStore = useAppStore();
@@ -38,7 +38,7 @@ export const useAction = () => {
       if (valid) {
         const loading = ElLoading.service({ fullscreen: true });
         try {
-          const { code, data, msg } = await getMeetingInfo({
+          const { code, data, msg } = await getMeetingInfoApi({
             meetingNumber: state.meetingNumber,
           });
           if (code === 200) {

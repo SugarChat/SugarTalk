@@ -23,3 +23,16 @@ export interface MeetingQuery {
   userName: string;
   meetingStreamMode: MeetingStreamMode;
 }
+
+export interface StreamInfo {
+  maxTrackCount: number;
+  room: string;
+  streamId: string;
+  streamList: string;
+  streams: string[];
+}
+
+export interface DataChannel {
+  eventType: string;
+  streamId: string;
+}

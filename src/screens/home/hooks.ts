@@ -1,7 +1,7 @@
 import { onMounted } from "vue";
 import { useAppStore } from "../../stores/useAppStore";
 import { useNavigation } from "../../hooks/useNavigation";
-import { meetingCreateApi, meetingJoinApi } from "../../services";
+import { createMeetingApi } from "../../services";
 import { ElLoading, ElMessage } from "element-plus";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { MeetingStreamMode } from "../../entity/enum";
@@ -23,7 +23,7 @@ export const useAction = () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
       const meetingStreamMode = MeetingStreamMode.MCU;
-      const { code, data, msg } = await meetingCreateApi({ meetingStreamMode });
+      const { code, data, msg } = await createMeetingApi({ meetingStreamMode });
       if (code === 200) {
         navigation.navigate("/meeting", {
           audio: settingsStore.enableMicrophone,

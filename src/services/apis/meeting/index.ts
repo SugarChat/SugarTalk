@@ -1,30 +1,33 @@
 import { ResponseResult } from "../../../entity/response";
 import { Api } from "../../api/api";
 import {
+  CreateMeetingRequest,
+  CreateMeetingResponse,
+  EndMeetingRequest,
   GetMeetingInfoRequest,
-  MeetingCreateRequest,
-  MeetingCreateResponse,
-  MeetingJoinRequest,
-  MeetingJoinResponse,
+  GetMeetingInfoResponse,
+  JoinMeetingRequest,
+  JoinMeetingResponse,
+  OutMeetingRequest,
 } from "./types";
 
 /**
  * 加入会议
- * @param data MeetingJoinRequest
- * @returns ResponseResult<MeetingJoinResponse>
+ * @param data JoinMeetingRequest
+ * @returns ResponseResult<JoinMeetingResponse>
  */
-export const meetingJoinApi = async (data: MeetingJoinRequest) =>
-  (await Api.post<ResponseResult<MeetingJoinResponse>>("/Meeting/join", data))
+export const joinMeetingApi = async (data: JoinMeetingRequest) =>
+  (await Api.post<ResponseResult<JoinMeetingResponse>>("/Meeting/join", data))
     .data;
 
 /**
  * 创建会议
- * @param data MeetingCreateRequest
- * @returns ResponseResult<MeetingCreateResponse>
+ * @param data CreateMeetingRequest
+ * @returns ResponseResult<CreateMeetingResponse>
  */
-export const meetingCreateApi = async (data: MeetingCreateRequest) =>
+export const createMeetingApi = async (data: CreateMeetingRequest) =>
   (
-    await Api.post<ResponseResult<MeetingCreateResponse>>(
+    await Api.post<ResponseResult<CreateMeetingResponse>>(
       "/Meeting/schedule",
       data
     )
@@ -33,11 +36,27 @@ export const meetingCreateApi = async (data: MeetingCreateRequest) =>
 /**
  * 获取会议信息
  * @param params GetMeetingInfoRequest
- * @returns
+ * @returns ResponseResult<GetMeetingInfoResponse>
  */
-export const getMeetingInfo = async (params: GetMeetingInfoRequest) =>
+export const getMeetingInfoApi = async (params: GetMeetingInfoRequest) =>
   (
-    await Api.get<ResponseResult<MeetingCreateResponse>>("/Meeting/get", {
+    await Api.get<ResponseResult<GetMeetingInfoResponse>>("/Meeting/get", {
       params,
     })
   ).data;
+
+/**
+ * 退出会议
+ * @param data OutMeetingRequest
+ * @returns
+ */
+export const outMeetingApi = async (data: OutMeetingRequest) =>
+  (await Api.post("/Meeting/out", data)).data;
+
+/**
+ * 结束会议
+ * @param data EndMeetingRequest
+ * @returns
+ */
+export const endMeetingApi = async (data: EndMeetingRequest) =>
+  (await Api.post("/Meeting/end", data)).data;

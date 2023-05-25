@@ -1,25 +1,18 @@
 import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
-import { MeetingQuery, ScreenSource, StreamItem } from "../../entity/types";
+import {
+  DataChannel,
+  MeetingQuery,
+  ScreenSource,
+  StreamInfo,
+  StreamItem,
+} from "../../entity/types";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
-import { meetingJoinApi } from "../../services";
+import { joinMeetingApi } from "../../services";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useNavigation } from "../../hooks/useNavigation";
 import { MeetingStreamMode } from "../../entity/enum";
-
-interface MeetingInfo {
-  maxTrackCount: number;
-  room: string;
-  streamId: string;
-  streamList: string;
-  streams: string[];
-}
-
-interface DataChannel {
-  eventType: string;
-  streamId: string;
-}
 
 export const useAction = () => {
   const { query } = useRoute();
@@ -47,7 +40,7 @@ export const useAction = () => {
   /**
    * 房间信息
    */
-  const meetingInfo = ref<MeetingInfo>();
+  const streamInfo = ref<StreamInfo>();
 
   /**
    * 本地流
@@ -111,7 +104,7 @@ export const useAction = () => {
    * 加入会议
    */
   const joinMeeting = async (streamId: string) => {
-    const { code, data, msg } = await meetingJoinApi({
+    const { code, data, msg } = await joinMeetingApi({
       meetingNumber: meetingQuery.meetingNumber,
       isMuted: meetingQuery.isMuted,
       streamId,
@@ -132,9 +125,9 @@ export const useAction = () => {
   const leaveMeeting = () => {
     webRTCAdaptor.value?.leaveFromRoom(meetingQuery.meetingNumber);
 
-    if (meetingInfo.value?.streamId) {
-      webRTCAdaptor.value?.stop(meetingInfo.value.streamId);
-      webRTCAdaptor.value?.closePeerConnection(meetingInfo.value.streamId);
+    if (streamInfo.value?.streamId) {
+      webRTCAdaptor.value?.stop(streamInfo.value.streamId);
+      webRTCAdaptor.value?.closePeerConnection(streamInfo.value.streamId);
       webRTCAdaptor.value?.closeWebSocket();
     }
 
@@ -157,13 +150,13 @@ export const useAction = () => {
              */
             webRTCAdaptor.value?.joinRoom(
               meetingQuery.meetingNumber,
-              "nDTaGZimKLqmXLtA",
+              "",
               isMCU ? "mcu" : "legacy"
             );
             break;
           // 已加入房间回调
           case "joinedTheRoom":
-            meetingInfo.value = payload;
+            streamInfo.value = payload;
             /**
              * 发布本地流
              */
@@ -205,7 +198,7 @@ export const useAction = () => {
                 /**
                  * 播放新的远程流
                  */
-                webRTCAdaptor.value?.play(streamId, meetingInfo.value!.room);
+                webRTCAdaptor.value?.play(streamId, streamInfo.value!.room);
               }
             });
 
@@ -226,7 +219,7 @@ export const useAction = () => {
                */
               webRTCAdaptor.value?.getRoomInfo(
                 meetingQuery.meetingNumber,
-                meetingInfo.value!.streamId
+                streamInfo.value!.streamId
               );
             }, 3000);
 
@@ -256,7 +249,7 @@ export const useAction = () => {
           // dataChannel 信息回调
           case "data_received":
             const notificationEvent: DataChannel = JSON.parse(payload.data);
-            if (notificationEvent.streamId !== meetingInfo.value!.streamId) {
+            if (notificationEvent.streamId !== streamInfo.value!.streamId) {
               if (notificationEvent.eventType === "START_SHARE_SCREEN") {
                 remoteShareScreenStreamId.value = notificationEvent.streamId;
                 const newVideoTrack = streamsList.value
@@ -322,14 +315,14 @@ export const useAction = () => {
   const onStartShare = async (source: ScreenSource) => {
     isShareScreen.value = true;
     webRTCAdaptor.value?.sendData(
-      meetingInfo.value!.streamId,
+      streamInfo.value!.streamId,
       JSON.stringify({
         eventType: "START_SHARE_SCREEN",
-        streamId: meetingInfo.value!.streamId,
+        streamId: streamInfo.value!.streamId,
       })
     );
     await webRTCAdaptor.value?.startDesktopCapture(
-      meetingInfo.value!.streamId,
+      streamInfo.value!.streamId,
       source.id
     );
     if (localStream.value?.getVideoTracks()) {
@@ -346,13 +339,13 @@ export const useAction = () => {
     isShareScreen.value = false;
     videoStream.value = undefined;
     webRTCAdaptor.value?.sendData(
-      meetingInfo.value!.streamId,
+      streamInfo.value!.streamId,
       JSON.stringify({
         eventType: "END_SHARE_SCREEN",
-        streamId: meetingInfo.value!.streamId,
+        streamId: streamInfo.value!.streamId,
       })
     );
-    webRTCAdaptor.value?.stopDesktopCapture(meetingInfo.value?.streamId!);
+    webRTCAdaptor.value?.stopDesktopCapture(streamInfo.value?.streamId!);
   };
 
   onMounted(() => {
