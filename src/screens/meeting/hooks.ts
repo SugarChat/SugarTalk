@@ -7,12 +7,19 @@ import {
   StreamInfo,
   StreamItem,
 } from "../../entity/types";
-import { ElMessage } from "element-plus";
+import { ElLoading, ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
-import { joinMeetingApi } from "../../services";
+import {
+  audioChangeApi,
+  getMeetingInfoApi,
+  joinMeetingApi,
+  outMeetingApi,
+  screenShareApi,
+} from "../../services";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useNavigation } from "../../hooks/useNavigation";
 import { MeetingStreamMode } from "../../entity/enum";
+import { Meeting, UserSession } from "../../entity/response";
 
 export const useAction = () => {
   const { query } = useRoute();
@@ -21,14 +28,21 @@ export const useAction = () => {
 
   const navigation = useNavigation();
 
+  /**
+   * 路由参数
+   */
   const meetingQuery = reactive<MeetingQuery>({
     audio: query.audio === "true",
     isMuted: query.isMuted === "true",
     camera: query.camera === "true",
     meetingNumber: query.meetingNumber as string,
     userName: query.userName as string,
-    meetingStreamMode: query.meetingStreamMode as any,
+    meetingStreamMode: +(query.meetingStreamMode as any),
   });
+
+  const meetingInfo = ref<Meeting>({} as Meeting);
+
+  const currentUserSession = ref<UserSession>({} as UserSession);
 
   const webRTCAdaptor = ref<WebRTCAdaptor>();
 
@@ -40,7 +54,7 @@ export const useAction = () => {
   /**
    * 房间信息
    */
-  const streamInfo = ref<StreamInfo>();
+  const streamInfo = ref<StreamInfo>({} as StreamInfo);
 
   /**
    * 本地流
@@ -81,6 +95,16 @@ export const useAction = () => {
     () => meetingQuery.meetingStreamMode === MeetingStreamMode.MCU
   );
 
+  const currentShareUser = computed(() =>
+    meetingInfo.value?.userSessions?.find((user) => user.isSharingScreen)
+  );
+
+  watch([currentShareUser], () => {
+    if (currentShareUser) {
+      console.log({ currentShareUser });
+    }
+  });
+
   /**
    * 监听远程流共享屏幕 video轨道是否活动状态
    */
@@ -110,6 +134,8 @@ export const useAction = () => {
       streamId,
     });
     if (code === 200) {
+      meetingInfo.value = data.meeting;
+      currentUserSession.value = data.meeting?.userSessions?.[0];
     } else {
       ElMessage({
         offset: 28,
@@ -120,18 +146,104 @@ export const useAction = () => {
   };
 
   /**
-   * 离开会议
+   * 获取会议信息
    */
-  const leaveMeeting = () => {
-    webRTCAdaptor.value?.leaveFromRoom(meetingQuery.meetingNumber);
+  const getMeetingInfo = async () => {
+    const { code, data, msg } = await getMeetingInfoApi({
+      meetingNumber: meetingQuery.meetingNumber,
+    });
+    if (code === 200) {
+      meetingInfo.value = data;
+      setTimeout(() => {
+        getMeetingInfo();
+      }, 3000);
+    } else {
+      ElMessage({
+        offset: 28,
+        message: msg,
+        type: "error",
+      });
+    }
+  };
 
-    if (streamInfo.value?.streamId) {
-      webRTCAdaptor.value?.stop(streamInfo.value.streamId);
-      webRTCAdaptor.value?.closePeerConnection(streamInfo.value.streamId);
-      webRTCAdaptor.value?.closeWebSocket();
+  const joinMeetingAfter = () => {
+    /**
+     * 发布本地流
+     */
+    webRTCAdaptor.value?.publish(streamInfo.value!.streamId);
+
+    /**
+     * 本地流声级计
+     */
+    webRTCAdaptor.value?.enableAudioLevelForLocalStream(
+      streamInfo.value!.streamId
+    );
+
+    // 判断初始化是否静音
+    if (meetingQuery.isMuted) {
+      webRTCAdaptor.value?.muteLocalMic();
+    } else {
+      webRTCAdaptor.value?.unmuteLocalMic();
     }
 
-    navigation.destroy();
+    if (isMCU.value) {
+      /**
+       * 播放远程合并流
+       */
+      webRTCAdaptor.value?.play(
+        meetingInfo.value!.mergedStream,
+        streamInfo.value!.room
+      );
+
+      getMeetingInfo();
+    } else {
+      streamInfo.value?.streams.forEach((streamId: string) => {
+        /**
+         * 播放远程流
+         */
+        webRTCAdaptor.value?.play(streamId, streamInfo.value!.room);
+      });
+
+      // 获取房间信息
+      webRTCAdaptor.value?.getRoomInfo(
+        meetingQuery.meetingNumber,
+        streamInfo.value!.streamId
+      );
+
+      // 获取远程流的声级计
+      webRTCAdaptor.value?.getSoundLevelList(streamInfo.value!.streams);
+    }
+  };
+
+  /**
+   * 离开会议
+   */
+  const outMeeting = async () => {
+    await outMeetingApi({
+      meetingId: meetingInfo.value.id,
+      streamId: streamInfo.value.streamId,
+    });
+  };
+
+  /**
+   * 离开会议
+   */
+  const leaveMeeting = async () => {
+    const loading = ElLoading.service({ fullscreen: true });
+    try {
+      webRTCAdaptor.value?.leaveFromRoom(meetingQuery.meetingNumber);
+
+      if (streamInfo.value?.streamId) {
+        webRTCAdaptor.value?.stop(streamInfo.value.streamId);
+        webRTCAdaptor.value?.closePeerConnection(streamInfo.value.streamId);
+        webRTCAdaptor.value?.closeWebSocket();
+      }
+
+      await outMeeting();
+    } finally {
+      loading.close();
+      navigation.destroy();
+    }
   };
 
   const init = () => {
@@ -141,7 +253,7 @@ export const useAction = () => {
       peerconnection_config: {
         iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
       },
-      callback: (command: string, payload?: any) => {
+      callback: async (command: string, payload?: any) => {
         switch (command) {
           // 已初始化完成
           case "initialized":
@@ -157,37 +269,11 @@ export const useAction = () => {
           // 已加入房间回调
           case "joinedTheRoom":
             streamInfo.value = payload;
-            /**
-             * 发布本地流
-             */
-            webRTCAdaptor.value?.publish(payload?.streamId);
-            /**
-             * 本地流声级计
-             */
-            webRTCAdaptor.value?.enableAudioLevelForLocalStream(
-              payload?.streamId
-            );
+            streamIds.value = payload.streams ?? [];
 
-            // 判断初始化是否静音
-            updateMicMuteStatus(meetingQuery.isMuted);
+            await joinMeeting(payload.streamId);
 
-            payload?.streams.forEach((streamId: string) => {
-              /**
-               * 播放远程流
-               */
-              webRTCAdaptor.value?.play(streamId, payload.room);
-            });
-
-            // 获取一次房间信息
-            webRTCAdaptor.value?.getRoomInfo(
-              meetingQuery.meetingNumber,
-              payload?.streamId
-            );
-
-            // 获取一次远程流的声级计
-            webRTCAdaptor.value?.getSoundLevelList(payload?.streams);
-
-            streamIds.value = payload?.streams ?? [];
+            joinMeetingAfter();
             break;
           // 获取房间信息回调
           case "roomInformation":
@@ -268,7 +354,6 @@ export const useAction = () => {
           // 获取远程流的声级计
           case "gotSoundList":
             remoteSoundLevelList.value = payload;
-            console.log("gotSoundList", payload);
 
             setTimeout(() => {
               webRTCAdaptor.value?.getSoundLevelList(streamIds.value);
@@ -276,7 +361,14 @@ export const useAction = () => {
             break;
         }
       },
-      callbackError: () => {},
+      callbackError: (command: string, payload?: any) => {
+        const message = payload?.definition;
+        ElMessage({
+          offset: 28,
+          message,
+          type: "error",
+        });
+      },
     });
   };
 
@@ -284,12 +376,25 @@ export const useAction = () => {
    * 本地麦克风静音/取消静音
    * @param status true: 静音, false: 取消静音
    */
-  const updateMicMuteStatus = (status: boolean) => {
+  const updateMicMuteStatus = async (status: boolean) => {
     meetingQuery.isMuted = status;
-    if (status) {
-      webRTCAdaptor.value?.muteLocalMic();
+    const { code, msg } = await audioChangeApi({
+      meetingUserSessionId: currentUserSession.value.id,
+      streamId: streamInfo.value.streamId,
+      isMuted: status,
+    });
+    if (code === 200) {
+      if (status) {
+        webRTCAdaptor.value?.muteLocalMic();
+      } else {
+        webRTCAdaptor.value?.unmuteLocalMic();
+      }
     } else {
-      webRTCAdaptor.value?.unmuteLocalMic();
+      ElMessage({
+        offset: 28,
+        message: msg,
+        type: "error",
+      });
     }
   };
 
@@ -330,12 +435,17 @@ export const useAction = () => {
         ...localStream.value?.getVideoTracks(),
       ]);
     }
+    await screenShareApi({
+      meetingUserSessionId: currentUserSession.value.id,
+      streamId: streamInfo.value.streamId,
+      isShared: true,
+    });
   };
 
   /**
    * 停止分享屏幕
    */
-  const onStopShare = () => {
+  const onStopShare = async () => {
     isShareScreen.value = false;
     videoStream.value = undefined;
     webRTCAdaptor.value?.sendData(
@@ -346,6 +456,11 @@ export const useAction = () => {
       })
     );
     webRTCAdaptor.value?.stopDesktopCapture(streamInfo.value?.streamId!);
+    await screenShareApi({
+      meetingUserSessionId: currentUserSession.value.id,
+      streamId: streamInfo.value.streamId,
+      isShared: false,
+    });
   };
 
   onMounted(() => {
@@ -367,6 +482,7 @@ export const useAction = () => {
     leaveMeetingRef,
     isShareScreen,
     meetingQuery,
+    meetingInfo,
     streamsList,
     videoStream,
     remoteSoundLevelList,

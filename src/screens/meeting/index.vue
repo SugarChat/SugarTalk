@@ -7,6 +7,7 @@
     <UserPanel
       :meeting-query="meetingQuery"
       :streams-list="streamsList"
+      :meeting-info="meetingInfo"
       :remote-sound-level-list="remoteSoundLevelList"
     />
     <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" />
@@ -34,7 +35,7 @@
       <template #left>
         <AudioManage
           :isMuted="meetingQuery.isMuted"
-          @update="updateMicMuteStatus"
+          :update="updateMicMuteStatus"
         />
         <!-- <VideoManage /> -->
       </template>
@@ -73,6 +74,7 @@ const {
   leaveMeetingRef,
   isShareScreen,
   meetingQuery,
+  meetingInfo,
   streamsList,
   videoStream,
   remoteSoundLevelList,

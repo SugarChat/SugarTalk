@@ -60,3 +60,5 @@ open x-apple.systempreferences:com.apple.preference.security\?Privacy_Microphone
 open x-apple.systempreferences:com.apple.preference.security\?Privacy_Camera
 
 open x-apple.systempreferences:com.apple.preference.security\?Privacy_ScreenCapture
+
+vscode 的 appId com.microsoft.VSCode

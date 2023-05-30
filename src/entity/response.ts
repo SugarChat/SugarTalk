@@ -20,6 +20,7 @@ export interface UserSession {
   isSharingScreen: false;
   meetingId: string;
   userId: number;
+  userName: string;
 }
 
 export interface Meeting {

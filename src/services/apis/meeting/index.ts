@@ -1,6 +1,8 @@
 import { ResponseResult } from "../../../entity/response";
 import { Api } from "../../api/api";
 import {
+  AudioChangeRequest,
+  AudioChangeResponse,
   CreateMeetingRequest,
   CreateMeetingResponse,
   EndMeetingRequest,
@@ -9,6 +11,8 @@ import {
   JoinMeetingRequest,
   JoinMeetingResponse,
   OutMeetingRequest,
+  ScreenShareRequest,
+  ScreenShareResponse,
 } from "./types";
 
 /**
@@ -60,3 +64,29 @@ export const outMeetingApi = async (data: OutMeetingRequest) =>
  */
 export const endMeetingApi = async (data: EndMeetingRequest) =>
   (await Api.post("/Meeting/end", data)).data;
+
+/**
+ * 开关麦克风
+ * @param data
+ * @returns ResponseResult<AudioChangeResponse>
+ */
+export const audioChangeApi = async (data: AudioChangeRequest) =>
+  (
+    await Api.post<ResponseResult<AudioChangeResponse>>(
+      "/Meeting/audio/change",
+      data
+    )
+  ).data;
+
+/**
+ * 分享屏幕
+ * @param data ScreenShareRequest
+ * @returns ResponseResult<ScreenShareResponse>
+ */
+export const screenShareApi = async (data: ScreenShareRequest) =>
+  (
+    await Api.post<ResponseResult<ScreenShareResponse>>(
+      "/Meeting/screen/share",
+      data
+    )
+  ).data;
