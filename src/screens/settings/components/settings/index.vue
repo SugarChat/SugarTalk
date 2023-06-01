@@ -17,6 +17,12 @@
         >显示参会时长</Checkbox
       >
 
+      <Checkbox
+        :checked="settingsStore.openDevTools"
+        @change="(checked) => (settingsStore.openDevTools = checked)"
+        >开启 DevTools</Checkbox
+      >
+
       <el-divider />
 
       <el-form-item label="SOCKET连接" :required="true">

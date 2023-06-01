@@ -20,6 +20,7 @@
       <el-form-item label="您的名称" prop="userName">
         <el-input
           v-model="state.userName"
+          disabled
           placeholder="请输入您的名称"
           clearable
         />

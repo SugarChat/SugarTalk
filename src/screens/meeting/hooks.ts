@@ -42,8 +42,6 @@ export const useAction = () => {
 
   const meetingInfo = ref<Meeting>({} as Meeting);
 
-  const currentUserSession = ref<UserSession>({} as UserSession);
-
   const webRTCAdaptor = ref<WebRTCAdaptor>();
 
   const leaveMeetingRef = ref<{
@@ -86,43 +84,15 @@ export const useAction = () => {
    */
   const remoteSoundLevelList = ref<Record<string, number>>({});
 
-  /**
-   * 远程流共享屏幕streamId
-   */
-  const remoteShareScreenStreamId = ref("");
+  const currentUser = computed<UserSession | undefined>(() =>
+    meetingInfo.value?.userSessions?.find(
+      (user) => user.userName === meetingQuery.userName
+    )
+  );
 
   const isMCU = computed(
     () => meetingQuery.meetingStreamMode === MeetingStreamMode.MCU
   );
-
-  const currentShareUser = computed(() =>
-    meetingInfo.value?.userSessions?.find((user) => user.isSharingScreen)
-  );
-
-  watch([currentShareUser], () => {
-    if (currentShareUser) {
-      console.log({ currentShareUser });
-    }
-  });
-
-  /**
-   * 监听远程流共享屏幕 video轨道是否活动状态
-   */
-  watch([streamsList], () => {
-    const newVideoTrack = streamsList.value
-      .find((streams) => streams.streamId === remoteShareScreenStreamId.value)
-      ?.stream?.getVideoTracks()[0];
-    if (!isShareScreen.value) {
-      if (!newVideoTrack || (newVideoTrack && !newVideoTrack.enabled)) {
-        remoteShareScreenStreamId.value = "";
-        videoStream.value = undefined;
-      }
-    }
-
-    if (streamsList.value.length > 0) {
-      // 发送消息询问有没有人在分享屏幕
-    }
-  });
 
   /**
    * 加入会议
@@ -135,13 +105,40 @@ export const useAction = () => {
     });
     if (code === 200) {
       meetingInfo.value = data.meeting;
-      currentUserSession.value = data.meeting?.userSessions?.[0];
     } else {
       ElMessage({
         offset: 28,
         message: msg,
         type: "error",
       });
+    }
+  };
+
+  const getMeetingInfoAfter = (data: Meeting) => {
+    if (!isShareScreen.value) {
+      const currentShareUser = data.userSessions.find(
+        (user) => user.isSharingScreen
+      );
+      if (currentShareUser) {
+        if (isMCU.value) {
+          const newVideoTrack =
+            streamsList.value?.[0]?.stream?.getVideoTracks();
+          console.log(
+            1,
+            ...(streamsList.value?.[0]?.stream?.getTracks() ?? [])
+          );
+          if (newVideoTrack?.length > 0 && !videoStream.value) {
+            console.log(2);
+            videoStream.value = new MediaStream([
+              newVideoTrack[newVideoTrack.length - 1],
+            ]);
+          }
+        } else {
+        }
+      } else {
+        console.log(3, ...(streamsList.value?.[0]?.stream?.getTracks() ?? []));
+        videoStream.value = undefined;
+      }
     }
   };
 
@@ -154,6 +151,7 @@ export const useAction = () => {
     });
     if (code === 200) {
       meetingInfo.value = data;
+      getMeetingInfoAfter(data);
       setTimeout(() => {
         getMeetingInfo();
       }, 3000);
@@ -166,7 +164,7 @@ export const useAction = () => {
     }
   };
 
-  const joinMeetingAfter = () => {
+  const joinMeetingAfter = async () => {
     /**
      * 发布本地流
      */
@@ -187,15 +185,17 @@ export const useAction = () => {
     }
 
     if (isMCU.value) {
+      await getMeetingInfo();
+
       /**
        * 播放远程合并流
        */
-      webRTCAdaptor.value?.play(
-        meetingInfo.value!.mergedStream,
-        streamInfo.value!.room
-      );
-
-      getMeetingInfo();
+      setTimeout(() => {
+        webRTCAdaptor.value?.play(
+          meetingInfo.value!.mergedStream,
+          streamInfo.value!.room
+        );
+      }, 6000);
     } else {
       streamInfo.value?.streams.forEach((streamId: string) => {
         /**
@@ -313,6 +313,7 @@ export const useAction = () => {
             break;
           // 获取到新的远程流
           case "newStreamAvailable":
+            console.log("newStreamAvailable", ...payload.stream?.getTracks());
             /**
              * 启动远程流的声级计
              */
@@ -331,25 +332,6 @@ export const useAction = () => {
           // 本地流回调
           case "localStream":
             localStream.value = payload;
-            break;
-          // dataChannel 信息回调
-          case "data_received":
-            const notificationEvent: DataChannel = JSON.parse(payload.data);
-            if (notificationEvent.streamId !== streamInfo.value!.streamId) {
-              if (notificationEvent.eventType === "START_SHARE_SCREEN") {
-                remoteShareScreenStreamId.value = notificationEvent.streamId;
-                const newVideoTrack = streamsList.value
-                  .find(
-                    (streams) => streams.streamId === notificationEvent.streamId
-                  )
-                  ?.stream?.getVideoTracks()[0];
-                newVideoTrack &&
-                  (videoStream.value = new MediaStream([newVideoTrack]));
-              } else if (notificationEvent.eventType === "END_SHARE_SCREEN") {
-                remoteShareScreenStreamId.value = "";
-                videoStream.value = undefined;
-              }
-            }
             break;
           // 获取远程流的声级计
           case "gotSoundList":
@@ -379,7 +361,7 @@ export const useAction = () => {
   const updateMicMuteStatus = async (status: boolean) => {
     meetingQuery.isMuted = status;
     const { code, msg } = await audioChangeApi({
-      meetingUserSessionId: currentUserSession.value.id,
+      meetingUserSessionId: currentUser.value!.id,
       streamId: streamInfo.value.streamId,
       isMuted: status,
     });
@@ -403,7 +385,10 @@ export const useAction = () => {
    * @returns boolean true：阻止弹窗
    */
   const beforeStartShare = () => {
-    if (remoteShareScreenStreamId.value) {
+    const isShared = meetingInfo.value?.userSessions?.some(
+      (user) => user.isSharingScreen
+    );
+    if (isShared) {
       ElMessage({
         message: "他人正在共享，此时无法发起共享",
         type: "warning",
@@ -419,13 +404,6 @@ export const useAction = () => {
    */
   const onStartShare = async (source: ScreenSource) => {
     isShareScreen.value = true;
-    webRTCAdaptor.value?.sendData(
-      streamInfo.value!.streamId,
-      JSON.stringify({
-        eventType: "START_SHARE_SCREEN",
-        streamId: streamInfo.value!.streamId,
-      })
-    );
     await webRTCAdaptor.value?.startDesktopCapture(
       streamInfo.value!.streamId,
       source.id
@@ -436,7 +414,7 @@ export const useAction = () => {
       ]);
     }
     await screenShareApi({
-      meetingUserSessionId: currentUserSession.value.id,
+      meetingUserSessionId: currentUser.value!.id,
       streamId: streamInfo.value.streamId,
       isShared: true,
     });
@@ -448,16 +426,9 @@ export const useAction = () => {
   const onStopShare = async () => {
     isShareScreen.value = false;
     videoStream.value = undefined;
-    webRTCAdaptor.value?.sendData(
-      streamInfo.value!.streamId,
-      JSON.stringify({
-        eventType: "END_SHARE_SCREEN",
-        streamId: streamInfo.value!.streamId,
-      })
-    );
     webRTCAdaptor.value?.stopDesktopCapture(streamInfo.value?.streamId!);
     await screenShareApi({
-      meetingUserSessionId: currentUserSession.value.id,
+      meetingUserSessionId: currentUser.value!.id,
       streamId: streamInfo.value.streamId,
       isShared: false,
     });
@@ -465,9 +436,9 @@ export const useAction = () => {
 
   onMounted(() => {
     nextTick(() => {
-      setTimeout(() => {
-        init();
-      }, 2000);
+      init();
+      // setTimeout(() => {
+      // }, 2000);
     });
 
     /**

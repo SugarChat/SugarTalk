@@ -1,4 +1,5 @@
 import { ScreenSource } from "./entity/types";
+import { BrowserWindowConstructorOptions as BrowserWindowOptions } from "electron";
 
 export interface CurrentWindow {
   close: () => Promise<void>;
@@ -13,8 +14,9 @@ interface AppInfo {
 }
 
 interface BrowserWindowConstructorOptions
-  extends Omit<Electron.BrowserWindowConstructorOptions, "parent"> {
+  extends Omit<BrowserWindowOptions, "parent"> {
   parent?: boolean;
+  openDevTools?: boolean;
 }
 
 interface PingConfig {

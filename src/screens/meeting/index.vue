@@ -10,12 +10,12 @@
       :meeting-info="meetingInfo"
       :remote-sound-level-list="remoteSoundLevelList"
     />
-    <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" />
+    <!-- <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" /> -->
 
     <template v-if="videoStream">
       <div class="st-container">
         <Player :stream="videoStream" />
-        <UserList />
+        <UserList :meeting-info="meetingInfo" />
       </div>
     </template>
 

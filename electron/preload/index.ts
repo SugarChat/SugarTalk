@@ -4,17 +4,19 @@ import {
   contextBridge,
   ipcRenderer,
 } from "electron";
-import { CurrentWindow, PingConfig } from "../../src/renderer";
+import {
+  BrowserWindowConstructorOptions,
+  CurrentWindow,
+  PingConfig,
+} from "../../src/renderer";
 import { ScreenSource } from "../../src/entity/types";
 
 contextBridge.exposeInMainWorld("electronAPI", {
   platform: () => ipcRenderer.invoke("getPlatform"),
   appInfo: () => ipcRenderer.invoke("getAppInfo"),
   openMainWindow: () => ipcRenderer.invoke("open-main-win"),
-  createWindow: (
-    path: string,
-    options: Electron.BrowserWindowConstructorOptions = {}
-  ) => ipcRenderer.invoke("open-win", path, options),
+  createWindow: (path: string, options: BrowserWindowConstructorOptions = {}) =>
+    ipcRenderer.invoke("open-win", path, options),
   getCurrentWindow: (): CurrentWindow => ({
     close: () => ipcRenderer.invoke("close-window"),
     destroy: () => ipcRenderer.invoke("destroy-window"),

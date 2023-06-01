@@ -1,4 +1,5 @@
 import { BrowserWindowConstructorOptions } from "../renderer";
+import { useSettingsStore } from "../stores/useSettingsStore";
 import { handlerPathParams } from "../utils/utils";
 
 type RoutePath = "/home" | "/settings" | "/join-meeting" | "/meeting";
@@ -26,6 +27,7 @@ class Navigation {
             x: 12,
             y: 16,
           },
+          openDevTools: useSettingsStore().openDevTools,
           ...options,
         });
         break;
@@ -43,6 +45,7 @@ class Navigation {
             x: 12,
             y: 16,
           },
+          openDevTools: useSettingsStore().openDevTools,
           ...options,
         });
         break;
@@ -54,6 +57,7 @@ class Navigation {
           resizable: false,
           maximizable: false,
           useContentSize: true,
+          openDevTools: useSettingsStore().openDevTools,
           ...options,
         });
         break;
@@ -65,6 +69,7 @@ class Navigation {
           minHeight: 640,
           useContentSize: true,
           titleBarStyle: "hidden",
+          openDevTools: useSettingsStore().openDevTools,
           ...options,
         });
         break;
