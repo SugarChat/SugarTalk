@@ -7,13 +7,13 @@
     <el-scrollbar>
       <div class="user-box-list">
         <div
-          v-for="item in 6"
-          :key="item"
-          :class="['user-box', item === 3 && 'active']"
+          v-for="user in meetingInfo.userSessions"
+          :key="user.id"
+          :class="['user-box', 'active']"
         >
-          <Avatar :size="40" />
+          <Avatar :size="40" :name="user.userName" />
           <div class="user-box-footer">
-            <p class="nickname">使命召唤</p>
+            <p class="nickname">{{ user.userName }}</p>
           </div>
         </div>
       </div>
@@ -29,8 +29,18 @@
 import { ref } from "vue";
 import { useDraggResize } from "./hooks";
 import Avatar from "../../../../components/avatar/index.vue";
+import { Meeting } from "../../../../entity/response";
+import { toRefs } from "vue";
+
+interface Props {
+  meetingInfo: Meeting;
+}
 
 const { width, target, handle } = useDraggResize();
+
+const props = defineProps<Props>();
+
+const { meetingInfo } = toRefs(props);
 
 const isExpand = ref(false);
 

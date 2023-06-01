@@ -1,9 +1,10 @@
 import { onMounted } from "vue";
 import { useAppStore } from "../../stores/useAppStore";
 import { useNavigation } from "../../hooks/useNavigation";
-import { meetingCreateApi, meetingJoinApi } from "../../services";
+import { createMeetingApi } from "../../services";
 import { ElLoading, ElMessage } from "element-plus";
 import { useSettingsStore } from "../../stores/useSettingsStore";
+import { MeetingStreamMode } from "../../entity/enum";
 
 export const useAction = () => {
   const appStore = useAppStore();
@@ -16,43 +17,22 @@ export const useAction = () => {
     navigation.closeToHide();
   });
 
-  const onJoinRoom = () => navigation.navigate("/join-room");
+  const onJoinMeeting = () => navigation.navigate("/join-meeting");
 
-  const onQuickRoom = async () => {
+  const onQuickMeeting = async () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
-      const { code, data, msg } = await meetingCreateApi({
-        meetingStreamMode: 0,
-      });
+      const meetingStreamMode = MeetingStreamMode.MCU;
+      const { code, data, msg } = await createMeetingApi({ meetingStreamMode });
       if (code === 200) {
-        navigation.navigate("/room", {
+        navigation.navigate("/meeting", {
           audio: settingsStore.enableMicrophone,
           isMuted: true,
           camera: false,
-          roomId: data?.meetingNumber,
+          meetingNumber: data?.meetingNumber,
           userName: appStore.userName,
+          meetingStreamMode,
         });
-
-        // const result = await meetingJoinApi({
-        //   meetingNumber: data?.roomId,
-        //   isMuted: !settingsStore.enableMicrophone,
-        // });
-        // if (result?.code === 200) {
-        //   navigation.navigate("/room", {
-        //     audio: settingsStore.enableMicrophone,
-        //     isMuted: true,
-        //     camera: false,
-        //     roomId: data?.roomId,
-        //     userName: appStore.userName,
-        //     meetingInfo: result.data,
-        //   });
-        // } else {
-        //   ElMessage({
-        //     offset: 50,
-        //     message: result.msg,
-        //     type: "error",
-        //   });
-        // }
       } else {
         ElMessage({
           offset: 50,
@@ -73,8 +53,8 @@ export const useAction = () => {
   };
 
   return {
-    onJoinRoom,
-    onQuickRoom,
+    onJoinMeeting,
+    onQuickMeeting,
     gotoSettings,
     onLogout,
   };

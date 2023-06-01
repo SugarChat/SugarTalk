@@ -3,6 +3,7 @@ import { release } from "node:os";
 import { join } from "node:path";
 import { getNewWindowPoint } from "./utils";
 import "./handle";
+import { BrowserWindowConstructorOptions } from "../../src/renderer";
 
 // The built directory structure
 //
@@ -133,7 +134,7 @@ ipcMain.handle("open-main-win", () => {
 // New window example arg: new windows url
 ipcMain.handle(
   "open-win",
-  (_, arg, options: Electron.BrowserWindowConstructorOptions) => {
+  (_, arg, options: BrowserWindowConstructorOptions) => {
     const parentWin = BrowserWindow.getFocusedWindow();
 
     const point = getNewWindowPoint(
@@ -172,6 +173,9 @@ ipcMain.handle(
       childWin.webContents.openDevTools();
     } else {
       childWin.loadFile(indexHtml, { hash: arg });
+      if (options?.openDevTools) {
+        childWin.webContents.openDevTools();
+      }
     }
   }
 );

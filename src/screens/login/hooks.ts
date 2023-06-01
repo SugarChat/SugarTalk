@@ -34,7 +34,7 @@ export const useAction = () => {
     errorDescription.value = "";
     formRef.value?.validate((valid) => {
       if (valid) {
-        const loadingInstance = ElLoading.service({ fullscreen: true });
+        const loading = ElLoading.service({ fullscreen: true });
         LoginApi(userinfo)
           .then((response) => {
             if (response?.access_token) {
@@ -46,7 +46,7 @@ export const useAction = () => {
             errorDescription.value = error?.toString();
           })
           .finally(() => {
-            loadingInstance.close();
+            loading.close();
           });
       }
     });

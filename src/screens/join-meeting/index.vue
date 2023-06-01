@@ -8,9 +8,9 @@
       size="large"
       :rules="rules"
     >
-      <el-form-item label="会议号" prop="roomId">
+      <el-form-item label="会议号" prop="meetingNumber">
         <el-input
-          v-model="state.roomId"
+          v-model="state.meetingNumber"
           placeholder="请输入会议号"
           clearable
           :maxlength="5"
@@ -20,6 +20,7 @@
       <el-form-item label="您的名称" prop="userName">
         <el-input
           v-model="state.userName"
+          disabled
           placeholder="请输入您的名称"
           clearable
         />
@@ -37,7 +38,7 @@
         type="primary"
         size="large"
         :disabled="disabled"
-        @click="onJoinRoom"
+        @click="onJoinMeeting"
       >
         加入会议
       </el-button>
@@ -49,7 +50,7 @@
 import Header from "../../components/header/index.vue";
 import { useAction } from "./hooks";
 
-const { formRef, rules, state, disabled, onJoinRoom } = useAction();
+const { formRef, rules, state, disabled, onJoinMeeting } = useAction();
 </script>
 
 <style scoped lang="scss">

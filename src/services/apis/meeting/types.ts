@@ -1,15 +1,62 @@
-import { Meeting } from "../../../entity/response";
+import { Meeting, UserSession } from "../../../entity/response";
 
-export interface MeetingJoinRequest {
+interface Response {
+  dataId: number;
+  errorId: number;
+  message: string;
+  success: boolean;
+}
+
+export interface JoinMeetingRequest {
   meetingNumber: string;
   isMuted: boolean;
   streamId: string;
 }
 
-export interface MeetingJoinResponse extends Meeting {}
+export interface JoinMeetingResponse {
+  meeting: Meeting;
+  response: Response;
+}
 
-export interface MeetingCreateRequest {
+export interface CreateMeetingRequest {
   meetingStreamMode: number;
 }
 
-export interface MeetingCreateResponse extends Meeting {}
+export interface CreateMeetingResponse extends Meeting {}
+
+export interface GetMeetingInfoRequest {
+  meetingNumber: string;
+}
+
+export interface GetMeetingInfoResponse extends Meeting {}
+
+export interface OutMeetingRequest {
+  meetingId: string;
+  streamId: string;
+}
+
+export interface EndMeetingRequest {
+  meetingNumber: string;
+}
+
+export interface AudioChangeRequest {
+  meetingUserSessionId: number;
+  streamId: string;
+  isMuted: boolean;
+}
+
+export interface AudioChangeResponse {
+  response: Response;
+  meetingUserSession: UserSession[];
+}
+
+export interface ScreenShareRequest {
+  meetingUserSessionId: number;
+  streamId: string;
+  isShared: boolean;
+}
+
+export interface ScreenShareResponse {
+  response: Response;
+  meetingUserSession: UserSession[];
+}

@@ -10,7 +10,7 @@
     :show-close="false"
     :align-center="true"
   >
-    <Header :title="`会议号：${meetingQuery.roomId}`" borderBottom>
+    <Header :title="`会议号：${meetingQuery.meetingNumber}`" borderBottom>
       <template #right>
         <div class="invite-header">
           <div class="close-btn" @click="() => onToggle(false)">
@@ -25,7 +25,7 @@
       </div>
       <div class="invite-item">
         <p>会议号：</p>
-        <p>{{ meetingQuery.roomId }}</p>
+        <p>{{ meetingQuery.meetingNumber }}</p>
       </div>
     </div>
     <div class="invite-footer">
@@ -57,7 +57,7 @@ const [visible, onToggle] = useToggle();
 
 const onCopyAll = () => {
   window.clipboard.writeText(
-    `${meetingQuery.userName} 邀请您加入***的个人会议室\n\r会议号：${meetingQuery.roomId}`
+    `${meetingQuery.userName} 邀请您加入***的个人会议室\n\r会议号：${meetingQuery.meetingNumber}`
   );
   ElMessage({
     offset: 28,
@@ -68,7 +68,7 @@ const onCopyAll = () => {
 
 const onCopyMeeting = () => {
   window.clipboard.writeText(
-    `#${appStore.appInfo.name}：${meetingQuery.roomId}`
+    `#${appStore.appInfo.name}：${meetingQuery.meetingNumber}`
   );
   ElMessage({
     offset: 28,

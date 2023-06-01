@@ -16,6 +16,8 @@ export const useSettingsStore = defineStore("settingsStore", {
     muted: false,
     // 音频输出设备ID
     audioOutputDeviceId: "default",
+    // 是否开启 DevTools
+    openDevTools: false,
   }),
   actions: {
     init() {

@@ -2,7 +2,7 @@ import { reactive, computed, ref } from "vue";
 import { useNavigation } from "../../hooks/useNavigation";
 import { useAppStore } from "../../stores/useAppStore";
 import { ElLoading, ElMessage, FormInstance, FormRules } from "element-plus";
-import { meetingJoinApi } from "../../services";
+import { getMeetingInfoApi } from "../../services";
 
 export const useAction = () => {
   const appStore = useAppStore();
@@ -15,12 +15,12 @@ export const useAction = () => {
     audio: true,
     microphone: false,
     camera: false,
-    roomId: "",
+    meetingNumber: "",
     userName: appStore.userName,
   });
 
   const rules = reactive<FormRules>({
-    roomId: [
+    meetingNumber: [
       { required: true, message: "会议号必填", trigger: "blur" },
       { min: 5, max: 5, message: "请输入5位会议号", trigger: "blur" },
     ],
@@ -28,36 +28,35 @@ export const useAction = () => {
   });
 
   const disabled = computed(
-    () => !state.roomId || (state.roomId && state.roomId.length !== 5)
+    () =>
+      !state.meetingNumber ||
+      (state.meetingNumber && state.meetingNumber.length !== 5)
   );
 
-  const onJoinRoom = () => {
+  const onJoinMeeting = () => {
     formRef.value?.validate(async (valid) => {
       if (valid) {
-        navigation
-          .close()
-          .navigate("/room", { ...state, isMuted: !state.microphone });
-
-        // const loading = ElLoading.service({ fullscreen: true });
-        // try {
-        //   const { code, data, msg } = await meetingJoinApi({
-        //     meetingNumber: state.roomId,
-        //     isMuted: !state.microphone,
-        //   });
-        //   if (code === 200) {
-        //     navigation
-        //       .close()
-        //       .navigate("/room", { ...state, isMuted: !state.microphone });
-        //   } else {
-        //     ElMessage({
-        //       offset: 36,
-        //       message: msg,
-        //       type: "error",
-        //     });
-        //   }
-        // } finally {
-        //   loading.close();
-        // }
+        const loading = ElLoading.service({ fullscreen: true });
+        try {
+          navigation.close().navigate("/meeting", {
+            ...state,
+            isMuted: !state.microphone,
+            meetingStreamMode: 0,
+          });
+          // const { code, data, msg } = await getMeetingInfoApi({
+          //   meetingNumber: state.meetingNumber,
+          // });
+          // if (code === 200) {
+          // } else {
+          //   ElMessage({
+          //     offset: 36,
+          //     message: msg,
+          //     type: "error",
+          //   });
+          // }
+        } finally {
+          loading.close();
+        }
       }
     });
   };
@@ -67,6 +66,6 @@ export const useAction = () => {
     rules,
     state,
     disabled,
-    onJoinRoom,
+    onJoinMeeting,
   };
 };

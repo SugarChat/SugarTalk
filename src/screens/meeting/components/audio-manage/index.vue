@@ -1,5 +1,6 @@
 <template>
   <ActionBtn
+    v-loading="loading"
     :title="isMuted ? '取消静音' : '静音'"
     icon="icon-mic"
     :disabled="isMuted"
@@ -11,21 +12,18 @@
 import { useDebounceFn } from "@vueuse/core";
 import { getMediaDeviceAccessAndStatus } from "../../../../utils/media";
 import ActionBtn from "../action-btn/index.vue";
-import { onMounted, toRefs } from "vue";
+import { onMounted, ref, toRefs } from "vue";
 
 interface Props {
   isMuted: boolean;
-}
-
-interface Emits {
-  (event: "update", status: boolean): void;
+  update: (status: boolean) => Promise<void>;
 }
 
 const props = defineProps<Props>();
 
-const emits = defineEmits<Emits>();
-
 const { isMuted } = toRefs(props);
+
+const loading = ref(false);
 
 onMounted(async () => {
   getMediaDeviceAccessAndStatus("microphone");
@@ -36,6 +34,11 @@ const onClick = useDebounceFn(async () => {
     const pass = await getMediaDeviceAccessAndStatus("microphone", true);
     if (!pass) return;
   }
-  emits("update", !isMuted.value);
+  try {
+    loading.value = true;
+    await props?.update(!isMuted.value);
+  } finally {
+    loading.value = false;
+  }
 }, 300);
 </script>

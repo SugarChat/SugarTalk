@@ -7,14 +7,15 @@
     <UserPanel
       :meeting-query="meetingQuery"
       :streams-list="streamsList"
+      :meeting-info="meetingInfo"
       :remote-sound-level-list="remoteSoundLevelList"
     />
-    <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" />
+    <!-- <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" /> -->
 
     <template v-if="videoStream">
       <div class="st-container">
         <Player :stream="videoStream" />
-        <UserList />
+        <UserList :meeting-info="meetingInfo" />
       </div>
     </template>
 
@@ -34,7 +35,7 @@
       <template #left>
         <AudioManage
           :isMuted="meetingQuery.isMuted"
-          @update="updateMicMuteStatus"
+          :update="updateMicMuteStatus"
         />
         <!-- <VideoManage /> -->
       </template>
@@ -48,7 +49,7 @@
         <Invite :meeting-query="meetingQuery" />
       </template>
       <template #right>
-        <LeaveRoom ref="leaveRoomRef" @on-confirm="leaveMeeting" />
+        <LeaveMeeting ref="leaveMeetingRef" @on-confirm="leaveMeeting" />
       </template>
     </Footer>
   </div>
@@ -61,7 +62,7 @@ import UserPanel from "./components/user-panel/index.vue";
 import UserList from "./components/user-list/index.vue";
 import Footer from "./components/footer/index.vue";
 import Player from "./components/player/index.vue";
-import LeaveRoom from "./components/leave-room/index.vue";
+import LeaveMeeting from "./components/leave-meeting/index.vue";
 import Watermark from "../../components/watermark/index.vue";
 // import VideoManage from "./components/video-manage/index.vue";
 import AudioManage from "./components/audio-manage/index.vue";
@@ -70,9 +71,10 @@ import Invite from "./components/invite/index.vue";
 import { useAction } from "./hooks";
 
 const {
-  leaveRoomRef,
+  leaveMeetingRef,
   isShareScreen,
   meetingQuery,
+  meetingInfo,
   streamsList,
   videoStream,
   remoteSoundLevelList,
