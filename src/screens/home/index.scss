@@ -2,16 +2,16 @@
   height: 50px;
   flex: 0 0 50px;
 
+  ::v-deep(.right) {
+    padding-right: var(--spacing-tiny);
+  }
+
   ::v-deep(.title) {
     font-size: var(--font-size-medium);
     font-weight: var(--font-weight-primary);
   }
 
   .header-right {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
     display: flex;
     align-items: center;
     padding-right: 20px;

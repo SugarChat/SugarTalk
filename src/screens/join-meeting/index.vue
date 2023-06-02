@@ -1,5 +1,5 @@
 <template>
-  <Header title="加入会议" />
+  <Header title="加入会议" :hide-maximizable="true" />
   <div class="container">
     <el-form
       ref="formRef"

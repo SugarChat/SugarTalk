@@ -1,5 +1,10 @@
 <template>
-  <Header title="设置" borderBottom />
+  <Header
+    title="设置"
+    borderBottom
+    :hide-minimizable="true"
+    :hide-maximizable="true"
+  />
 
   <div class="settings-container">
     <div class="left">

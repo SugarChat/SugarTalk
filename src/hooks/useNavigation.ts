@@ -19,6 +19,7 @@ class Navigation {
         createWindow(path, {
           width: 960,
           height: 640,
+          frame: false,
           useContentSize: true,
           resizable: false,
           maximizable: false,
@@ -35,6 +36,7 @@ class Navigation {
         createWindow(path, {
           width: 720,
           height: 640,
+          frame: false,
           useContentSize: true,
           resizable: false,
           maximizable: false,
@@ -56,6 +58,7 @@ class Navigation {
           titleBarStyle: "hidden",
           resizable: false,
           maximizable: false,
+          frame: false,
           useContentSize: true,
           openDevTools: useSettingsStore().openDevTools,
           ...options,
@@ -67,6 +70,7 @@ class Navigation {
           height: 640,
           minWidth: 960,
           minHeight: 640,
+          frame: false,
           useContentSize: true,
           titleBarStyle: "hidden",
           openDevTools: useSettingsStore().openDevTools,

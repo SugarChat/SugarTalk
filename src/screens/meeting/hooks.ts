@@ -434,6 +434,8 @@ export const useAction = () => {
     });
   };
 
+  const blockClose = () => leaveMeetingRef.value?.open();
+
   onMounted(() => {
     nextTick(() => {
       init();
@@ -444,9 +446,7 @@ export const useAction = () => {
     /**
      * 阻止窗口关闭，唤起自定义关闭窗口
      */
-    navigation.blockClose(() => {
-      leaveMeetingRef.value?.open();
-    });
+    navigation.blockClose(blockClose);
   });
 
   return {
@@ -462,5 +462,6 @@ export const useAction = () => {
     onStartShare,
     onStopShare,
     leaveMeeting,
+    blockClose,
   };
 };

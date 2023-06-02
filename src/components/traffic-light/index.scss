@@ -1,0 +1,33 @@
+.traffic-light-container {
+  display: flex;
+  align-items: center;
+  max-width: 90px;
+  height: 30px;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f5f7fa;
+    }
+
+    &.btn-close:hover {
+      background-color: #f56c6c;
+
+      .iconfont {
+        color: var(--color-text-white);
+      }
+    }
+
+    .iconfont {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-primary);
+    }
+  }
+}

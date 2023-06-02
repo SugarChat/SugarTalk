@@ -36,3 +36,9 @@ export interface DataChannel {
   eventType: string;
   streamId: string;
 }
+
+export interface AppInfo {
+  name: string;
+  version: string;
+  platform: "mac" | "win" | "other";
+}

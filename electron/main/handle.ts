@@ -21,6 +21,18 @@ ipcMain.handle("destroy-window", () =>
   BrowserWindow.getFocusedWindow().destroy()
 );
 
+ipcMain.handle("minimize-window", () =>
+  BrowserWindow.getFocusedWindow().minimize()
+);
+
+ipcMain.handle("maximize-window", () =>
+  BrowserWindow.getFocusedWindow().maximize()
+);
+
+ipcMain.handle("unmaximize-window", () =>
+  BrowserWindow.getFocusedWindow().unmaximize()
+);
+
 ipcMain.handle(
   "getSources",
   (

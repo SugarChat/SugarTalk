@@ -1,5 +1,5 @@
 <template>
-  <Header title="Sugar Talk" />
+  <Header title="Sugar Talk" :hide-maximizable="true" />
   <div class="login-container">
     <div class="app-info">
       <img class="app-logo" src="../../assets/images/sugarTalkLogo.png" />

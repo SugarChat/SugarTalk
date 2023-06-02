@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { LoginResponse } from "../entity/response";
-import { AppInfo } from "../renderer";
+import { AppInfo } from "../entity/types";
 
 export const useAppStore = defineStore("appStore", {
   state: () => ({
@@ -12,7 +12,14 @@ export const useAppStore = defineStore("appStore", {
   }),
   actions: {
     async init() {
-      this.appInfo = await window.electronAPI.appInfo();
+      const appInfo = await window.electronAPI.appInfo();
+      const platform =
+        appInfo.platform === "darwin"
+          ? "mac"
+          : appInfo.platform.startsWith("win")
+          ? "win"
+          : "other";
+      this.appInfo = { name: appInfo.name, version: appInfo.version, platform };
     },
     login(response: LoginResponse) {
       this.userName = response.userName;

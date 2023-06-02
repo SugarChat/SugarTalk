@@ -56,7 +56,7 @@ async function createWindow() {
       titleBarStyle: "hidden",
       trafficLightPosition: {
         x: 12,
-        y: 10,
+        y: 7,
       },
       icon: join(process.env.PUBLIC, "favicon.ico"),
       webPreferences: {
@@ -183,4 +183,5 @@ ipcMain.handle(
 ipcMain.handle("getAppInfo", () => ({
   name: app.getName(),
   version: app.getVersion(),
+  platform: process.platform,
 }));

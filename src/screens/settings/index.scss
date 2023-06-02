@@ -1,6 +1,10 @@
 .header {
   height: 50px;
   flex: 0 0 50px;
+
+  ::v-deep(.right) {
+    padding-right: var(--spacing-tiny);
+  }
 }
 
 .settings-container {
