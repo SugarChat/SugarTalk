@@ -4,6 +4,9 @@ import { BrowserWindowConstructorOptions as BrowserWindowOptions } from "electro
 export interface CurrentWindow {
   close: () => Promise<void>;
   destroy: () => Promise<void>;
+  minimize: () => Promise<void>;
+  maximize: () => Promise<void>;
+  unmaximize: () => Promise<void>;
   setFullScreen: (flag: boolean) => Promise<void>;
   setSize: (width: number, height: any, animate?: boolean) => Promise<void>;
 }
@@ -11,6 +14,7 @@ export interface CurrentWindow {
 interface AppInfo {
   name: string;
   version: string;
+  platform: string;
 }
 
 interface BrowserWindowConstructorOptions

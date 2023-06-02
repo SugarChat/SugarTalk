@@ -1,5 +1,5 @@
 <template>
-  <Header borderBottom title="Sugar Talk会议" />
+  <Header borderBottom title="Sugar Talk会议" :close="blockClose" />
 
   <div class="container">
     <StatusBar :meeting-query="meetingQuery" />
@@ -83,6 +83,7 @@ const {
   onStartShare,
   onStopShare,
   leaveMeeting,
+  blockClose,
 } = useAction();
 </script>
 

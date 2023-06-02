@@ -1,5 +1,11 @@
 <template>
-  <Header class="header" borderBottom title="Sugar Talk">
+  <Header
+    class="header"
+    borderBottom
+    title="Sugar Talk"
+    :is-destroy="true"
+    :hideMaximizable="true"
+  >
     <template #right>
       <div class="header-right">
         <el-tooltip effect="light" content="设置" placement="bottom">

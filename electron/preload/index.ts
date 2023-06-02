@@ -20,6 +20,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getCurrentWindow: (): CurrentWindow => ({
     close: () => ipcRenderer.invoke("close-window"),
     destroy: () => ipcRenderer.invoke("destroy-window"),
+    minimize: () => ipcRenderer.invoke("minimize-window"),
+    maximize: () => ipcRenderer.invoke("maximize-window"),
+    unmaximize: () => ipcRenderer.invoke("unmaximize-window"),
     setFullScreen: (flag: boolean) => ipcRenderer.invoke("setFullScreen", flag),
     setSize: (width: number, height, animate?: boolean) =>
       ipcRenderer.invoke("setSize", width, height, animate),
