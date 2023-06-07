@@ -19,8 +19,6 @@
       </div>
     </template>
 
-    <video width="0" height="0" id="stream-media" autoplay playsInline muted />
-
     <video
       width="0"
       height="0"

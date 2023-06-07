@@ -102,6 +102,7 @@ export const useAction = () => {
       meetingNumber: meetingQuery.meetingNumber,
       isMuted: meetingQuery.isMuted,
       streamId,
+      streamType: 0,
     });
     if (code === 200) {
       meetingInfo.value = data.meeting;
@@ -195,7 +196,7 @@ export const useAction = () => {
           meetingInfo.value!.mergedStream,
           streamInfo.value!.room
         );
-      }, 6000);
+      }, 8000);
     } else {
       streamInfo.value?.streams.forEach((streamId: string) => {
         /**
@@ -438,9 +439,9 @@ export const useAction = () => {
 
   onMounted(() => {
     nextTick(() => {
-      init();
-      // setTimeout(() => {
-      // }, 2000);
+      setTimeout(() => {
+        init();
+      }, 2000);
     });
 
     /**

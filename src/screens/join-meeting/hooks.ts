@@ -38,22 +38,22 @@ export const useAction = () => {
       if (valid) {
         const loading = ElLoading.service({ fullscreen: true });
         try {
-          navigation.close().navigate("/meeting", {
-            ...state,
-            isMuted: !state.microphone,
-            meetingStreamMode: 0,
+          const { code, data, msg } = await getMeetingInfoApi({
+            meetingNumber: state.meetingNumber,
           });
-          // const { code, data, msg } = await getMeetingInfoApi({
-          //   meetingNumber: state.meetingNumber,
-          // });
-          // if (code === 200) {
-          // } else {
-          //   ElMessage({
-          //     offset: 36,
-          //     message: msg,
-          //     type: "error",
-          //   });
-          // }
+          if (code === 200) {
+            navigation.close().navigate("/meeting", {
+              ...state,
+              isMuted: !state.microphone,
+              meetingStreamMode: 0,
+            });
+          } else {
+            ElMessage({
+              offset: 36,
+              message: msg,
+              type: "error",
+            });
+          }
         } finally {
           loading.close();
         }
