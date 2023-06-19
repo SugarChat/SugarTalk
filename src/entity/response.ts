@@ -1,3 +1,5 @@
+import { StreamType } from "./enum";
+
 export interface ResponseResult<T> {
   code: number;
   data: T;
@@ -13,6 +15,13 @@ export interface LoginResponse {
   userName: string;
 }
 
+export interface UserSessionStream {
+  id: string;
+  streamId: string;
+  meetingUserSessionId: string;
+  streamType: StreamType;
+}
+
 export interface UserSession {
   id: number;
   createdDate: string;
@@ -21,6 +30,7 @@ export interface UserSession {
   meetingId: string;
   userId: number;
   userName: string;
+  userSessionStreams: UserSessionStream[];
 }
 
 export interface Meeting {

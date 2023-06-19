@@ -80,6 +80,11 @@ export const useAction = () => {
   const isShareScreen = ref(false);
 
   /**
+   * 当前分享屏幕的streamId
+   */
+  const shareScreenStreamId = ref("");
+
+  /**
    * 远程流音频声级
    */
   const remoteSoundLevelList = ref<Record<string, number>>({});
@@ -88,6 +93,10 @@ export const useAction = () => {
     meetingInfo.value?.userSessions?.find(
       (user) => user.userName === meetingQuery.userName
     )
+  );
+
+  const currentShareUser = computed(() =>
+    meetingInfo.value?.userSessions.find((user) => user.isSharingScreen)
   );
 
   const isMCU = computed(
@@ -102,6 +111,7 @@ export const useAction = () => {
       meetingNumber: meetingQuery.meetingNumber,
       isMuted: meetingQuery.isMuted,
       streamId,
+      streamType: 0,
     });
     if (code === 200) {
       meetingInfo.value = data.meeting;
@@ -119,25 +129,21 @@ export const useAction = () => {
       const currentShareUser = data.userSessions.find(
         (user) => user.isSharingScreen
       );
+
       if (currentShareUser) {
         if (isMCU.value) {
-          const newVideoTrack =
-            streamsList.value?.[0]?.stream?.getVideoTracks();
-          console.log(
-            1,
-            ...(streamsList.value?.[0]?.stream?.getTracks() ?? [])
-          );
-          if (newVideoTrack?.length > 0 && !videoStream.value) {
-            console.log(2);
-            videoStream.value = new MediaStream([
-              newVideoTrack[newVideoTrack.length - 1],
-            ]);
+          if (!shareScreenStreamId.value) {
+            const streamId = currentShareUser.userSessionStreams[0].streamId;
+            shareScreenStreamId.value = streamId;
+            webRTCAdaptor.value?.play(streamId, streamInfo.value!.room);
           }
-        } else {
         }
       } else {
-        console.log(3, ...(streamsList.value?.[0]?.stream?.getTracks() ?? []));
         videoStream.value = undefined;
+        if (shareScreenStreamId.value) {
+          webRTCAdaptor.value?.stop(shareScreenStreamId.value);
+          shareScreenStreamId.value = "";
+        }
       }
     }
   };
@@ -195,7 +201,7 @@ export const useAction = () => {
           meetingInfo.value!.mergedStream,
           streamInfo.value!.room
         );
-      }, 6000);
+      }, 8000);
     } else {
       streamInfo.value?.streams.forEach((streamId: string) => {
         /**
@@ -313,7 +319,14 @@ export const useAction = () => {
             break;
           // 获取到新的远程流
           case "newStreamAvailable":
-            console.log("newStreamAvailable", ...payload.stream?.getTracks());
+            // 有分享屏幕用户
+            if (currentShareUser.value) {
+              console.log("有分享屏幕用户");
+              const stream: MediaStream = payload.stream;
+              const newVideoTrack = stream.getVideoTracks()[0];
+              videoStream.value = new MediaStream([newVideoTrack]);
+              return;
+            }
             /**
              * 启动远程流的声级计
              */
@@ -359,13 +372,13 @@ export const useAction = () => {
    * @param status true: 静音, false: 取消静音
    */
   const updateMicMuteStatus = async (status: boolean) => {
-    meetingQuery.isMuted = status;
     const { code, msg } = await audioChangeApi({
       meetingUserSessionId: currentUser.value!.id,
       streamId: streamInfo.value.streamId,
       isMuted: status,
     });
     if (code === 200) {
+      meetingQuery.isMuted = status;
       if (status) {
         webRTCAdaptor.value?.muteLocalMic();
       } else {
@@ -404,43 +417,47 @@ export const useAction = () => {
    */
   const onStartShare = async (source: ScreenSource) => {
     isShareScreen.value = true;
-    await webRTCAdaptor.value?.startDesktopCapture(
-      streamInfo.value!.streamId,
-      source.id
-    );
-    if (localStream.value?.getVideoTracks()) {
-      videoStream.value = new MediaStream([
-        ...localStream.value?.getVideoTracks(),
-      ]);
-    }
-    await screenShareApi({
+    const { code } = await screenShareApi({
       meetingUserSessionId: currentUser.value!.id,
       streamId: streamInfo.value.streamId,
       isShared: true,
     });
+    if (code === 200) {
+      await webRTCAdaptor.value?.startDesktopCapture(
+        streamInfo.value!.streamId,
+        source.id
+      );
+      if (localStream.value?.getVideoTracks()) {
+        videoStream.value = new MediaStream([
+          ...localStream.value?.getVideoTracks(),
+        ]);
+      }
+    }
   };
 
   /**
    * 停止分享屏幕
    */
   const onStopShare = async () => {
-    isShareScreen.value = false;
-    videoStream.value = undefined;
-    webRTCAdaptor.value?.stopDesktopCapture(streamInfo.value?.streamId!);
-    await screenShareApi({
+    const { code } = await screenShareApi({
       meetingUserSessionId: currentUser.value!.id,
       streamId: streamInfo.value.streamId,
       isShared: false,
     });
+    if (code === 200) {
+      isShareScreen.value = false;
+      videoStream.value = undefined;
+      webRTCAdaptor.value?.stopDesktopCapture(streamInfo.value?.streamId!);
+    }
   };
 
   const blockClose = () => leaveMeetingRef.value?.open();
 
   onMounted(() => {
     nextTick(() => {
-      init();
-      // setTimeout(() => {
-      // }, 2000);
+      setTimeout(() => {
+        init();
+      }, 2000);
     });
 
     /**

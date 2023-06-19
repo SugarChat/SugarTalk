@@ -23,11 +23,15 @@ export const useAction = () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
       const meetingStreamMode = MeetingStreamMode.MCU;
-      const { code, data, msg } = await createMeetingApi({ meetingStreamMode });
+      const { code, data, msg } = await createMeetingApi({
+        meetingStreamMode,
+        startDate: new Date(),
+        endDate: new Date(+new Date() + 1000 * 60 * 60 * 2),
+      });
       if (code === 200) {
         navigation.navigate("/meeting", {
           audio: settingsStore.enableMicrophone,
-          isMuted: true,
+          isMuted: !settingsStore.enableMicrophone,
           camera: false,
           meetingNumber: data?.meetingNumber,
           userName: appStore.userName,

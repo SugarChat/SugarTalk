@@ -72,10 +72,10 @@ export const useAction = () => {
           setTimeout(() => {
             gotoHome();
           }, 500);
+          return;
         }
-      } else {
-        loaded.value = true;
       }
+      loaded.value = true;
     });
   });
 
