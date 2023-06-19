@@ -30,7 +30,7 @@ export interface UserSession {
   meetingId: string;
   userId: number;
   userName: string;
-  userSessionStreams: UserSessionStream;
+  userSessionStreams: UserSessionStream[];
 }
 
 export interface Meeting {
