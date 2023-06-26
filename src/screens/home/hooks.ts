@@ -22,11 +22,10 @@ export const useAction = () => {
   const onQuickMeeting = async () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
-      const meetingStreamMode = MeetingStreamMode.MCU;
       const { code, data, msg } = await createMeetingApi({
-        meetingStreamMode,
+        meetingStreamMode: MeetingStreamMode.MCU,
         startDate: new Date(),
-        endDate: new Date(+new Date() + 1000 * 60 * 60 * 2),
+        endDate: new Date(+new Date() + 1000 * 60 * 60 * 24),
       });
       if (code === 200) {
         navigation.navigate("/meeting", {
@@ -35,7 +34,7 @@ export const useAction = () => {
           camera: false,
           meetingNumber: data?.meetingNumber,
           userName: appStore.userName,
-          meetingStreamMode,
+          meetingStreamMode: MeetingStreamMode.SFU,
         });
       } else {
         ElMessage({

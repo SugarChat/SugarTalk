@@ -22,7 +22,7 @@ import {
  */
 export const joinMeetingApi = async (data: JoinMeetingRequest) =>
   (await Api.post<ResponseResult<JoinMeetingResponse>>("/Meeting/join", data))
-    .data;
+    ?.data ?? {};
 
 /**
  * 创建会议
@@ -35,7 +35,7 @@ export const createMeetingApi = async (data: CreateMeetingRequest) =>
       "/Meeting/schedule",
       data
     )
-  ).data;
+  )?.data ?? {};
 
 /**
  * 获取会议信息
@@ -47,7 +47,7 @@ export const getMeetingInfoApi = async (params: GetMeetingInfoRequest) =>
     await Api.get<ResponseResult<GetMeetingInfoResponse>>("/Meeting/get", {
       params,
     })
-  ).data;
+  )?.data ?? {};
 
 /**
  * 退出会议
@@ -55,7 +55,7 @@ export const getMeetingInfoApi = async (params: GetMeetingInfoRequest) =>
  * @returns
  */
 export const outMeetingApi = async (data: OutMeetingRequest) =>
-  (await Api.post("/Meeting/out", data)).data;
+  (await Api.post("/Meeting/out", data))?.data ?? {};
 
 /**
  * 结束会议
@@ -63,7 +63,7 @@ export const outMeetingApi = async (data: OutMeetingRequest) =>
  * @returns
  */
 export const endMeetingApi = async (data: EndMeetingRequest) =>
-  (await Api.post("/Meeting/end", data)).data;
+  (await Api.post("/Meeting/end", data))?.data ?? {};
 
 /**
  * 开关麦克风
@@ -76,7 +76,7 @@ export const audioChangeApi = async (data: AudioChangeRequest) =>
       "/Meeting/audio/change",
       data
     )
-  ).data;
+  )?.data ?? {};
 
 /**
  * 分享屏幕
@@ -89,4 +89,4 @@ export const screenShareApi = async (data: ScreenShareRequest) =>
       "/Meeting/screen/share",
       data
     )
-  ).data;
+  )?.data ?? {};

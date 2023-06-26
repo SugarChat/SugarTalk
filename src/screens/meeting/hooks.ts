@@ -103,73 +103,6 @@ export const useAction = () => {
     () => meetingQuery.meetingStreamMode === MeetingStreamMode.MCU
   );
 
-  /**
-   * 加入会议
-   */
-  const joinMeeting = async (streamId: string) => {
-    const { code, data, msg } = await joinMeetingApi({
-      meetingNumber: meetingQuery.meetingNumber,
-      isMuted: meetingQuery.isMuted,
-      streamId,
-      streamType: 0,
-    });
-    if (code === 200) {
-      meetingInfo.value = data.meeting;
-    } else {
-      ElMessage({
-        offset: 28,
-        message: msg,
-        type: "error",
-      });
-    }
-  };
-
-  const getMeetingInfoAfter = (data: Meeting) => {
-    if (!isShareScreen.value) {
-      const currentShareUser = data.userSessions.find(
-        (user) => user.isSharingScreen
-      );
-
-      if (currentShareUser) {
-        if (isMCU.value) {
-          if (!shareScreenStreamId.value) {
-            const streamId = currentShareUser.userSessionStreams[0].streamId;
-            shareScreenStreamId.value = streamId;
-            webRTCAdaptor.value?.play(streamId, streamInfo.value!.room);
-          }
-        }
-      } else {
-        videoStream.value = undefined;
-        if (shareScreenStreamId.value) {
-          webRTCAdaptor.value?.stop(shareScreenStreamId.value);
-          shareScreenStreamId.value = "";
-        }
-      }
-    }
-  };
-
-  /**
-   * 获取会议信息
-   */
-  const getMeetingInfo = async () => {
-    const { code, data, msg } = await getMeetingInfoApi({
-      meetingNumber: meetingQuery.meetingNumber,
-    });
-    if (code === 200) {
-      meetingInfo.value = data;
-      getMeetingInfoAfter(data);
-      setTimeout(() => {
-        getMeetingInfo();
-      }, 3000);
-    } else {
-      ElMessage({
-        offset: 28,
-        message: msg,
-        type: "error",
-      });
-    }
-  };
-
   const joinMeetingAfter = async () => {
     /**
      * 发布本地流
@@ -190,9 +123,16 @@ export const useAction = () => {
       webRTCAdaptor.value?.unmuteLocalMic();
     }
 
-    if (isMCU.value) {
-      await getMeetingInfo();
+    await getMeetingInfo().finally(() => {
+      setTimeout(() => {
+        webRTCAdaptor.value?.getRoomInfo(
+          meetingQuery.meetingNumber,
+          streamInfo.value!.streamId
+        );
+      }, 3000);
+    });
 
+    if (isMCU.value) {
       /**
        * 播放远程合并流
        */
@@ -202,22 +142,67 @@ export const useAction = () => {
           streamInfo.value!.room
         );
       }, 8000);
-    } else {
-      streamInfo.value?.streams.forEach((streamId: string) => {
-        /**
-         * 播放远程流
-         */
-        webRTCAdaptor.value?.play(streamId, streamInfo.value!.room);
-      });
+    }
+  };
 
-      // 获取房间信息
-      webRTCAdaptor.value?.getRoomInfo(
-        meetingQuery.meetingNumber,
-        streamInfo.value!.streamId
+  const getMeetingInfoAfter = (data: Meeting) => {
+    if (!isShareScreen.value) {
+      const currentShareUser = data.userSessions.find(
+        (user) => user.isSharingScreen
       );
 
-      // 获取远程流的声级计
-      webRTCAdaptor.value?.getSoundLevelList(streamInfo.value!.streams);
+      if (currentShareUser) {
+        if (isMCU.value) {
+          if (!shareScreenStreamId.value) {
+            const streamId = currentShareUser.userSessionStreams[0].streamId;
+            shareScreenStreamId.value = streamId;
+            webRTCAdaptor.value?.play(streamId, streamInfo.value!.room);
+          }
+        } else {
+          const streamId = currentShareUser.userSessionStreams?.[0]?.streamId;
+          if (streamId) {
+            const stream = streamsList.value.find(
+              (stream) => stream.streamId === streamId
+            );
+            if (stream) {
+              if (!shareScreenStreamId.value) {
+                shareScreenStreamId.value = streamId;
+                const newVideoTrack = stream.stream.getVideoTracks()[0];
+                videoStream.value = new MediaStream([newVideoTrack]);
+              }
+            }
+          }
+        }
+      } else {
+        videoStream.value = undefined;
+        if (isMCU) {
+          if (shareScreenStreamId.value) {
+            webRTCAdaptor.value?.stop(shareScreenStreamId.value);
+            shareScreenStreamId.value = "";
+          }
+        } else {
+          shareScreenStreamId.value = "";
+        }
+      }
+    }
+  };
+
+  /**
+   * 获取会议信息
+   */
+  const getMeetingInfo = async () => {
+    const { code, data, msg } = await getMeetingInfoApi({
+      meetingNumber: meetingQuery.meetingNumber,
+    });
+    if (code === 200) {
+      meetingInfo.value = data;
+      getMeetingInfoAfter(data);
+    } else {
+      ElMessage({
+        offset: 28,
+        message: msg,
+        type: "error",
+      });
     }
   };
 
@@ -269,17 +254,32 @@ export const useAction = () => {
             webRTCAdaptor.value?.joinRoom(
               meetingQuery.meetingNumber,
               "",
-              isMCU ? "mcu" : "legacy"
+              "mcu"
             );
             break;
           // 已加入房间回调
           case "joinedTheRoom":
             streamInfo.value = payload;
-            streamIds.value = payload.streams ?? [];
 
-            await joinMeeting(payload.streamId);
-
-            joinMeetingAfter();
+            const streamId: string = payload?.streamId ?? "";
+            // 加入会议
+            const { code, msg } = await joinMeetingApi({
+              meetingNumber: meetingQuery.meetingNumber,
+              isMuted: meetingQuery.isMuted,
+              streamId,
+              streamType: 0,
+            });
+            if (code === 200) {
+              joinMeetingAfter();
+              // 启用获取远程声级计
+              webRTCAdaptor.value?.getSoundLevelList(payload.streams);
+            } else {
+              ElMessage({
+                offset: 28,
+                message: msg,
+                type: "error",
+              });
+            }
             break;
           // 获取房间信息回调
           case "roomInformation":
@@ -287,41 +287,38 @@ export const useAction = () => {
 
             currentStreamIds.forEach((streamId) => {
               if (!streamIds.value.includes(streamId)) {
-                /**
-                 * 播放新的远程流
-                 */
+                // 播放新的远程流
                 webRTCAdaptor.value?.play(streamId, streamInfo.value!.room);
               }
             });
 
             streamsList.value = streamsList.value.filter((stream) => {
               if (!currentStreamIds.includes(stream.streamId)) {
-                /**
-                 * 停止已退出的远程流
-                 */
+                // 停止已退出的远程流
                 webRTCAdaptor.value?.stop(stream.streamId);
                 return false;
               }
               return true;
             });
 
-            setTimeout(() => {
-              /**
-               * 每隔3秒获取一次房间信息
-               */
-              webRTCAdaptor.value?.getRoomInfo(
-                meetingQuery.meetingNumber,
-                streamInfo.value!.streamId
-              );
-            }, 3000);
+            /**
+             * 每隔3秒获取一次房间信息
+             */
+            getMeetingInfo().finally(() => {
+              setTimeout(() => {
+                webRTCAdaptor.value?.getRoomInfo(
+                  meetingQuery.meetingNumber,
+                  streamInfo.value!.streamId
+                );
+              }, 3000);
+            });
 
             streamIds.value = payload.streams;
             break;
           // 获取到新的远程流
           case "newStreamAvailable":
             // 有分享屏幕用户
-            if (currentShareUser.value) {
-              console.log("有分享屏幕用户");
+            if (isMCU.value && currentShareUser.value) {
               const stream: MediaStream = payload.stream;
               const newVideoTrack = stream.getVideoTracks()[0];
               videoStream.value = new MediaStream([newVideoTrack]);
@@ -349,7 +346,6 @@ export const useAction = () => {
           // 获取远程流的声级计
           case "gotSoundList":
             remoteSoundLevelList.value = payload;
-
             setTimeout(() => {
               webRTCAdaptor.value?.getSoundLevelList(streamIds.value);
             }, 200);

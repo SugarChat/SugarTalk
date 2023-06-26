@@ -6,6 +6,7 @@
           v-for="userSession in meetingInfo.userSessions"
           :key="userSession.id"
           :user-session="userSession"
+          :remoteSoundLevelList="remoteSoundLevelList"
         />
       </div>
     </el-scrollbar>
