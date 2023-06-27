@@ -4,12 +4,7 @@
   <div class="container">
     <StatusBar :meeting-query="meetingQuery" />
 
-    <UserPanel
-      :meeting-query="meetingQuery"
-      :streams-list="streamsList"
-      :meeting-info="meetingInfo"
-      :remote-sound-level-list="remoteSoundLevelList"
-    />
+    <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
     <!-- <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" /> -->
 
     <template v-if="videoStream">
@@ -75,7 +70,7 @@ const {
   meetingInfo,
   streamsList,
   videoStream,
-  remoteSoundLevelList,
+  soundLevelList,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,

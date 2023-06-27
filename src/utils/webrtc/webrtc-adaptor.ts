@@ -146,7 +146,7 @@ export class WebRTCAdaptor {
   /**
    * 音频声级计列表
    */
-  soundLevelList: Record<string, number> = {};
+  soundLevelList: Record<string, Uint8Array> = {};
 
   /**
    * 回调事件监听列表
@@ -971,21 +971,17 @@ export class WebRTCAdaptor {
   /**
    * 启动远程流的声级计
    */
-  enableAudioLevel(
-    stream: MediaStream,
-    streamId: string,
-    callback?: (streamId: string, instant: number) => void
-  ) {
-    const soundMeter = new SoundMeter(this.audioContext, streamId, callback);
-    soundMeter.connectToSource(stream);
-    this.soundMeters[streamId] = soundMeter;
+  enableAudioLevel(stream: MediaStream, streamId: string) {
+    if (!this.soundMeters[streamId]) {
+      this.soundMeters[streamId] = new SoundMeter(this.audioContext, stream);
+    }
   }
 
   getSoundLevelList(streamsList: string[]) {
     for (let i = 0; i < streamsList.length; i++) {
       const streamId = streamsList[i];
-      if (this.soundMeters[streamId]?.instant !== undefined) {
-        this.soundLevelList[streamId] = this.soundMeters[streamId].instant;
+      if (this.soundMeters[streamId]?.dataArray?.length > 0) {
+        this.soundLevelList[streamId] = this.soundMeters[streamId].dataArray;
       }
     }
     this.notifyEventListeners("gotSoundList", this.soundLevelList);
@@ -1023,12 +1019,5 @@ export class WebRTCAdaptor {
     if (this.debug) {
       console.log(message, optionalParams);
     }
-  }
-
-  enableAudioLevelForLocalStream(
-    streamId: string,
-    levelCallback?: (streamId: string, instant: number) => void
-  ) {
-    this.mediaManager.enableAudioLevelForLocalStream(streamId, levelCallback);
   }
 }

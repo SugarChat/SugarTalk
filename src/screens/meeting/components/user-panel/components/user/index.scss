@@ -57,13 +57,32 @@
         }
 
         .iconfont {
-          font-size: 24px;
-        }
-
-        .iconfont {
           height: var(--font-size-small);
           font-size: var(--font-size-small);
           color: var(--color-text-white);
+        }
+
+        .mic-bgc {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          overflow: hidden;
+
+          .mic-box {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .iconfont {
+              color: var(--color-success);
+            }
+          }
         }
       }
     }

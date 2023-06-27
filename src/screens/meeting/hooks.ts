@@ -1,4 +1,12 @@
-import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onMounted,
+  reactive,
+  ref,
+  toRaw,
+  watch,
+} from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
 import {
   DataChannel,
@@ -21,12 +29,78 @@ import { useNavigation } from "../../hooks/useNavigation";
 import { MeetingStreamMode } from "../../entity/enum";
 import { Meeting, UserSession } from "../../entity/response";
 
+class SoundMeter {
+  context: AudioContext;
+
+  mic: MediaStreamAudioSourceNode;
+
+  analyser: AnalyserNode;
+
+  dataArray: Uint8Array = new Uint8Array();
+
+  constructor(context: AudioContext, stream: MediaStream) {
+    this.context = context;
+    this.mic = this.context.createMediaStreamSource(stream);
+    this.analyser = this.context.createAnalyser();
+    this.mic.connect(this.analyser);
+    this.analyser.fftSize = 256;
+    this.analyser.minDecibels = -90;
+    this.analyser.maxDecibels = -10;
+    this.analyser.smoothingTimeConstant = 0.85;
+    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+  }
+
+  getByteFrequencyData() {
+    this.analyser.getByteFrequencyData(this.dataArray);
+  }
+
+  stop() {
+    this.mic.disconnect();
+    this.analyser.disconnect();
+  }
+}
+
+export const useSoundmeter = () => {
+  const audioContext = ref(new AudioContext());
+
+  const soundMeters: Record<string, SoundMeter> = reactive({});
+
+  const soundLevelList: Record<string, Uint8Array> = reactive({});
+
+  const enableAudioLevel = (stream: MediaStream, streamId: string) => {
+    if (!soundMeters[streamId]) {
+      soundMeters[streamId] = new SoundMeter(audioContext.value, stream);
+    }
+  };
+
+  const getSoundLevelList = () => {
+    for (let streamId in toRaw(soundMeters)) {
+      if (soundMeters[streamId]?.dataArray?.length > 0) {
+        soundMeters[streamId].getByteFrequencyData();
+        soundLevelList[streamId] = soundMeters[streamId].dataArray;
+      }
+    }
+    requestAnimationFrame(getSoundLevelList);
+  };
+
+  onMounted(() => {
+    requestAnimationFrame(getSoundLevelList);
+  });
+
+  return {
+    soundLevelList,
+    enableAudioLevel,
+  };
+};
+
 export const useAction = () => {
   const { query } = useRoute();
 
   const settingsStore = useSettingsStore();
 
   const navigation = useNavigation();
+
+  const { soundLevelList, enableAudioLevel } = useSoundmeter();
 
   /**
    * 路由参数
@@ -84,11 +158,6 @@ export const useAction = () => {
    */
   const shareScreenStreamId = ref("");
 
-  /**
-   * 远程流音频声级
-   */
-  const remoteSoundLevelList = ref<Record<string, number>>({});
-
   const currentUser = computed<UserSession | undefined>(() =>
     meetingInfo.value?.userSessions?.find(
       (user) => user.userName === meetingQuery.userName
@@ -104,17 +173,11 @@ export const useAction = () => {
   );
 
   const joinMeetingAfter = async () => {
-    /**
-     * 发布本地流
-     */
+    // 发布本地流
     webRTCAdaptor.value?.publish(streamInfo.value!.streamId);
 
-    /**
-     * 本地流声级计
-     */
-    webRTCAdaptor.value?.enableAudioLevelForLocalStream(
-      streamInfo.value!.streamId
-    );
+    // 本地流声级计
+    enableAudioLevel(localStream.value!, streamInfo.value.streamId);
 
     // 判断初始化是否静音
     if (meetingQuery.isMuted) {
@@ -133,9 +196,7 @@ export const useAction = () => {
     });
 
     if (isMCU.value) {
-      /**
-       * 播放远程合并流
-       */
+      // 播放远程合并流
       setTimeout(() => {
         webRTCAdaptor.value?.play(
           meetingInfo.value!.mergedStream,
@@ -175,7 +236,7 @@ export const useAction = () => {
         }
       } else {
         videoStream.value = undefined;
-        if (isMCU) {
+        if (isMCU.value) {
           if (shareScreenStreamId.value) {
             webRTCAdaptor.value?.stop(shareScreenStreamId.value);
             shareScreenStreamId.value = "";
@@ -248,9 +309,7 @@ export const useAction = () => {
         switch (command) {
           // 已初始化完成
           case "initialized":
-            /**
-             * 加入房间
-             */
+            // 加入房间
             webRTCAdaptor.value?.joinRoom(
               meetingQuery.meetingNumber,
               "",
@@ -271,8 +330,6 @@ export const useAction = () => {
             });
             if (code === 200) {
               joinMeetingAfter();
-              // 启用获取远程声级计
-              webRTCAdaptor.value?.getSoundLevelList(payload.streams);
             } else {
               ElMessage({
                 offset: 28,
@@ -324,13 +381,9 @@ export const useAction = () => {
               videoStream.value = new MediaStream([newVideoTrack]);
               return;
             }
-            /**
-             * 启动远程流的声级计
-             */
-            webRTCAdaptor.value?.enableAudioLevel(
-              payload.stream,
-              payload.streamId
-            );
+
+            // 启动远程流的声级计
+            enableAudioLevel(payload.stream, payload.streamId);
 
             const isExist = streamsList.value.some(
               (stream) => stream.streamId === payload.streamId
@@ -342,13 +395,6 @@ export const useAction = () => {
           // 本地流回调
           case "localStream":
             localStream.value = payload;
-            break;
-          // 获取远程流的声级计
-          case "gotSoundList":
-            remoteSoundLevelList.value = payload;
-            setTimeout(() => {
-              webRTCAdaptor.value?.getSoundLevelList(streamIds.value);
-            }, 200);
             break;
         }
       },
@@ -469,7 +515,7 @@ export const useAction = () => {
     meetingInfo,
     streamsList,
     videoStream,
-    remoteSoundLevelList,
+    soundLevelList,
     updateMicMuteStatus,
     beforeStartShare,
     onStartShare,
