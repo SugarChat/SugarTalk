@@ -1,11 +1,11 @@
 import { ElMessage } from "element-plus";
 import { LoginApiRequest, LoginApiResponse } from "./types";
 import { handlerPathParams } from "../../../utils/utils";
-import config from "../../../config";
+import { useSettingsStore } from "../../../stores/useSettingsStore";
 
 export const LoginApi = async (data: LoginApiRequest) =>
   new Promise<LoginApiResponse>((resolve, reject) => {
-    fetch(`${config.foundationURL}/token`, {
+    fetch(`${useSettingsStore().foundationURL}/token`, {
       method: "POST",
       headers: {
         Authorization: "Basic NDUwYzZjMDNmYzQ0YzQzYjo3OWQ5MDJkYmZlM2Q3ODFm",

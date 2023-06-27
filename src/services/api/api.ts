@@ -2,6 +2,7 @@ import axios from "axios";
 import { useAppStore } from "../../stores/useAppStore";
 import { ElMessage } from "element-plus";
 import config from "../../config";
+import { useSettingsStore } from "../../stores/useSettingsStore";
 
 export const Api = axios.create({
   baseURL: config.baseURL,
@@ -12,6 +13,8 @@ export const Api = axios.create({
 });
 
 Api.interceptors.request.use((config) => {
+  const settingsStore = useSettingsStore();
+  config.baseURL = settingsStore.baseURL;
   if (!config.headers.Authorization) {
     const appStore = useAppStore();
     config.headers.Authorization = `Bearer ${appStore.access_token}`;
