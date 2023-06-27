@@ -11,7 +11,7 @@
       </div>
     </template>
     <div class="meeting-info-container">
-      <p class="title">***的个人会议室</p>
+      <p class="title">{{ moderator.userName }}的个人会议室</p>
       <div class="info-item">
         <p class="info-label">会议号：</p>
         <p>{{ meetingQuery?.meetingNumber }}</p>
@@ -19,7 +19,7 @@
       </div>
       <div class="info-item">
         <p class="info-label">主持人：</p>
-        <p>***</p>
+        <p>{{ moderator.userName }}</p>
       </div>
     </div>
   </el-popover>
@@ -29,12 +29,14 @@
 import { ElMessage } from "element-plus";
 import { MeetingQuery } from "../../../../../../entity/types";
 import { useAppStore } from "../../../../../../stores/useAppStore";
+import { UserSession } from "../../../../../../entity/response";
 
 interface Props {
   meetingQuery: MeetingQuery;
+  moderator: UserSession;
 }
 
-const { meetingQuery } = defineProps<Props>();
+const { meetingQuery, moderator } = defineProps<Props>();
 
 const appStore = useAppStore();
 

@@ -2,7 +2,7 @@
   <Header borderBottom title="Sugar Talk会议" :close="blockClose" />
 
   <div class="container">
-    <StatusBar :meeting-query="meetingQuery" />
+    <StatusBar :meeting-query="meetingQuery" :moderator="moderator" />
 
     <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
     <!-- <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" /> -->
@@ -39,7 +39,7 @@
           @startShare="onStartShare"
           @stopShare="onStopShare"
         />
-        <Invite :meeting-query="meetingQuery" />
+        <Invite :meeting-query="meetingQuery" :moderator="moderator" />
       </template>
       <template #right>
         <LeaveMeeting ref="leaveMeetingRef" @on-confirm="leaveMeeting" />
@@ -71,6 +71,7 @@ const {
   streamsList,
   videoStream,
   soundLevelList,
+  moderator,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,

@@ -158,14 +158,30 @@ export const useAction = () => {
    */
   const shareScreenStreamId = ref("");
 
+  /**
+   * 当前用户信息
+   */
   const currentUser = computed<UserSession | undefined>(() =>
     meetingInfo.value?.userSessions?.find(
       (user) => user.userName === meetingQuery.userName
     )
   );
 
-  const currentShareUser = computed(() =>
+  /**
+   * 当前分享屏幕用户信息
+   */
+  const currentShareUser = computed<UserSession | undefined>(() =>
     meetingInfo.value?.userSessions.find((user) => user.isSharingScreen)
+  );
+
+  /**
+   * 主持人信息
+   */
+  const moderator = computed<UserSession>(
+    () =>
+      meetingInfo.value?.userSessions?.find(
+        (user) => user.userId === meetingInfo.value?.meetingMasterUserId
+      ) ?? ({} as UserSession)
   );
 
   const isMCU = computed(
@@ -516,6 +532,7 @@ export const useAction = () => {
     streamsList,
     videoStream,
     soundLevelList,
+    moderator,
     updateMicMuteStatus,
     beforeStartShare,
     onStartShare,
