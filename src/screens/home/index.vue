@@ -18,11 +18,9 @@
     </template>
   </Header>
   <div class="container">
-    <div class="left">
-      <div class="meeting-btns">
-        <JoinBtn title="加入会议" icon="icon-add" @click="onJoinMeeting" />
-        <JoinBtn title="快速会议" icon="icon-quick" @click="onQuickMeeting" />
-      </div>
+    <div class="meeting-btns">
+      <JoinBtn title="加入会议" icon="icon-add" @click="onJoinMeeting" />
+      <JoinBtn title="快速会议" icon="icon-quick" @click="onQuickMeeting" />
     </div>
   </div>
 </template>

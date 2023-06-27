@@ -17,8 +17,8 @@ class Navigation {
     switch (name) {
       case "/home":
         createWindow(path, {
-          width: 960,
-          height: 640,
+          width: 375,
+          height: 667,
           frame: false,
           useContentSize: true,
           resizable: false,
