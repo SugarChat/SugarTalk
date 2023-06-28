@@ -3,6 +3,16 @@
   align-items: center;
   justify-content: center;
   -webkit-app-region: no-drag;
+
+  .user-info {
+    display: flex;
+    align-items: center;
+
+    .nickname {
+      font-size: var(--font-size-base);
+      margin-left: var(--spacing-smaller);
+    }
+  }
 }
 
 .user-info-popover {
