@@ -16,7 +16,10 @@
     <template v-if="videoStream">
       <div class="st-container">
         <Player :stream="videoStream" />
-        <UserList :meeting-info="meetingInfo" />
+        <UserList
+          :meeting-info="meetingInfo"
+          :sound-level-list="soundLevelList"
+        />
       </div>
     </template>
 

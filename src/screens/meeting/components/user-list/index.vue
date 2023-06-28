@@ -6,16 +6,12 @@
   >
     <el-scrollbar>
       <div class="user-box-list">
-        <div
-          v-for="user in meetingInfo.userSessions"
-          :key="user.id"
-          :class="['user-box', 'active']"
-        >
-          <Avatar :size="40" :name="user.userName" />
-          <div class="user-box-footer">
-            <p class="nickname">{{ user.userName }}</p>
-          </div>
-        </div>
+        <User
+          v-for="userSession in meetingInfo.userSessions"
+          :key="userSession.id"
+          :user-session="userSession"
+          :sound-level-list="soundLevelList"
+        />
       </div>
     </el-scrollbar>
     <div class="expand-btn" @click="onExpand">
@@ -26,27 +22,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useDraggResize } from "./hooks";
-import Avatar from "../../../../components/avatar/index.vue";
+import { useDraggResize, useAction } from "./hooks";
 import { Meeting } from "../../../../entity/response";
-import { toRefs } from "vue";
+import User from "./components/user/index.vue";
 
 interface Props {
   meetingInfo: Meeting;
+  soundLevelList: Record<string, number>;
 }
 
 const { width, target, handle } = useDraggResize();
 
-const props = defineProps<Props>();
+const { isExpand, onExpand } = useAction();
 
-const { meetingInfo } = toRefs(props);
-
-const isExpand = ref(false);
-
-const onExpand = () => {
-  isExpand.value = !isExpand.value;
-};
+const { meetingInfo, soundLevelList } = defineProps<Props>();
 </script>
 
 <style scoped lang="scss">

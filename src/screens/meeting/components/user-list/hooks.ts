@@ -49,3 +49,16 @@ export const useDraggResize = () => {
     handle,
   };
 };
+
+export const useAction = () => {
+  const isExpand = ref(false);
+
+  const onExpand = () => {
+    isExpand.value = !isExpand.value;
+  };
+
+  return {
+    isExpand,
+    onExpand,
+  };
+};
