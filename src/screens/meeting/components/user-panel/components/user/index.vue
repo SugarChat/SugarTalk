@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, toRefs } from "vue";
+import { onMounted, onUnmounted, toRefs } from "vue";
 import { UserSession } from "../../../../../../entity/response";
 import Avatar from "../../../../../../components/avatar/index.vue";
 import { ref } from "vue";
@@ -31,7 +31,7 @@ import { computed } from "vue";
 
 interface Props {
   userSession: UserSession;
-  soundLevelList: Record<string, Uint8Array>;
+  soundLevelList: Record<string, number>;
 }
 
 const props = defineProps<Props>();
@@ -46,6 +46,8 @@ const barHeight = ref(0);
 
 const _timer = ref<NodeJS.Timeout>();
 
+const frame = ref<number>(0);
+
 const streamId = computed(
   () =>
     userSession.value.userSessionStreams?.find((stream) => stream?.streamId)
@@ -53,21 +55,8 @@ const streamId = computed(
 );
 
 const getByteFrequencyData = () => {
-  const dataArray =
-    props.soundLevelList[streamId.value]?.filter((item) => item > 0) ?? [];
-
-  if (dataArray.length > 0) {
-    let h = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-      h += dataArray[i];
-    }
-    h /= dataArray.length;
-    frequency.value = h;
-    barHeight.value = (12 / 256) * h + 1;
-  } else {
-    frequency.value = 0;
-    barHeight.value = 0;
-  }
+  frequency.value = props.soundLevelList[streamId.value];
+  barHeight.value = (12 / 256) * frequency.value + 1;
 
   if (frequency.value > 30) {
     isSpeaking.value = true;
@@ -83,11 +72,15 @@ const getByteFrequencyData = () => {
     }
   }
 
-  requestAnimationFrame(getByteFrequencyData);
+  frame.value = requestAnimationFrame(getByteFrequencyData);
 };
 
 onMounted(() => {
   requestAnimationFrame(getByteFrequencyData);
+});
+
+onUnmounted(() => {
+  cancelAnimationFrame(frame.value);
 });
 </script>
 

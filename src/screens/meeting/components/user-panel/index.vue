@@ -20,7 +20,7 @@ import { Meeting } from "../../../../entity/response";
 
 interface Props {
   meetingInfo: Meeting;
-  soundLevelList: Record<string, Uint8Array>;
+  soundLevelList: Record<string, number>;
 }
 
 const props = defineProps<Props>();

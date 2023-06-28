@@ -7,6 +7,12 @@
     <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
     <!-- <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" /> -->
 
+    <Speaking
+      v-if="meetingInfo?.userSessions?.length > 0"
+      :meeting-info="meetingInfo"
+      :sound-level-list="soundLevelList"
+    />
+
     <template v-if="videoStream">
       <div class="st-container">
         <Player :stream="videoStream" />
@@ -61,6 +67,7 @@ import Watermark from "../../components/watermark/index.vue";
 import AudioManage from "./components/audio-manage/index.vue";
 import ScreenShare from "./components/screen-share/index.vue";
 import Invite from "./components/invite/index.vue";
+import Speaking from "./components/speaking/index.vue";
 import { useAction } from "./hooks";
 
 const {

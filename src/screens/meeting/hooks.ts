@@ -1,15 +1,6 @@
-import {
-  computed,
-  nextTick,
-  onMounted,
-  reactive,
-  ref,
-  toRaw,
-  watch,
-} from "vue";
+import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
 import {
-  DataChannel,
   MeetingQuery,
   ScreenSource,
   StreamInfo,
@@ -28,44 +19,14 @@ import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useNavigation } from "../../hooks/useNavigation";
 import { MeetingStreamMode } from "../../entity/enum";
 import { Meeting, UserSession } from "../../entity/response";
-
-class SoundMeter {
-  context: AudioContext;
-
-  mic: MediaStreamAudioSourceNode;
-
-  analyser: AnalyserNode;
-
-  dataArray: Uint8Array = new Uint8Array();
-
-  constructor(context: AudioContext, stream: MediaStream) {
-    this.context = context;
-    this.mic = this.context.createMediaStreamSource(stream);
-    this.analyser = this.context.createAnalyser();
-    this.mic.connect(this.analyser);
-    this.analyser.fftSize = 256;
-    this.analyser.minDecibels = -90;
-    this.analyser.maxDecibels = -10;
-    this.analyser.smoothingTimeConstant = 0.85;
-    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-  }
-
-  getByteFrequencyData() {
-    this.analyser.getByteFrequencyData(this.dataArray);
-  }
-
-  stop() {
-    this.mic.disconnect();
-    this.analyser.disconnect();
-  }
-}
+import { SoundMeter } from "../../utils/webrtc/soundmeter";
 
 export const useSoundmeter = () => {
   const audioContext = ref(new AudioContext());
 
   const soundMeters: Record<string, SoundMeter> = reactive({});
 
-  const soundLevelList: Record<string, Uint8Array> = reactive({});
+  const soundLevelList: Record<string, number> = reactive({});
 
   const enableAudioLevel = (stream: MediaStream, streamId: string) => {
     if (!soundMeters[streamId]) {
@@ -73,11 +34,27 @@ export const useSoundmeter = () => {
     }
   };
 
+  const getByteFrequency = (dataArray: Uint8Array) => {
+    let frequency = 0;
+    let count = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      const value = dataArray[i];
+      if (value > 0) {
+        frequency += value;
+        count += 1;
+      }
+    }
+    return frequency === 0 ? 0 : frequency / count;
+  };
+
   const getSoundLevelList = () => {
+    const data: Record<string, number> = {};
     for (let streamId in toRaw(soundMeters)) {
       if (soundMeters[streamId]?.dataArray?.length > 0) {
         soundMeters[streamId].getByteFrequencyData();
-        soundLevelList[streamId] = soundMeters[streamId].dataArray;
+        soundLevelList[streamId] = getByteFrequency(
+          soundMeters[streamId].dataArray
+        );
       }
     }
     requestAnimationFrame(getSoundLevelList);
