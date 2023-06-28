@@ -26,7 +26,7 @@ const speakingFrame = ref<number>(0);
 
 const getSpeaking = () => {
   const streamIds = Object.keys(soundLevelList)
-    .filter((streamId) => soundLevelList[streamId] > 30)
+    .filter((streamId) => soundLevelList[streamId] > 40)
     .sort((a, b) => soundLevelList[b] - soundLevelList[a]);
   speaking.value =
     meetingInfo?.userSessions

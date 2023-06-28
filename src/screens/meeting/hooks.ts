@@ -48,7 +48,6 @@ export const useSoundmeter = () => {
   };
 
   const getSoundLevelList = () => {
-    const data: Record<string, number> = {};
     for (let streamId in toRaw(soundMeters)) {
       if (soundMeters[streamId]?.dataArray?.length > 0) {
         soundMeters[streamId].getByteFrequencyData();

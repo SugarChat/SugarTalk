@@ -58,7 +58,7 @@ const getByteFrequencyData = () => {
   frequency.value = props.soundLevelList[streamId.value];
   barHeight.value = (12 / 256) * frequency.value + 1;
 
-  if (frequency.value > 30) {
+  if (frequency.value > 40) {
     isSpeaking.value = true;
     clearTimeout(_timer.value);
     _timer.value = undefined;
