@@ -68,7 +68,7 @@ const getByteFrequencyData = () => {
         isSpeaking.value = false;
         clearTimeout(_timer.value);
         _timer.value = undefined;
-      }, 100);
+      }, 500);
     }
   }
 
