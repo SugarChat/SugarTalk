@@ -64,7 +64,6 @@ const onMinimize = () => {
 };
 
 const onMaximize = () => {
-  console.log({ isMaximizable: isMaximizable.value });
   if (isMaximizable.value) {
     isMaximizable.value = false;
     window.electronAPI.getCurrentWindow().unmaximize();

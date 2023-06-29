@@ -20,51 +20,6 @@
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
-
-    .user-box {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      height: 96px;
-      min-width: 168px;
-      max-width: 200px;
-      padding-top: 18px;
-      margin-left: 8px;
-      background-color: #2d3033;
-      border: 2px solid #5e6166;
-      border-radius: var(--border-radius-base);
-      overflow: hidden;
-
-      &.active {
-        border-color: #16cc67;
-      }
-
-      &:not(:last-child) {
-        margin-bottom: 8px;
-      }
-
-      .user-box-footer {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 22px;
-        display: flex;
-
-        .nickname {
-          max-width: 100%;
-          line-height: 22px;
-          padding: 0 8px;
-          color: var(--color-text-white);
-          background-color: #151618;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
-          user-select: none;
-        }
-      }
-    }
   }
 
   .expand-btn {

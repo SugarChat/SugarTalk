@@ -21,7 +21,11 @@
     </Header>
     <div class="invite-body">
       <div class="title">
-        {{ meetingQuery.userName }} 邀请您加入***的个人会议室
+        {{ meetingQuery.userName }}邀请您加入{{ appStore.appInfo.name }}会议
+      </div>
+      <div class="invite-item">
+        <p>会议主题：</p>
+        <p>{{ moderator.userName }}的个人会议</p>
       </div>
       <div class="invite-item">
         <p>会议号：</p>
@@ -44,12 +48,14 @@ import Header from "../../../../components/header/index.vue";
 import { MeetingQuery } from "../../../../entity/types";
 import { ElMessage } from "element-plus";
 import { useAppStore } from "../../../../stores/useAppStore";
+import { UserSession } from "../../../../entity/response";
 
 interface Props {
   meetingQuery: MeetingQuery;
+  moderator: UserSession;
 }
 
-const { meetingQuery } = defineProps<Props>();
+const { meetingQuery, moderator } = defineProps<Props>();
 
 const appStore = useAppStore();
 
@@ -57,7 +63,7 @@ const [visible, onToggle] = useToggle();
 
 const onCopyAll = () => {
   window.clipboard.writeText(
-    `${meetingQuery.userName} 邀请您加入***的个人会议室\n\r会议号：${meetingQuery.meetingNumber}`
+    `${meetingQuery.userName} 邀请您加入${appStore.appInfo.name}会议\n\r会议主题：${moderator.userName}的个人会议\n\r会议号：${meetingQuery.meetingNumber}`
   );
   ElMessage({
     offset: 28,

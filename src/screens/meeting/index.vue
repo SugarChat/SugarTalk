@@ -2,20 +2,24 @@
   <Header borderBottom title="Sugar Talk会议" :close="blockClose" />
 
   <div class="container">
-    <StatusBar :meeting-query="meetingQuery" />
+    <StatusBar :meeting-query="meetingQuery" :moderator="moderator" />
 
-    <UserPanel
-      :meeting-query="meetingQuery"
-      :streams-list="streamsList"
-      :meeting-info="meetingInfo"
-      :remote-sound-level-list="remoteSoundLevelList"
-    />
+    <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
     <!-- <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" /> -->
+
+    <Speaking
+      v-if="meetingInfo?.userSessions?.length > 0"
+      :meeting-info="meetingInfo"
+      :sound-level-list="soundLevelList"
+    />
 
     <template v-if="videoStream">
       <div class="st-container">
         <Player :stream="videoStream" />
-        <UserList :meeting-info="meetingInfo" />
+        <UserList
+          :meeting-info="meetingInfo"
+          :sound-level-list="soundLevelList"
+        />
       </div>
     </template>
 
@@ -44,7 +48,7 @@
           @startShare="onStartShare"
           @stopShare="onStopShare"
         />
-        <Invite :meeting-query="meetingQuery" />
+        <Invite :meeting-query="meetingQuery" :moderator="moderator" />
       </template>
       <template #right>
         <LeaveMeeting ref="leaveMeetingRef" @on-confirm="leaveMeeting" />
@@ -66,6 +70,7 @@ import Watermark from "../../components/watermark/index.vue";
 import AudioManage from "./components/audio-manage/index.vue";
 import ScreenShare from "./components/screen-share/index.vue";
 import Invite from "./components/invite/index.vue";
+import Speaking from "./components/speaking/index.vue";
 import { useAction } from "./hooks";
 
 const {
@@ -75,7 +80,8 @@ const {
   meetingInfo,
   streamsList,
   videoStream,
-  remoteSoundLevelList,
+  soundLevelList,
+  moderator,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,

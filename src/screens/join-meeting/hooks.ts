@@ -3,6 +3,7 @@ import { useNavigation } from "../../hooks/useNavigation";
 import { useAppStore } from "../../stores/useAppStore";
 import { ElLoading, ElMessage, FormInstance, FormRules } from "element-plus";
 import { getMeetingInfoApi } from "../../services";
+import { MeetingStreamMode } from "../../entity/enum";
 
 export const useAction = () => {
   const appStore = useAppStore();
@@ -41,7 +42,7 @@ export const useAction = () => {
           navigation.close().navigate("/meeting", {
             ...state,
             isMuted: !state.microphone,
-            meetingStreamMode: 0,
+            meetingStreamMode: MeetingStreamMode.SFU,
           });
           // const { code, data, msg } = await getMeetingInfoApi({
           //   meetingNumber: state.meetingNumber,

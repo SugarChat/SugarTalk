@@ -6,6 +6,7 @@
           v-for="userSession in meetingInfo.userSessions"
           :key="userSession.id"
           :user-session="userSession"
+          :sound-level-list="props.soundLevelList"
         />
       </div>
     </el-scrollbar>
@@ -14,21 +15,17 @@
 
 <script setup lang="ts">
 import { toRefs } from "vue";
-import { MeetingQuery, StreamItem } from "../../../../entity/types";
 import User from "./components/user/index.vue";
 import { Meeting } from "../../../../entity/response";
 
 interface Props {
-  meetingQuery: MeetingQuery;
-  streamsList: StreamItem[];
   meetingInfo: Meeting;
-  remoteSoundLevelList: Record<string, number>;
+  soundLevelList: Record<string, number>;
 }
 
 const props = defineProps<Props>();
 
-const { meetingQuery, streamsList, meetingInfo, remoteSoundLevelList } =
-  toRefs(props);
+const { meetingInfo } = toRefs(props);
 </script>
 
 <style scoped lang="scss">

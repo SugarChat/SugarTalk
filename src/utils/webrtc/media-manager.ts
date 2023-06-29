@@ -1,4 +1,3 @@
-import { SoundMeter } from "./soundmeter";
 import {
   WebRTCAdaptorConfig,
   MediaConstraints,
@@ -340,17 +339,5 @@ export class MediaManager {
     this.localStream
       ?.getAudioTracks()
       .forEach((track) => (track.enabled = true));
-  }
-
-  enableAudioLevelForLocalStream(
-    streamId: string,
-    levelCallback?: (streamId: string, instant: number) => void
-  ) {
-    const localStreamSoundMeter = new SoundMeter(
-      this.audioContext,
-      streamId,
-      levelCallback
-    );
-    localStreamSoundMeter.connectToSource(this.localStream!);
   }
 }

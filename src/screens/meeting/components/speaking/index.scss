@@ -1,0 +1,21 @@
+.speaking {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  min-width: 256px;
+  max-width: 512px;
+  min-height: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: var(--spacing-smaller) var(--spacing-smaller) 0;
+  transform: translate(-50%, 0);
+  background-color: var(--color-primary-light);
+  border-radius: var(--border-radius-base);
+
+  .text {
+    padding-bottom: var(--spacing-smaller);
+    font-size: var(--font-size-small);
+    color: var(--color-primary);
+  }
+}

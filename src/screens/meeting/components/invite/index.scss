@@ -91,8 +91,8 @@
         right: 20px;
         bottom: 40px;
         left: 0;
-        background: url("../../../../../../assets/images/sugarTalkLogo.png")
-          bottom right no-repeat;
+        background: url("../../../../assets/images/sugarTalkLogo.png") bottom
+          right no-repeat;
         background-size: 128px;
         opacity: 0.3;
       }
@@ -112,13 +112,14 @@
       }
 
       .title {
-        margin-bottom: 16px;
+        margin-bottom: var(--spacing-medium);
         font-size: var(--font-size-base);
         color: var(--color-text-primary);
       }
 
       .invite-item {
         display: flex;
+        margin-bottom: var(--spacing-small);
       }
     }
 

@@ -7,7 +7,10 @@
       :show-arrow="true"
     >
       <template #reference>
-        <Avatar :size="36" cursor="pointer" :name="appStore.userName" />
+        <div class="user-info">
+          <Avatar :size="36" cursor="pointer" :name="appStore.userName" />
+          <p class="nickname">{{ appStore.userName }}</p>
+        </div>
       </template>
       <div class="user-info-container">
         <div class="user-info">

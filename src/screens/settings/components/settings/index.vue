@@ -1,11 +1,11 @@
 <template>
   <Scroll>
     <el-form label-position="top">
-      <Checkbox
+      <!-- <Checkbox
         :checked="settingsStore.enableCamera"
         @change="(checked) => (settingsStore.enableCamera = checked)"
         >入会开启摄像头</Checkbox
-      >
+      > -->
       <Checkbox
         :checked="settingsStore.enableMicrophone"
         @change="(checked) => (settingsStore.enableMicrophone = checked)"
@@ -26,11 +26,7 @@
       <el-divider />
 
       <el-form-item label="SOCKET连接" :required="true">
-        <el-select
-          placeholder="SOCKET连接"
-          :model-value="settingsStore.websocketURL"
-          @change="onChangeWebSocketURL"
-        >
+        <el-select placeholder="SOCKET连接" v-model="websocketURL">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -38,6 +34,12 @@
             :value="item.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="baseURL" :required="true">
+        <el-input v-model="baseURL" placeholder="BASE URL" />
+      </el-form-item>
+      <el-form-item label="foundationURL" :required="true">
+        <el-input v-model="foundationURL" placeholder="FOUNDATION URL" />
       </el-form-item>
     </el-form>
   </Scroll>
@@ -47,6 +49,7 @@
 import Scroll from "../scroll/index.vue";
 import Checkbox from "../check-box/index.vue";
 import { useSettingsStore } from "../../../../stores/useSettingsStore";
+import { computed } from "vue";
 
 const settingsStore = useSettingsStore();
 
@@ -61,9 +64,20 @@ const options = [
   },
 ];
 
-const onChangeWebSocketURL = (url: string) => {
-  settingsStore.websocketURL = url;
-};
+const websocketURL = computed({
+  get: () => settingsStore.websocketURL,
+  set: (val) => (settingsStore.websocketURL = val),
+});
+
+const baseURL = computed({
+  get: () => settingsStore.baseURL,
+  set: (val) => (settingsStore.baseURL = val),
+});
+
+const foundationURL = computed({
+  get: () => settingsStore.foundationURL,
+  set: (val) => (settingsStore.foundationURL = val),
+});
 </script>
 
 <style scoped lang="scss">
