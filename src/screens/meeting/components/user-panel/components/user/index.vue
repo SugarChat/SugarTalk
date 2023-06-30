@@ -10,12 +10,7 @@
             userSession.isMuted && frequency <= 20 && 'disabled',
           ]"
         >
-          <i class="iconfont icon-mic" />
-          <div class="mic-bgc" :style="`height: ${barHeight}px;`">
-            <div class="mic-box">
-              <i class="iconfont icon-mic" />
-            </div>
-          </div>
+          <Microphone :size="12" :frequency="frequency" color="#fff" />
         </div>
       </div>
     </div>
@@ -26,8 +21,8 @@
 import { onMounted, onUnmounted, toRefs } from "vue";
 import { UserSession } from "../../../../../../entity/response";
 import Avatar from "../../../../../../components/avatar/index.vue";
+import Microphone from "../../../../../../components/microphone/index.vue";
 import { ref } from "vue";
-import { computed } from "vue";
 
 interface Props {
   userSession: UserSession;
@@ -42,21 +37,12 @@ const isSpeaking = ref(false);
 
 const frequency = ref(0);
 
-const barHeight = ref(0);
-
 const _timer = ref<NodeJS.Timeout>();
 
 const frame = ref<number>(0);
 
-const streamId = computed(
-  () =>
-    userSession.value.userSessionStreams?.find((stream) => stream?.streamId)
-      ?.streamId ?? ""
-);
-
 const getByteFrequencyData = () => {
-  frequency.value = props.soundLevelList[streamId.value];
-  barHeight.value = (12 / 256) * frequency.value + 1;
+  frequency.value = props.soundLevelList?.[userSession.value?.streamId] ?? 0;
 
   if (frequency.value > 40) {
     isSpeaking.value = true;
@@ -68,20 +54,16 @@ const getByteFrequencyData = () => {
         isSpeaking.value = false;
         clearTimeout(_timer.value);
         _timer.value = undefined;
-      }, 500);
+      }, 300);
     }
   }
 
   frame.value = requestAnimationFrame(getByteFrequencyData);
 };
 
-onMounted(() => {
-  requestAnimationFrame(getByteFrequencyData);
-});
+onMounted(getByteFrequencyData);
 
-onUnmounted(() => {
-  cancelAnimationFrame(frame.value);
-});
+onUnmounted(() => cancelAnimationFrame(frame.value));
 </script>
 
 <style scoped lang="scss">
