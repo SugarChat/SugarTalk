@@ -37,6 +37,7 @@
       <template #left>
         <AudioManage
           :isMuted="meetingQuery.isMuted"
+          :frequency="currentFrequency"
           :update="updateMicMuteStatus"
         />
         <!-- <VideoManage /> -->
@@ -81,6 +82,7 @@ const {
   streamsList,
   videoStream,
   soundLevelList,
+  currentFrequency,
   moderator,
   updateMicMuteStatus,
   beforeStartShare,

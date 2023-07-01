@@ -1,0 +1,17 @@
+.speaking-enter-active,
+.speaking-leave-active {
+  opacity: 1;
+}
+.speaking-enter-from,
+.speaking-leave-to {
+  animation: fade 1.5s;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

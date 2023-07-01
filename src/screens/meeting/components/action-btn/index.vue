@@ -1,7 +1,9 @@
 <template>
   <div class="box-item" @click="onClick">
     <div :class="['box-icon', { disabled }]">
-      <i :class="['iconfont', icon]" />
+      <slot>
+        <i :class="['iconfont', icon]" />
+      </slot>
     </div>
     <p class="title">{{ title }}</p>
   </div>

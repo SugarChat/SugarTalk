@@ -9,12 +9,15 @@
   padding-top: 18px;
   margin-left: 8px;
   background-color: #2d3033;
-  border: 2px solid #5e6166;
-  border-radius: var(--border-radius-base);
   overflow: hidden;
 
-  &.active {
-    border-color: #16cc67;
+  .user-item-active {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: 2px solid var(--color-success);
   }
 
   &:not(:last-child) {
@@ -29,16 +32,48 @@
     height: 22px;
     display: flex;
 
-    .nickname {
+    .user-info {
+      display: flex;
+      align-items: center;
       max-width: 100%;
-      line-height: 22px;
-      padding: 0 8px;
-      color: var(--color-text-white);
+      padding: 0 var(--spacing-tiny);
       background-color: #151618;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-      user-select: none;
+      border-top-right-radius: var(--border-radius-base);
+
+      .mic-mute-status {
+        position: relative;
+        width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        overflow: hidden;
+
+        &.disabled::after {
+          content: "";
+          position: absolute;
+          top: 1px;
+          left: calc(50% - 1px);
+          width: 1px;
+          bottom: 1px;
+          background-color: var(--color-danger);
+          transform-origin: center;
+          transform: rotate(45deg);
+        }
+      }
+
+      .nickname {
+        flex: 1;
+        line-height: 22px;
+        padding-left: var(--spacing-tiny);
+        color: var(--color-text-white);
+        font-size: var(--font-size-small);
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        user-select: none;
+      }
     }
   }
 }

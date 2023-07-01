@@ -137,17 +137,24 @@ export const useAction = () => {
   /**
    * 当前用户信息
    */
-  const currentUser = computed<UserSession | undefined>(() =>
-    meetingInfo.value?.userSessions?.find(
-      (user) => user.userName === meetingQuery.userName
-    )
+  const currentUser = computed<UserSession>(
+    () =>
+      meetingInfo.value?.userSessions?.find(
+        (user) => user.userName === meetingQuery.userName
+      ) ?? ({} as UserSession)
+  );
+
+  const currentFrequency = computed(
+    () => soundLevelList?.[currentUser?.value?.streamId ?? ""] ?? 0
   );
 
   /**
    * 当前分享屏幕用户信息
    */
-  const currentShareUser = computed<UserSession | undefined>(() =>
-    meetingInfo.value?.userSessions.find((user) => user.isSharingScreen)
+  const currentShareUser = computed<UserSession>(
+    () =>
+      meetingInfo.value?.userSessions.find((user) => user.isSharingScreen) ??
+      ({} as UserSession)
   );
 
   /**
@@ -248,6 +255,12 @@ export const useAction = () => {
       meetingNumber: meetingQuery.meetingNumber,
     });
     if (code === 200) {
+      data?.userSessions?.forEach(
+        (user) =>
+          (user.streamId =
+            user.userSessionStreams?.find((stream) => stream.streamId)
+              ?.streamId ?? "")
+      );
       meetingInfo.value = data;
       getMeetingInfoAfter(data);
     } else {
@@ -418,6 +431,9 @@ export const useAction = () => {
       } else {
         webRTCAdaptor.value?.unmuteLocalMic();
       }
+      meetingInfo.value?.userSessions?.forEach(
+        (user) => user.id === currentUser.value?.id && (user.isMuted = status)
+      );
     } else {
       ElMessage({
         offset: 28,
@@ -508,6 +524,7 @@ export const useAction = () => {
     streamsList,
     videoStream,
     soundLevelList,
+    currentFrequency,
     moderator,
     updateMicMuteStatus,
     beforeStartShare,
