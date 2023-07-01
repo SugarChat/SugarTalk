@@ -10,6 +10,7 @@ import { ElLoading, ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 import {
   audioChangeApi,
+  endMeetingApi,
   getMeetingInfoApi,
   joinMeetingApi,
   outMeetingApi,
@@ -153,7 +154,7 @@ export const useAction = () => {
    */
   const currentShareUser = computed<UserSession>(
     () =>
-      meetingInfo.value?.userSessions.find((user) => user.isSharingScreen) ??
+      meetingInfo.value?.userSessions?.find((user) => user.isSharingScreen) ??
       ({} as UserSession)
   );
 
@@ -165,6 +166,16 @@ export const useAction = () => {
       meetingInfo.value?.userSessions?.find(
         (user) => user.userId === meetingInfo.value?.meetingMasterUserId
       ) ?? ({} as UserSession)
+  );
+
+  /**
+   * 当前用户是否是主持人
+   */
+  const isModerator = computed(
+    () =>
+      !!currentUser.value?.id &&
+      !!moderator.value?.id &&
+      currentUser.value.id === moderator.value.id
   );
 
   const isMCU = computed(
@@ -275,16 +286,6 @@ export const useAction = () => {
   /**
    * 离开会议
    */
-  const outMeeting = async () => {
-    await outMeetingApi({
-      meetingId: meetingInfo.value.id,
-      streamId: streamInfo.value.streamId,
-    });
-  };
-
-  /**
-   * 离开会议
-   */
   const leaveMeeting = async () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
@@ -296,7 +297,33 @@ export const useAction = () => {
         webRTCAdaptor.value?.closeWebSocket();
       }
 
-      await outMeeting();
+      await outMeetingApi({
+        meetingId: meetingInfo.value.id,
+        streamId: streamInfo.value.streamId,
+      });
+    } finally {
+      loading.close();
+      navigation.destroy();
+    }
+  };
+
+  /**
+   * 结束会议
+   */
+  const endMeeting = async () => {
+    const loading = ElLoading.service({ fullscreen: true });
+    try {
+      webRTCAdaptor.value?.leaveFromRoom(meetingQuery.meetingNumber);
+
+      if (streamInfo.value?.streamId) {
+        webRTCAdaptor.value?.stop(streamInfo.value.streamId);
+        webRTCAdaptor.value?.closePeerConnection(streamInfo.value.streamId);
+        webRTCAdaptor.value?.closeWebSocket();
+      }
+
+      await endMeetingApi({
+        meetingNumber: meetingInfo.value.meetingNumber,
+      });
     } finally {
       loading.close();
       navigation.destroy();
@@ -505,9 +532,7 @@ export const useAction = () => {
 
   onMounted(() => {
     nextTick(() => {
-      setTimeout(() => {
-        init();
-      }, 2000);
+      init();
     });
 
     /**
@@ -526,11 +551,13 @@ export const useAction = () => {
     soundLevelList,
     currentFrequency,
     moderator,
+    isModerator,
     updateMicMuteStatus,
     beforeStartShare,
     onStartShare,
     onStopShare,
     leaveMeeting,
+    endMeeting,
     blockClose,
   };
 };

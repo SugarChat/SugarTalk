@@ -52,7 +52,12 @@
         <Invite :meeting-query="meetingQuery" :moderator="moderator" />
       </template>
       <template #right>
-        <LeaveMeeting ref="leaveMeetingRef" @on-confirm="leaveMeeting" />
+        <LeaveMeeting
+          ref="leaveMeetingRef"
+          :is-moderator="isModerator"
+          @on-leave-meeting="leaveMeeting"
+          @on-end-meeting="endMeeting"
+        />
       </template>
     </Footer>
   </div>
@@ -84,11 +89,13 @@ const {
   soundLevelList,
   currentFrequency,
   moderator,
+  isModerator,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,
   onStopShare,
   leaveMeeting,
+  endMeeting,
   blockClose,
 } = useAction();
 </script>
