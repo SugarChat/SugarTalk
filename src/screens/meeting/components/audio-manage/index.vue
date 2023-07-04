@@ -11,7 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import { useDebounceFn } from "@vueuse/core";
 import { getMediaDeviceAccessAndStatus } from "../../../../utils/media";
 import ActionBtn from "../action-btn/index.vue";
 import Microphone from "../../../../components/microphone/index.vue";
@@ -33,16 +32,17 @@ onMounted(async () => {
   getMediaDeviceAccessAndStatus("microphone");
 });
 
-const onClick = useDebounceFn(async () => {
-  if (isMuted.value) {
-    const pass = await getMediaDeviceAccessAndStatus("microphone", true);
-    if (!pass) return;
-  }
+const onClick = async () => {
   try {
     loading.value = true;
+    if (isMuted.value) {
+      const pass = await getMediaDeviceAccessAndStatus("microphone", true);
+      if (!pass) return;
+    }
+
     await props?.update(!isMuted.value);
   } finally {
     loading.value = false;
   }
-}, 300);
+};
 </script>

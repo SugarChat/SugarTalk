@@ -452,15 +452,17 @@ export const useAction = () => {
       isMuted: status,
     });
     if (code === 200) {
-      meetingQuery.isMuted = status;
       if (status) {
         webRTCAdaptor.value?.muteLocalMic();
       } else {
         webRTCAdaptor.value?.unmuteLocalMic();
       }
-      meetingInfo.value?.userSessions?.forEach(
-        (user) => user.id === currentUser.value?.id && (user.isMuted = status)
-      );
+      requestAnimationFrame(() => {
+        meetingQuery.isMuted = status;
+        meetingInfo.value?.userSessions?.forEach(
+          (user) => user.id === currentUser.value?.id && (user.isMuted = status)
+        );
+      });
     } else {
       ElMessage({
         offset: 28,

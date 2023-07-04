@@ -2,7 +2,7 @@
   <ActionBtn title="邀请" icon="icon-invite" @click="() => onToggle(true)" />
 
   <el-dialog
-    class="invite-dialog"
+    class="custom-dialog"
     v-model="visible"
     :width="640"
     :append-to-body="true"
@@ -84,6 +84,6 @@ const onCopyMeeting = () => {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "./index.scss";
 </style>

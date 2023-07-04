@@ -1,60 +1,30 @@
-.screen-share-dialog {
+.header {
+  background-color: var(--background-color-base);
+}
+
+.screen-share-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 560px;
-  border-radius: var(--border-radius-large) !important;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 
-  .el-dialog__header {
-    display: none;
-  }
-
-  .el-dialog__body {
-    flex: 1;
+  .screen-list {
     display: flex;
-    padding: 0 !important;
-    flex-direction: column;
-    overflow: hidden;
+    flex-flow: row wrap;
+    padding: 18px 15px 0;
 
-    .header {
-      background-color: var(--background-color-base);
+    &.screen-list-scrollbar {
+      height: 270px;
     }
 
-    .screen-share-body {
-      flex: 1;
+    .screen-item {
+      width: 25%;
+      flex: 0 0 25%;
       display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-
-      &::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 10px;
-        transition: all 0.2s ease-in-out 0s;
-      }
-
-      &::-webkit-scrollbar-track {
-        border-radius: 10px;
-      }
-
-      .screen-list {
-        display: flex;
-        flex-flow: row wrap;
-        padding: 18px 15px 0;
-
-        .screen-item {
-          width: 25%;
-          flex: 0 0 25%;
-          display: flex;
-          justify-content: center;
-          margin-bottom: 18px;
-        }
-      }
+      justify-content: center;
+      margin-bottom: 18px;
     }
   }
 }

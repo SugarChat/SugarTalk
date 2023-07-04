@@ -1,0 +1,42 @@
+.member-body {
+  .search-box {
+    padding: var(--spacing-smaller) var(--spacing-small);
+    border-bottom: var(--border-width-base) solid var(--border-color-light);
+  }
+
+  .user-list {
+    height: 240px;
+  }
+
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 240px;
+
+    .not-found-image {
+      width: 128px;
+      height: 128px;
+    }
+
+    .not-found-tips {
+      font-size: var(--font-size-small);
+      color: var(--color-text-disabled);
+      margin-top: var(--spacing-smaller);
+    }
+  }
+}
+
+.member-footer {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 var(--spacing-small);
+  border-top: var(--border-width-base) solid var(--border-color-light);
+
+  .el-button {
+    width: 68px;
+  }
+}

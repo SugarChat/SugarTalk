@@ -51,3 +51,16 @@ body {
 //     background-color: #f9f9f9;
 //   }
 // }
+
+.custom-dialog {
+  border-radius: var(--border-radius-large) !important;
+  overflow: hidden;
+
+  .el-dialog__header {
+    display: none;
+  }
+
+  .el-dialog__body {
+    padding: 0 !important;
+  }
+}
