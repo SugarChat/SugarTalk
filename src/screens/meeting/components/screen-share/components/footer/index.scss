@@ -2,10 +2,21 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: var(--spacing-small);
 
-  .footer-btn {
-    width: 88px;
+  .el-icon {
+    font-size: var(--font-size-extra-large);
+    margin-left: var(--spacing-small);
+    cursor: pointer;
+  }
+
+  .footer-action {
+    display: flex;
+    align-items: center;
+
+    .footer-btn {
+      width: 88px;
+    }
   }
 }

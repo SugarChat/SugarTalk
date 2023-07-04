@@ -545,6 +545,7 @@ export const useAction = () => {
 
   return {
     leaveMeetingRef,
+    settingsStore,
     isShareScreen,
     meetingQuery,
     meetingInfo,

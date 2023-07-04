@@ -5,7 +5,10 @@
     <StatusBar :meeting-query="meetingQuery" :moderator="moderator" />
 
     <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
-    <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" />
+    <Watermark
+      v-if="settingsStore.enableWatermark"
+      :text="`Sugar Talk ${meetingQuery.userName}`"
+    />
 
     <Speaking
       v-if="meetingInfo?.userSessions?.length > 0"
@@ -88,6 +91,7 @@ import { useAction } from "./hooks";
 
 const {
   leaveMeetingRef,
+  settingsStore,
   isShareScreen,
   meetingQuery,
   meetingInfo,

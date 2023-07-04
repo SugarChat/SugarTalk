@@ -57,7 +57,7 @@
         </div>
       </el-scrollbar>
     </div>
-    <Footer @cancel="onClose" @confirm="onConfirm" />
+    <Footer @cancel="onClose" @confirm="onConfirm" @refresh="onOpen" />
   </el-dialog>
 </template>
 
