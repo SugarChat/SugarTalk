@@ -10,7 +10,12 @@
     :show-close="false"
     :align-center="true"
   >
-    <Header :title="`会议号：${meetingQuery.meetingNumber}`" borderBottom>
+    <Header
+      :title="`会议号：${meetingQuery.meetingNumber}`"
+      :is-inner="true"
+      borderBottom
+      :close="() => onToggle(false)"
+    >
       <template #right>
         <div class="invite-header">
           <div class="close-btn" @click="() => onToggle(false)">

@@ -16,7 +16,9 @@
   >
     <Header
       :title="`成员(${meetingInfo?.userSessions?.length ?? 0})`"
+      :is-inner="true"
       borderBottom
+      :close="() => (visible = false)"
     />
     <div class="member-body">
       <div class="search-box">

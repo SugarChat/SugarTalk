@@ -16,7 +16,12 @@
     :show-close="false"
     :align-center="true"
   >
-    <Header title="选择共享内容" borderBottom />
+    <Header
+      title="选择共享内容"
+      :is-inner="true"
+      borderBottom
+      :close="onClose"
+    />
     <div class="screen-share-body">
       <div class="screen-list">
         <div
