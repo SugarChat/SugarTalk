@@ -459,9 +459,6 @@ export const useAction = () => {
       }
       requestAnimationFrame(() => {
         meetingQuery.isMuted = status;
-        meetingInfo.value?.userSessions?.forEach(
-          (user) => user.id === currentUser.value?.id && (user.isMuted = status)
-        );
       });
     } else {
       ElMessage({

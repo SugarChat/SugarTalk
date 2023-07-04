@@ -9,8 +9,14 @@
   .user-list {
     min-height: calc(100vh - 110px);
     display: flex;
-    flex-flow: row wrap;
     align-items: center;
     justify-content: center;
+
+    .user-list-container {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: center;
+    }
   }
 }
