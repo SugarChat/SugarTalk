@@ -8,7 +8,7 @@
   <ActionBtn v-else title="共享屏幕" icon="icon-screen" @click="onStart" />
 
   <el-dialog
-    class="screen-share-dialog"
+    class="custom-dialog"
     v-model="visible"
     :width="718"
     :append-to-body="true"
@@ -16,7 +16,12 @@
     :show-close="false"
     :align-center="true"
   >
-    <Header title="选择共享内容" borderBottom />
+    <Header
+      title="选择共享内容"
+      :is-inner="true"
+      borderBottom
+      :close="onClose"
+    />
     <div class="screen-share-body">
       <div class="screen-list">
         <div
@@ -36,17 +41,23 @@
         :currentAppIcon="currentAppIcon"
         @click="onChangeAppIcon"
       />
-      <div class="screen-list">
-        <div class="screen-item" v-for="source in appSources" :key="source.id">
-          <Screen
-            :source="source"
-            :active="currentSource?.id === source.id"
-            @click="onSelect"
-          />
+      <el-scrollbar>
+        <div class="screen-list screen-list-scrollbar">
+          <div
+            class="screen-item"
+            v-for="source in appSources"
+            :key="source.id"
+          >
+            <Screen
+              :source="source"
+              :active="currentSource?.id === source.id"
+              @click="onSelect"
+            />
+          </div>
         </div>
-      </div>
+      </el-scrollbar>
     </div>
-    <Footer @cancel="onClose" @confirm="onConfirm" />
+    <Footer @cancel="onClose" @confirm="onConfirm" @refresh="onOpen" />
   </el-dialog>
 </template>
 
@@ -107,6 +118,6 @@ const onStopShare = () => {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "./index.scss";
 </style>

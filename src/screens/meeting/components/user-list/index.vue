@@ -15,7 +15,7 @@
       </div>
     </el-scrollbar>
     <div class="expand-btn" @click="onExpand">
-      <i :class="['iconfont icon-arrow-right', isExpand && 'active']" />
+      <i :class="['iconfont icon-arrow-left', isExpand && 'active']" />
     </div>
     <div ref="handle" class="drag-resize" />
   </div>

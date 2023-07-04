@@ -21,6 +21,8 @@ export const useSettingsStore = defineStore("settingsStore", {
     audioOutputDeviceId: "default",
     // 是否开启 DevTools
     openDevTools: false,
+    // 是否开启水印
+    enableWatermark: false,
   }),
   actions: {
     init() {

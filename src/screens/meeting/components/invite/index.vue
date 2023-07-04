@@ -2,7 +2,7 @@
   <ActionBtn title="邀请" icon="icon-invite" @click="() => onToggle(true)" />
 
   <el-dialog
-    class="invite-dialog"
+    class="custom-dialog"
     v-model="visible"
     :width="640"
     :append-to-body="true"
@@ -10,7 +10,12 @@
     :show-close="false"
     :align-center="true"
   >
-    <Header :title="`会议号：${meetingQuery.meetingNumber}`" borderBottom>
+    <Header
+      :title="`会议号：${meetingQuery.meetingNumber}`"
+      :is-inner="true"
+      borderBottom
+      :close="() => onToggle(false)"
+    >
       <template #right>
         <div class="invite-header">
           <div class="close-btn" @click="() => onToggle(false)">
@@ -84,6 +89,6 @@ const onCopyMeeting = () => {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "./index.scss";
 </style>

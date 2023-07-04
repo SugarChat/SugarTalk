@@ -1,3 +1,22 @@
+.before-leave-meeting-dialog {
+  border-radius: 4px !important;
+  overflow: hidden;
+
+  .el-dialog__header {
+    display: none;
+  }
+
+  .el-dialog__body {
+    padding: 12px 12px 0 !important;
+
+    .el-button {
+      width: 100%;
+      margin-bottom: 12px;
+      margin-left: 0;
+    }
+  }
+}
+
 .leave-meeting-dialog {
   height: 194px;
   border-radius: 8px !important;

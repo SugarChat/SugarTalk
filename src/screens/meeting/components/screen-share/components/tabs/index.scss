@@ -22,11 +22,11 @@
     user-select: none;
 
     &:hover {
-      background-color: var(--color-primary-lighter);
+      background-color: var(--color-primary-light);
     }
 
     &.active {
-      background-color: var(--color-primary-lighter);
+      background-color: var(--color-primary-light);
     }
 
     .tab-all {

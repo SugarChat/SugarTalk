@@ -23,6 +23,12 @@
         >开启 DevTools</Checkbox
       >
 
+      <Checkbox
+        :checked="settingsStore.enableWatermark"
+        @change="(checked) => (settingsStore.enableWatermark = checked)"
+        >开启水印</Checkbox
+      >
+
       <el-divider />
 
       <el-form-item label="SOCKET连接" :required="true">

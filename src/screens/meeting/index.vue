@@ -5,7 +5,10 @@
     <StatusBar :meeting-query="meetingQuery" :moderator="moderator" />
 
     <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
-    <!-- <Watermark :text="`Sugar Talk ${meetingQuery.userName}`" /> -->
+    <Watermark
+      v-if="settingsStore.enableWatermark"
+      :text="`Sugar Talk ${meetingQuery.userName}`"
+    />
 
     <Speaking
       v-if="meetingInfo?.userSessions?.length > 0"
@@ -50,9 +53,20 @@
           @stopShare="onStopShare"
         />
         <Invite :meeting-query="meetingQuery" :moderator="moderator" />
+        <Member
+          :meeting-info="meetingInfo"
+          :sound-level-list="soundLevelList"
+          :isMuted="meetingQuery.isMuted"
+          :update="updateMicMuteStatus"
+        />
       </template>
       <template #right>
-        <LeaveMeeting ref="leaveMeetingRef" @on-confirm="leaveMeeting" />
+        <LeaveMeeting
+          ref="leaveMeetingRef"
+          :is-moderator="isModerator"
+          @on-leave-meeting="leaveMeeting"
+          @on-end-meeting="endMeeting"
+        />
       </template>
     </Footer>
   </div>
@@ -70,12 +84,14 @@ import Watermark from "../../components/watermark/index.vue";
 // import VideoManage from "./components/video-manage/index.vue";
 import AudioManage from "./components/audio-manage/index.vue";
 import ScreenShare from "./components/screen-share/index.vue";
+import Member from "./components/member/index.vue";
 import Invite from "./components/invite/index.vue";
 import Speaking from "./components/speaking/index.vue";
 import { useAction } from "./hooks";
 
 const {
   leaveMeetingRef,
+  settingsStore,
   isShareScreen,
   meetingQuery,
   meetingInfo,
@@ -84,11 +100,13 @@ const {
   soundLevelList,
   currentFrequency,
   moderator,
+  isModerator,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,
   onStopShare,
   leaveMeeting,
+  endMeeting,
   blockClose,
 } = useAction();
 </script>
