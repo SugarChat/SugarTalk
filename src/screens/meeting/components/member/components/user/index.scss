@@ -19,16 +19,28 @@
     align-items: center;
     justify-content: center;
 
-    &.disabled::after {
-      content: "";
-      position: absolute;
-      top: 1px;
-      left: calc(50% - 1px);
-      width: 2px;
-      bottom: 0;
-      background-color: var(--color-danger);
-      transform-origin: center;
-      transform: rotate(45deg);
+    &.disabled {
+      &::before,
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        transform-origin: center;
+        transform: rotate(45deg);
+      }
+
+      &::before {
+        left: calc(50% - 2px);
+        width: 3px;
+        background-color: var(--background-color-base);
+      }
+
+      &::after {
+        left: calc(50% - 1px);
+        width: 1px;
+        background-color: var(--color-danger);
+      }
     }
   }
 }
