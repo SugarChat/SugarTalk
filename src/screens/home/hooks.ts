@@ -23,7 +23,9 @@ export const useAction = () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
       const { code, data, msg } = await createMeetingApi({
-        meetingStreamMode: MeetingStreamMode.MCU,
+        meetingStreamMode: settingsStore.enableMCU
+          ? MeetingStreamMode.MCU
+          : MeetingStreamMode.SFU,
         startDate: new Date(),
         endDate: new Date(+new Date() + 1000 * 60 * 60 * 24),
       });

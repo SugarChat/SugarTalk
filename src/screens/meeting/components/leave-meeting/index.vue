@@ -64,7 +64,7 @@ const beforeVisible = ref(false);
 const visible = ref(false);
 
 const onOpen = () => {
-  if (isModerator) {
+  if (isModerator.value) {
     beforeVisible.value = true;
   } else {
     visible.value = true;
@@ -72,7 +72,7 @@ const onOpen = () => {
 };
 
 const onClose = () => {
-  if (isModerator) {
+  if (isModerator.value) {
     beforeVisible.value = false;
   } else {
     visible.value = false;

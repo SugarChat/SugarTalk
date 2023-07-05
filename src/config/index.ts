@@ -1,5 +1,5 @@
 const config = {
-  baseURL: "https://sugartalktest.yamimeal.ca",
+  baseURL: "https://sugartalk.yamimeal.ca",
   foundationURL: "http://passtest.wiltechs.com",
 };
 
