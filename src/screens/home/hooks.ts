@@ -1,7 +1,7 @@
 import { onMounted } from "vue";
 import { useAppStore } from "../../stores/useAppStore";
 import { useNavigation } from "../../hooks/useNavigation";
-import { createMeetingApi } from "../../services";
+import { GetUserInfoApi, createMeetingApi } from "../../services";
 import { ElLoading, ElMessage } from "element-plus";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { MeetingStreamMode } from "../../entity/enum";
@@ -13,7 +13,21 @@ export const useAction = () => {
 
   const navigation = useNavigation();
 
+  const getUserInfo = async () => {
+    const { code, data, msg } = await GetUserInfoApi();
+    if (code === 200) {
+      appStore.updateUserInfo(data);
+    } else {
+      ElMessage({
+        offset: 50,
+        message: msg,
+        type: "error",
+      });
+    }
+  };
+
   onMounted(() => {
+    getUserInfo();
     navigation.closeToHide();
   });
 

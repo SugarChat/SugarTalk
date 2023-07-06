@@ -13,7 +13,7 @@
     :align-center="true"
     :width="192"
   >
-    <el-button type="danger" disabled @click="onEndMeeting">结束会议</el-button>
+    <el-button type="danger" @click="onEndMeeting">结束会议</el-button>
     <el-button type="danger" plain @click="onLeaveMeeting">离开会议</el-button>
     <el-button @click="onClose">取消</el-button>
   </el-dialog>

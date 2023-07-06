@@ -1,7 +1,7 @@
 import { nextTick, onMounted, reactive, ref } from "vue";
 import { ElLoading, ElMessage, FormInstance, FormRules } from "element-plus";
 import { useAppStore } from "../../stores/useAppStore";
-import { LoginApi } from "../../services";
+import { LoginApi, GetUserInfoApi } from "../../services";
 import { useNavigation } from "../../hooks/useNavigation";
 
 export const useAction = () => {
@@ -32,22 +32,20 @@ export const useAction = () => {
 
   const onLogin = () => {
     errorDescription.value = "";
-    formRef.value?.validate((valid) => {
+    formRef.value?.validate(async (valid) => {
       if (valid) {
         const loading = ElLoading.service({ fullscreen: true });
-        LoginApi(userinfo)
-          .then((response) => {
-            if (response?.access_token) {
-              appStore.login(response);
-              gotoHome();
-            }
-          })
-          .catch((error) => {
+        try {
+          const response = await LoginApi(userinfo).catch((error) => {
             errorDescription.value = error?.toString();
-          })
-          .finally(() => {
-            loading.close();
           });
+          if (response?.access_token) {
+            appStore.login(response);
+            gotoHome();
+          }
+        } finally {
+          loading.close();
+        }
       }
     });
   };
@@ -85,6 +83,7 @@ export const useAction = () => {
     userinfo,
     rules,
     errorDescription,
+    appStore,
     onLogin,
     gotoSettings,
     onDevelopingTip,
