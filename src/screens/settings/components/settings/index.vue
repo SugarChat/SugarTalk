@@ -47,12 +47,6 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="baseURL" :required="true">
-        <el-input v-model="baseURL" placeholder="BASE URL" />
-      </el-form-item>
-      <el-form-item label="foundationURL" :required="true">
-        <el-input v-model="foundationURL" placeholder="FOUNDATION URL" />
-      </el-form-item>
     </el-form>
   </Scroll>
 </template>
@@ -79,16 +73,6 @@ const options = [
 const websocketURL = computed({
   get: () => settingsStore.websocketURL,
   set: (val) => (settingsStore.websocketURL = val),
-});
-
-const baseURL = computed({
-  get: () => settingsStore.baseURL,
-  set: (val) => (settingsStore.baseURL = val),
-});
-
-const foundationURL = computed({
-  get: () => settingsStore.foundationURL,
-  set: (val) => (settingsStore.foundationURL = val),
 });
 </script>
 
