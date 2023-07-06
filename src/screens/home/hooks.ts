@@ -72,6 +72,7 @@ export const useAction = () => {
   };
 
   return {
+    appStore,
     onJoinMeeting,
     onQuickMeeting,
     gotoSettings,

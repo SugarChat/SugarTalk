@@ -555,6 +555,7 @@ export const useAction = () => {
     currentFrequency,
     moderator,
     isModerator,
+    appStore,
     updateMicMuteStatus,
     beforeStartShare,
     onStartShare,

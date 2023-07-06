@@ -1,5 +1,9 @@
 <template>
-  <Header borderBottom title="Sugar Talk会议" :close="blockClose" />
+  <Header
+    borderBottom
+    :title="`${appStore.appInfo.name}会议`"
+    :close="blockClose"
+  />
 
   <div class="container">
     <StatusBar :meeting-query="meetingQuery" :moderator="moderator" />
@@ -7,7 +11,7 @@
     <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
     <Watermark
       v-if="settingsStore.enableWatermark"
-      :text="`Sugar Talk ${meetingQuery.userName}`"
+      :text="`${appStore.appInfo.name} ${meetingQuery.userName}`"
     />
 
     <Speaking
@@ -101,6 +105,7 @@ const {
   currentFrequency,
   moderator,
   isModerator,
+  appStore,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,
