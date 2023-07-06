@@ -23,6 +23,8 @@ export const useSettingsStore = defineStore("settingsStore", {
     openDevTools: false,
     // 是否开启水印
     enableWatermark: false,
+    // 是否开启MCU模式
+    enableMCU: false,
   }),
   actions: {
     init() {

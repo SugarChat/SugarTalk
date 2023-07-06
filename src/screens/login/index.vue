@@ -3,7 +3,7 @@
   <div class="login-container">
     <div class="app-info">
       <img class="app-logo" src="../../assets/images/sugarTalkLogo.png" />
-      <p class="app-name">Sugar Talk</p>
+      <p class="app-name">{{ appStore.appInfo.name }}</p>
     </div>
     <template v-if="loaded">
       <el-form
@@ -71,6 +71,7 @@ const {
   userinfo,
   rules,
   errorDescription,
+  appStore,
   onLogin,
   gotoSettings,
   onDevelopingTip,

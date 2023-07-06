@@ -13,7 +13,7 @@
     :align-center="true"
     :width="192"
   >
-    <el-button type="danger" disabled @click="onEndMeeting">结束会议</el-button>
+    <el-button type="danger" @click="onEndMeeting">结束会议</el-button>
     <el-button type="danger" plain @click="onLeaveMeeting">离开会议</el-button>
     <el-button @click="onClose">取消</el-button>
   </el-dialog>
@@ -64,7 +64,7 @@ const beforeVisible = ref(false);
 const visible = ref(false);
 
 const onOpen = () => {
-  if (isModerator) {
+  if (isModerator.value) {
     beforeVisible.value = true;
   } else {
     visible.value = true;
@@ -72,7 +72,7 @@ const onOpen = () => {
 };
 
 const onClose = () => {
-  if (isModerator) {
+  if (isModerator.value) {
     beforeVisible.value = false;
   } else {
     visible.value = false;

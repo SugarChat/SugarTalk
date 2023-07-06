@@ -45,3 +45,15 @@ export interface Meeting {
   originAdress: string;
   userSessions: UserSession[];
 }
+
+export interface UserInfo {
+  createdOn: string;
+  id: number;
+  isActive: boolean;
+  issuer: number;
+  modifiedOn: string;
+  roles: any[];
+  thirdPartyUserId: string;
+  userName: string;
+  uuid: string;
+}

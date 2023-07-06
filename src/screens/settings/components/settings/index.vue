@@ -29,6 +29,12 @@
         >开启水印</Checkbox
       >
 
+      <Checkbox
+        :checked="settingsStore.enableMCU"
+        @change="(checked) => (settingsStore.enableMCU = checked)"
+        >开启MCU</Checkbox
+      >
+
       <el-divider />
 
       <el-form-item label="SOCKET连接" :required="true">

@@ -2,12 +2,14 @@
   <div class="user-panel">
     <el-scrollbar>
       <div class="user-list">
-        <User
-          v-for="userSession in meetingInfo.userSessions"
-          :key="userSession.id"
-          :user-session="userSession"
-          :sound-level-list="props.soundLevelList"
-        />
+        <div class="user-list-container">
+          <User
+            v-for="userSession in meetingInfo.userSessions"
+            :key="userSession.id"
+            :user-session="userSession"
+            :sound-level-list="props.soundLevelList"
+          />
+        </div>
       </div>
     </el-scrollbar>
   </div>

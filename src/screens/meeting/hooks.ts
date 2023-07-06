@@ -21,6 +21,7 @@ import { useNavigation } from "../../hooks/useNavigation";
 import { MeetingStreamMode } from "../../entity/enum";
 import { Meeting, UserSession } from "../../entity/response";
 import { SoundMeter } from "../../utils/webrtc/soundmeter";
+import { useAppStore } from "../../stores/useAppStore";
 
 export const useSoundmeter = () => {
   const audioContext = ref(new AudioContext());
@@ -74,6 +75,8 @@ export const useAction = () => {
   const { query } = useRoute();
 
   const settingsStore = useSettingsStore();
+
+  const appStore = useAppStore();
 
   const navigation = useNavigation();
 
@@ -141,7 +144,7 @@ export const useAction = () => {
   const currentUser = computed<UserSession>(
     () =>
       meetingInfo.value?.userSessions?.find(
-        (user) => user.userName === meetingQuery.userName
+        (user) => user.userId === appStore.userInfo.id
       ) ?? ({} as UserSession)
   );
 
@@ -459,9 +462,6 @@ export const useAction = () => {
       }
       requestAnimationFrame(() => {
         meetingQuery.isMuted = status;
-        meetingInfo.value?.userSessions?.forEach(
-          (user) => user.id === currentUser.value?.id && (user.isMuted = status)
-        );
       });
     } else {
       ElMessage({

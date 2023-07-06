@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { LoginResponse } from "../entity/response";
+import { LoginResponse, UserInfo } from "../entity/response";
 import { AppInfo } from "../entity/types";
 
 export const useAppStore = defineStore("appStore", {
@@ -9,6 +9,7 @@ export const useAppStore = defineStore("appStore", {
     access_token: "",
     expires: "",
     appInfo: {} as AppInfo,
+    userInfo: {} as UserInfo,
   }),
   actions: {
     async init() {
@@ -30,6 +31,9 @@ export const useAppStore = defineStore("appStore", {
       this.userName = "";
       this.access_token = "";
       this.expires = "";
+    },
+    updateUserInfo(userInfo: UserInfo) {
+      this.userInfo = userInfo;
     },
   },
   persist: true,
