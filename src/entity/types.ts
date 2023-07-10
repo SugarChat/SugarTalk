@@ -42,3 +42,8 @@ export interface AppInfo {
   version: string;
   platform: "mac" | "win" | "other";
 }
+
+export interface Point {
+  x: number;
+  y: number;
+}

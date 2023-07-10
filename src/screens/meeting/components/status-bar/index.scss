@@ -10,7 +10,7 @@
   padding: 0 12px;
   background-color: var(--background-color-base);
   border-bottom: var(--border-width-base) solid var(--border-color-light);
-  z-index: 2;
+  z-index: var(--status-bar-index);
 
   .left {
     display: flex;

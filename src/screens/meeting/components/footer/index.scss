@@ -8,7 +8,7 @@
   flex-direction: row;
   align-items: center;
   background-color: var(--background-color-base);
-  z-index: 2;
+  z-index: var(--status-bar-index);
 
   .footer-left {
     position: absolute;

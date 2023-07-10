@@ -1,6 +1,7 @@
 <template>
   <div class="player">
     <video id="stream-media" :srcObject="stream" autoplay playsInline muted />
+    <slot></slot>
   </div>
 </template>
 
