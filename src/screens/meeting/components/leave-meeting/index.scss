@@ -34,3 +34,25 @@
     width: 88px;
   }
 }
+
+.end-meeting-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 194px;
+  border-radius: 8px !important;
+
+  .el-dialog__body {
+    flex: 1;
+  }
+
+  .content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+
+  .end-btn {
+    width: 88px;
+  }
+}

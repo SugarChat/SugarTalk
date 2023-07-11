@@ -1,4 +1,8 @@
-import { MeetingStreamMode } from "./enum";
+import {
+  DataChannelCommand,
+  DataChannelNotifyType,
+  MeetingStreamMode,
+} from "./enum";
 
 export interface ScreenSource {
   appIcon: string;
@@ -46,4 +50,13 @@ export interface AppInfo {
 export interface Point {
   x: number;
   y: number;
+}
+
+export interface DataChannelMessage<T> {
+  command: DataChannelCommand;
+  message: T;
+}
+
+export interface DataChannelNotify {
+  type: DataChannelNotifyType;
 }

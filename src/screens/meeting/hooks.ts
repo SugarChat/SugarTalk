@@ -1,6 +1,8 @@
 import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
 import {
+  DataChannelMessage,
+  DataChannelNotify,
   MeetingQuery,
   ScreenSource,
   StreamInfo,
@@ -18,7 +20,11 @@ import {
 } from "../../services";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useNavigation } from "../../hooks/useNavigation";
-import { MeetingStreamMode } from "../../entity/enum";
+import {
+  DataChannelCommand,
+  DataChannelNotifyType,
+  MeetingStreamMode,
+} from "../../entity/enum";
 import { Meeting, UserSession } from "../../entity/response";
 import { SoundMeter } from "../../utils/webrtc/soundmeter";
 import { useAppStore } from "../../stores/useAppStore";
@@ -101,7 +107,12 @@ export const useAction = () => {
   const leaveMeetingRef = ref<{
     open: () => boolean;
     close: () => boolean;
+    openEnd: () => void;
   }>();
+
+  const state = reactive({
+    isDestroy: false, // 标记即将销毁页面
+  });
 
   /**
    * 房间信息
@@ -184,6 +195,13 @@ export const useAction = () => {
   const isMCU = computed(
     () => meetingQuery.meetingStreamMode === MeetingStreamMode.MCU
   );
+
+  const sendData = <T>(data: DataChannelMessage<T>) => {
+    webRTCAdaptor.value?.sendData(
+      streamInfo.value.streamId,
+      JSON.stringify(data)
+    );
+  };
 
   const joinMeetingAfter = async () => {
     // 发布本地流
@@ -316,6 +334,18 @@ export const useAction = () => {
   const endMeeting = async () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
+      // 主持人发送DataChannel通知其他人结束会议
+      sendData<DataChannelNotify>({
+        command: DataChannelCommand.Notify,
+        message: {
+          type: DataChannelNotifyType.EndMeeting,
+        },
+      });
+
+      await endMeetingApi({
+        meetingNumber: meetingInfo.value.meetingNumber,
+      });
+    } finally {
       webRTCAdaptor.value?.leaveFromRoom(meetingQuery.meetingNumber);
 
       if (streamInfo.value?.streamId) {
@@ -324,10 +354,6 @@ export const useAction = () => {
         webRTCAdaptor.value?.closeWebSocket();
       }
 
-      await endMeetingApi({
-        meetingNumber: meetingInfo.value.meetingNumber,
-      });
-    } finally {
       loading.close();
       navigation.destroy();
     }
@@ -398,10 +424,12 @@ export const useAction = () => {
              */
             getMeetingInfo().finally(() => {
               setTimeout(() => {
-                webRTCAdaptor.value?.getRoomInfo(
-                  meetingQuery.meetingNumber,
-                  streamInfo.value!.streamId
-                );
+                if (!state.isDestroy) {
+                  webRTCAdaptor.value?.getRoomInfo(
+                    meetingQuery.meetingNumber,
+                    streamInfo.value!.streamId
+                  );
+                }
               }, 3000);
             });
 
@@ -431,6 +459,19 @@ export const useAction = () => {
           case "localStream":
             localStream.value = payload;
             break;
+          // RTC Data Channel
+          case "data_received":
+            const data: DataChannelMessage<any> = JSON.parse(payload.data);
+            switch (data.command) {
+              case DataChannelCommand.Notify:
+                const message: DataChannelNotify = data.message;
+                switch (message.type) {
+                  case DataChannelNotifyType.EndMeeting:
+                    state.isDestroy = true;
+                    leaveMeetingRef.value?.openEnd();
+                    return;
+                }
+            }
         }
       },
       callbackError: (command: string, payload?: any) => {

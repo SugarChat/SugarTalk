@@ -21,3 +21,11 @@ export enum PaintTool {
   Clear, // 清空
   Save, // 保存
 }
+
+export enum DataChannelCommand {
+  Notify = "Notify",
+}
+
+export enum DataChannelNotifyType {
+  EndMeeting = "EndMeeting",
+}
