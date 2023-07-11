@@ -51,6 +51,7 @@
     "ping": "^0.4.4",
     "pinia": "^2.0.34",
     "pinia-plugin-persistedstate": "^3.1.0",
+    "vite-plugin-html": "^3.2.0",
     "vue-router": "^4.1.6"
   },
   "engines": {

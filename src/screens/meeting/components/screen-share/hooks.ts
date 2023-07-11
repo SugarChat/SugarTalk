@@ -5,8 +5,11 @@ import {
   getMediaDeviceAccessAndStatus,
   getScreenCaptureAccess,
 } from "../../../../utils/media";
+import { useAppStore } from "../../../../stores/useAppStore";
 
 export const useAction = () => {
+  const appStore = useAppStore();
+
   const [visible, onToggle] = useToggle();
 
   const currentSource = ref<ScreenSource>();
@@ -28,10 +31,11 @@ export const useAction = () => {
   const onOpen = async () => {
     const pass = await getMediaDeviceAccessAndStatus("screen", true);
     if (!pass) return;
-    const sources = await window.desktopCapturer.getSources({
+    let sources = await window.desktopCapturer.getSources({
       types: ["window", "screen"],
       fetchWindowIcons: true,
     });
+    sources = sources.filter((source) => source.name !== appStore.appInfo.name);
     currentSource.value = sources?.[0];
     allSources.value = sources;
     screenSources.value = sources.filter((source) => !source.appIcon);

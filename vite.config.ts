@@ -5,6 +5,7 @@ import electron from "vite-plugin-electron";
 import renderer from "vite-plugin-electron-renderer";
 import pkg from "./package.json";
 import path from "node:path";
+import { createHtmlPlugin } from "vite-plugin-html";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
@@ -66,6 +67,13 @@ export default defineConfig(({ command }) => {
       ]),
       // Use Node.js API in the Renderer-process
       renderer(),
+      createHtmlPlugin({
+        inject: {
+          data: {
+            productName: pkg.productName,
+          },
+        },
+      }),
     ],
     resolve: {
       alias: {
