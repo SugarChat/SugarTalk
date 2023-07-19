@@ -1,4 +1,4 @@
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref, watchEffect } from "vue";
 import { useSettingsStore } from "../../../../stores/useSettingsStore";
 import loudness from "../../../../utils/loudness";
 import manageDevices from "../../../../utils/manage-devices";
@@ -25,8 +25,22 @@ export const useAction = () => {
 
   const audioManage = ref(new AudioManage());
 
+  const state = reactive({
+    frameCount: 0,
+    isPlay: audioManage.value.isPlay,
+  });
+
+  watchEffect(() => {
+    const audioOutputDeviceId =
+      settingsStore.audioOutputDeviceId === "default"
+        ? ""
+        : settingsStore.audioOutputDeviceId;
+    audioManage.value.setSinkId(audioOutputDeviceId);
+  });
+
   const setVolume = async (volume: number) => {
     settingsStore.volume = volume;
+    state.frameCount = 3;
     loudness.setVolume(volume);
   };
 
@@ -37,21 +51,16 @@ export const useAction = () => {
   };
 
   const onPlay = () => {
-    const audioContext = new AudioContext();
-    window.electronAPI.getLocalAudioArrayBuffer().then((arraybuffer) => {
-      audioContext.decodeAudioData(arraybuffer, (buffer) => {
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.loop = true;
-        audioContext.setSinkId(settingsStore.audioOutputDeviceId);
-        source.connect(audioContext.destination);
-        source.start();
-      });
-    });
+    if (audioManage.value.isPlay) {
+      audioManage.value.stop();
+    } else {
+      audioManage.value.start();
+    }
+    state.isPlay = audioManage.value.isPlay;
   };
 
-  const getAudioOutputDevices = () => {
-    manageDevices.getAudioOutputDevices().then((devices) => {
+  const getAudioOutputDevices = async () => {
+    await manageDevices.getAudioOutputDevices().then((devices) => {
       if (devices.length > 0) {
         audioOutputDevices.value = devices.map((device) => ({
           deviceId: device.deviceId,
@@ -73,11 +82,27 @@ export const useAction = () => {
     });
   };
 
+  const loop = () => {
+    requestAnimationFrame(() => {
+      loudness.getStatus().then(([volume, muted]) => {
+        if (state.frameCount > 0) {
+          state.frameCount--;
+        } else {
+          settingsStore.muted = muted;
+          settingsStore.volume = volume;
+        }
+        loop();
+      });
+    });
+  };
+
   onMounted(() => {
     getAudioOutputDevices();
+    loop();
   });
 
   return {
+    state,
     settingsStore,
     audioOutputDevices,
     setVolume,
