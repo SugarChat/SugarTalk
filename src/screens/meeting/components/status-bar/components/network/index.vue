@@ -48,7 +48,7 @@ const isOnline = computed(
 const { start } = useTimeout(2000, {
   controls: true,
   callback: () => {
-    window.electronAPI.ping("43.198.82.36").then((res) => {
+    window.electronAPI.ping("18.162.51.80").then((res) => {
       pingResponse.value = res;
       !initFinished.value && (initFinished.value = true);
       start();

@@ -24,7 +24,7 @@ enum MenuEnum {
 }
 
 interface Emits {
-  (event: "togglePaintTool"): void;
+  (event: "toggleDrawingTool"): void;
 }
 
 const emits = defineEmits<Emits>();
@@ -38,7 +38,7 @@ const menus = ref([
 
 const handleCommand = (command: MenuEnum) => {
   if (command === MenuEnum.Drawing) {
-    emits("togglePaintTool");
+    emits("toggleDrawingTool");
   }
 };
 </script>

@@ -1,17 +1,17 @@
 <template>
-  <div ref="container" :class="['drawing-board']">
+  <div ref="container" class="drawing-board">
     <canvas ref="canvasEl" id="canvas"></canvas>
-    <LaserPoint
-      v-if="state.paintTool === paintToolEnum.Laser"
-      :point="state.point"
-    />
+    <!-- 激光笔 -->
+    <LaserPoint v-if="state.drawingTool === drawingToolEnum.Laser" />
   </div>
 
-  <ShareBar @togglePaintTool="togglePaintTool" />
+  <ShareBar @toggle-drawing-tool="toggleDrawingTool" />
 
-  <PaintTool
-    v-show="isShowPaintTool"
-    :paintTool="state.paintTool"
+  <DrawingTool
+    v-show="isShowDrawingTool"
+    :drawing-tool="state.drawingTool"
+    :undo-disabled="state.historyDrawingRecords.length === 0"
+    :redo-disabled="state.undoDrawingRecords.length === 0"
     @change="onChange"
     @action="onAction"
     @close="closeaintTool"
@@ -20,14 +20,30 @@
 
 <script setup lang="ts">
 import ShareBar from "./components/share-bar/index.vue";
-import PaintTool from "./components/paint-tools/index.vue";
+import DrawingTool from "./components/drawing-tools/index.vue";
 import LaserPoint from "./components/laser-point/index.vue";
 import { useAction, useTools } from "./hooks";
+import { Emits } from "./props";
 
-const { container, canvasEl, paintToolEnum, state, onChange, onAction } =
-  useAction();
+const emits = defineEmits<Emits>();
 
-const { isShowPaintTool, togglePaintTool, closeaintTool } = useTools();
+const {
+  container,
+  canvasEl,
+  drawingToolEnum,
+  state,
+  onChange,
+  onAction,
+  remoteDrawing,
+  resize,
+} = useAction(emits);
+
+const { isShowDrawingTool, toggleDrawingTool, closeaintTool } = useTools();
+
+defineExpose({
+  drawing: remoteDrawing,
+  resize,
+});
 </script>
 
 <style scoped lang="scss">

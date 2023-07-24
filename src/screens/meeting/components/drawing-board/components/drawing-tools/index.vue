@@ -1,13 +1,13 @@
 <template>
   <div
     ref="container"
-    class="paint-tool"
+    class="drawing-tool"
     :style="`transform: translate(${point.x}px, ${point.y}px);`"
   >
     <div
-      v-for="item in paintToolList"
+      v-for="item in drawingToolList"
       :key="item.value"
-      :class="['paint-item', paintTool === item.value && 'active']"
+      :class="['drawing-item', drawingTool === item.value && 'active']"
       @click="() => onClick(item.value)"
     >
       <i :class="['iconfont', item.icon]" />
@@ -17,30 +17,30 @@
     <div class="divider" />
 
     <div
-      :class="['paint-item', 'disabled']"
-      @click="() => onAction(paintToolEnum.Undo)"
+      :class="['drawing-item', undoDisabled && 'disabled']"
+      @click="() => !undoDisabled && onAction(drawingToolEnum.Undo)"
     >
       <i class="iconfont icon-undo" />
       <p class="title">撤销</p>
     </div>
     <div
-      :class="['paint-item', 'disabled']"
-      @click="() => onAction(paintToolEnum.Redo)"
+      :class="['drawing-item', redoDisabled && 'disabled']"
+      @click="() => !redoDisabled && onAction(drawingToolEnum.Redo)"
     >
       <i class="iconfont icon-redo" />
       <p class="title">重做</p>
     </div>
     <div
-      :class="['paint-item', 'disabled']"
-      @click="() => onAction(paintToolEnum.Clear)"
+      :class="['drawing-item', undoDisabled && 'disabled']"
+      @click="() => !undoDisabled && onAction(drawingToolEnum.Clear)"
     >
       <i class="iconfont icon-delete" />
       <p class="title">清空</p>
     </div>
-    <div class="paint-item" @click="() => onAction(paintToolEnum.Save)">
+    <!-- <div class="drawing-item" @click="() => onAction(drawingToolEnum.Save)">
       <i class="iconfont icon-download" />
       <p class="title">保存</p>
-    </div>
+    </div> -->
     <div class="close-btn" @click="onClose">
       <i class="iconfont icon-close" />
     </div>
@@ -55,9 +55,10 @@ const props = defineProps<Props>();
 
 const emits = defineEmits<Emits>();
 
-const { paintTool } = toRefs(props);
+const { drawingTool, undoDisabled, redoDisabled } = toRefs(props);
 
-const { paintToolEnum, paintToolList, onClick, onAction } = useAction(emits);
+const { drawingToolEnum, drawingToolList, onClick, onAction } =
+  useAction(emits);
 
 const { container, point } = useDragg();
 

@@ -1,176 +1,157 @@
-import { nextTick, onMounted, reactive, ref, watchEffect } from "vue";
-import { useElementSize, useToggle } from "@vueuse/core";
+import { nextTick, onMounted, reactive, ref, toRaw } from "vue";
+import { useToggle } from "@vueuse/core";
 import { fabric } from "fabric";
-import { PaintTool } from "../../../../entity/enum";
-import { Point } from "../../../../entity/types";
+import { DrawingTool, DrawingStep } from "../../../../entity/enum";
+import { DrawingRecord, Point, VideoSizeInfo } from "../../../../entity/types";
 import { pointsToSvgPath } from "./utils";
+import { v4 as uuidv4 } from "uuid";
+import { Emits } from "./props";
+import { useAppStore } from "../../../../stores/useAppStore";
 
-class Draw {
-  canvasEl: HTMLCanvasElement;
+export const useAction = (emits: Emits) => {
+  const appStore = useAppStore();
 
-  ctx: CanvasRenderingContext2D;
-
-  isDrawing = false;
-
-  startPoint: Point = { x: 0, y: 0 };
-
-  constructor(el: HTMLCanvasElement) {
-    this.canvasEl = el;
-
-    this.ctx = el.getContext("2d")!;
-
-    this.listen();
-  }
-
-  listen() {
-    this.canvasEl.addEventListener("mousedown", this.mousedown.bind(this));
-    this.canvasEl.addEventListener("mousemove", this.mousemove.bind(this));
-    this.canvasEl.addEventListener("mouseleave", this.mouseup.bind(this));
-    this.canvasEl.addEventListener("mouseup", this.mouseup.bind(this));
-  }
-
-  mousedown(ev: MouseEvent) {
-    this.isDrawing = true;
-    this.startPoint = { x: ev.offsetX, y: ev.offsetY };
-  }
-
-  mousemove(ev: MouseEvent) {
-    if (!this.isDrawing) return;
-    const endPoint: Point = { x: ev.offsetX, y: ev.offsetY };
-    this.draw(this.startPoint, endPoint);
-    this.startPoint = endPoint;
-  }
-
-  mouseup(ev: MouseEvent) {
-    this.isDrawing = false;
-  }
-
-  draw(moveTo: Point, lineTo: Point) {
-    const { ctx } = this;
-
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    ctx.moveTo(moveTo.x, moveTo.y);
-    ctx.lineTo(lineTo.x, lineTo.y);
-    ctx.stroke();
-    ctx.closePath();
-  }
-}
-
-export const useAction2 = () => {
-  const container = ref<HTMLDivElement>();
-
-  const canvasEl = ref<HTMLCanvasElement>();
-
-  const draw = ref<Draw>();
-
-  const { width, height } = useElementSize(container);
-
-  watchEffect(() => {
-    if (width.value > 0 && height.value > 0) {
-      canvasEl.value!.width = width.value;
-      canvasEl.value!.height = height.value;
-    }
-  });
-
-  onMounted(() => {
-    nextTick(() => {
-      // draw.value = new Draw(canvasEl.value!);
-    });
-  });
-
-  return {
-    container,
-    canvasEl,
-  };
-};
-
-export const useAction = () => {
   const container = ref<HTMLDivElement>();
 
   const canvasEl = ref<HTMLCanvasElement>();
 
   const canvas = ref<fabric.Canvas>();
 
-  const pointFrom = ref<Point>();
-
-  const paintToolEnum = reactive(PaintTool);
+  const drawingToolEnum = reactive(DrawingTool);
 
   const textElement = ref<fabric.Textbox>();
 
   const state = reactive<{
-    paintTool: PaintTool;
+    drawingTool: DrawingTool;
     isDrawing: boolean;
     point: Point;
     points: Point[];
+    historyDrawingRecords: DrawingRecord[];
+    undoDrawingRecords: DrawingRecord[];
   }>({
-    paintTool: PaintTool.Cursor,
+    drawingTool: DrawingTool.Cursor,
     isDrawing: false,
-    point: { x: 0, y: 0 },
-    points: [],
+    point: { x: 0, y: 0 }, // 鼠标down之后的鼠标Point
+    points: [], // 鼠标down到up的Points
+    historyDrawingRecords: [], // 历史记录
+    undoDrawingRecords: [], // 撤销记录
   });
 
-  const { width, height } = useElementSize(container);
+  // 当前帧的画笔Points
+  let currentRecord: DrawingRecord = {
+    id: "",
+    userId: appStore.userInfo.id,
+    tool: DrawingTool.Brush,
+    points: [],
+    step: DrawingStep.Start,
+  };
 
-  watchEffect(() => {
-    canvas.value?.setWidth(width.value);
-    canvas.value?.setHeight(height.value);
+  const resize = (videoSizeInfo: VideoSizeInfo) => {
+    const { currentVideoWidth, currentVideoHeight } = videoSizeInfo;
+
+    canvas.value?.setWidth(currentVideoWidth);
+    canvas.value?.setHeight(currentVideoHeight);
     canvas.value?.renderAll();
     canvas.value?.calcOffset();
     canvas.value?.requestRenderAll();
-  });
+  };
+
+  const drawing = (drawingRecord: DrawingRecord) =>
+    emits("drawing", drawingRecord);
 
   const mousedown = (e: fabric.IEvent<MouseEvent>) => {
-    const x = e.pointer!.x,
-      y = e.pointer!.y;
-    state.point = { x, y };
-    if (state.paintTool === PaintTool.Brush) {
-      state.isDrawing = true;
-      pointFrom.value = e.pointer;
-      state.points = [{ x: e.pointer?.x!, y: e.pointer!.y }];
-    } else if (state.paintTool === PaintTool.Text) {
-      if (textElement.value) {
-        textElement.value.exitEditing();
-        textElement.value.hiddenTextarea?.blur();
-        textElement.value = undefined;
-      } else {
-        const text = new fabric.Textbox("", {
-          left: x,
-          top: y,
-          width: 150,
-          fontSize: 20,
-          editable: true,
-          editingBorderColor: "#FF0000",
-          hasBorders: true,
-          borderColor: "#FF0000",
-          hasControls: true,
-          selectable: false,
-        });
-        canvas.value?.add(text);
-        text.enterEditing();
-        text.hiddenTextarea?.focus();
-        textElement.value = text;
+    const point: Point = { x: e.pointer!.x, y: e.pointer!.y };
+    state.point = { ...point };
+    state.points = [{ ...point }];
+    switch (state.drawingTool) {
+      case DrawingTool.Brush: {
+        state.isDrawing = true;
+        currentRecord = {
+          id: uuidv4(),
+          userId: appStore.userInfo.id,
+          tool: DrawingTool.Brush,
+          points: [],
+          step: DrawingStep.Start,
+        };
+        drawing({ ...currentRecord, points: [{ ...point }] });
+        return;
+      }
+      case DrawingTool.Text: {
+        if (textElement.value) {
+          textElement.value.exitEditing();
+          textElement.value.hiddenTextarea?.blur();
+          textElement.value = undefined;
+        } else {
+          const text = new fabric.Textbox("", {
+            left: point.x,
+            top: point.y,
+            width: 150,
+            fontSize: 20,
+            editable: true,
+            editingBorderColor: "#FF0000",
+            hasBorders: true,
+            borderColor: "#FF0000",
+            hasControls: true,
+            selectable: false,
+          });
+          canvas.value?.add(text);
+          text.enterEditing();
+          text.hiddenTextarea?.focus();
+          textElement.value = text;
+        }
+      }
+      case DrawingTool.Eraser: {
+        if (e.target) {
+          const drawingRecord = state.historyDrawingRecords.find(
+            (record) => toRaw(record.fabric) === e.target
+          );
+          console.log({ drawingRecord });
+          if (drawingRecord && drawingRecord.fabric) {
+            // 移除当前记录
+            state.historyDrawingRecords = state.historyDrawingRecords.filter(
+              (record) => record.id !== drawingRecord.id
+            );
+            // 从画板上删除
+            canvas.value?.remove(drawingRecord.fabric);
+            // 添加到撤销记录中
+            state.undoDrawingRecords.push(toRaw(drawingRecord));
+            // 通知其他人撤销
+            drawing({
+              id: drawingRecord.id,
+              userId: drawingRecord.userId,
+              tool: DrawingTool.Eraser,
+              points: drawingRecord.points,
+              step: drawingRecord.step,
+            });
+          }
+        }
+        return;
       }
     }
   };
 
   const mousemove = (e: fabric.IEvent<MouseEvent>) => {
-    state.point = { x: e.pointer!.x, y: e.pointer!.y };
-    if (state.paintTool === PaintTool.Brush) {
+    const point: Point = { x: e.pointer!.x, y: e.pointer!.y };
+    const prevPoint = toRaw(state.point);
+    state.point = { ...point };
+    state.points.push({ ...point });
+    if (state.drawingTool === DrawingTool.Brush) {
       if (!state.isDrawing) return;
-      draw(pointFrom.value!, e.pointer!);
-      pointFrom.value = e.pointer;
-      state.points.push({ x: e.pointer?.x!, y: e.pointer!.y });
+      draw(prevPoint, [{ ...point }]);
+      currentRecord.step = DrawingStep.Process;
+      currentRecord.points.push({ ...point });
+      requestAnimationFrame(() => {
+        if (currentRecord.points.length > 0) {
+          const points = currentRecord.points.map((point) => ({ ...point }));
+          drawing({ ...currentRecord, points });
+          currentRecord.points = [];
+        }
+      });
     }
   };
 
   const mouseup = (e: fabric.IEvent<MouseEvent>) => {
-    if (state.paintTool === PaintTool.Brush) {
+    if (state.drawingTool === DrawingTool.Brush) {
       state.isDrawing = false;
       canvas.value!.getContext().closePath();
       const svgPath = pointsToSvgPath(state.points);
@@ -182,24 +163,33 @@ export const useAction = () => {
         hoverCursor: "default",
       });
       canvas.value?.clearContext(canvas.value!.getContext());
-      canvas.value?.add(path!);
+      canvas.value?.add(path);
       canvas.value?.renderAll();
-      path!.setCoords();
+      requestAnimationFrame(() => {
+        currentRecord.step = DrawingStep.End;
+        const points = toRaw(state.points).map((point) => ({ ...point }));
+        drawing({ ...currentRecord, points });
+        state.historyDrawingRecords.push({
+          ...currentRecord,
+          points,
+          fabric: path,
+        });
+      });
     }
   };
 
-  const draw = (moveTo: Point, lineTo: Point) => {
+  const draw = (moveTo: Point, linesTo: Point[]) => {
     const ctx = canvas.value!.getContext();
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
     ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 0.2;
 
     ctx.beginPath();
     ctx.moveTo(moveTo.x, moveTo.y);
-    ctx.lineTo(lineTo.x, lineTo.y);
+    linesTo.forEach((lineTo) => ctx.lineTo(lineTo.x, lineTo.y));
     ctx.stroke();
     ctx.closePath();
   };
@@ -207,10 +197,9 @@ export const useAction = () => {
   onMounted(() => {
     nextTick(() => {
       canvas.value = new fabric.Canvas("canvas", {
+        skipTargetFind: true,
         isDrawingMode: false,
         selection: false,
-        // hoverCursor: "none",
-        // defaultCursor: "none",
       });
       canvas.value.on("mouse:down", mousedown);
       canvas.value.on("mouse:move", mousemove);
@@ -218,36 +207,183 @@ export const useAction = () => {
     });
   });
 
-  const onChange = (paintTool: PaintTool) => {
-    state.paintTool = paintTool;
-    switch (paintTool) {
-      case PaintTool.Laser:
-        console.log("设置激光笔");
-        // canvas.value?.defaultCursor()
+  const onChange = (drawingTool: DrawingTool) => {
+    state.drawingTool = drawingTool;
+    canvas.value!.skipTargetFind = true;
+    switch (drawingTool) {
+      case DrawingTool.Eraser:
+        canvas.value!.skipTargetFind = false;
         break;
     }
   };
 
-  const onAction = (paintTool: PaintTool) => {};
+  const onAction = (drawingTool: DrawingTool) => {
+    canvas.value!.skipTargetFind = true;
+    switch (drawingTool) {
+      case DrawingTool.Undo: {
+        const drawingRecord = state.historyDrawingRecords.pop();
+        if (drawingRecord && drawingRecord.fabric) {
+          // 从画板上删除
+          canvas.value?.remove(drawingRecord.fabric);
+          // 添加到撤销记录中
+          state.undoDrawingRecords.push(toRaw(drawingRecord));
+          drawing({
+            id: drawingRecord.id,
+            userId: drawingRecord.userId,
+            tool: DrawingTool.Undo,
+            points: drawingRecord.points,
+            step: drawingRecord.step,
+          });
+        }
+        return;
+      }
+      case DrawingTool.Redo: {
+        const drawingRecord = state.undoDrawingRecords.pop();
+        if (drawingRecord && drawingRecord.fabric) {
+          // 添加到画板上
+          canvas.value?.add(drawingRecord.fabric);
+          canvas.value?.renderAll();
+          // 添加到历史记录中
+          state.historyDrawingRecords.push(toRaw(drawingRecord));
+          drawing({
+            id: drawingRecord.id,
+            userId: drawingRecord.userId,
+            tool: DrawingTool.Redo,
+            points: drawingRecord.points,
+            step: drawingRecord.step,
+          });
+        }
+        return;
+      }
+      case DrawingTool.Clear: {
+        state.historyDrawingRecords.forEach(
+          (record) => record.fabric && canvas.value?.remove(record.fabric)
+        );
+        state.undoDrawingRecords.push(...state.historyDrawingRecords);
+        state.historyDrawingRecords = [];
+        return;
+      }
+    }
+  };
+
+  const remoteDrawing = (drawingRecord: DrawingRecord) => {
+    switch (drawingRecord.tool) {
+      case DrawingTool.Brush: {
+        switch (drawingRecord.step) {
+          case DrawingStep.Start: {
+            state.historyDrawingRecords.push(drawingRecord);
+            return;
+          }
+          case DrawingStep.Process: {
+            const record = state.historyDrawingRecords.find(
+              (record) => record.id === drawingRecord.id
+            );
+            if (record) {
+              const points = drawingRecord.points.map((point) => ({
+                ...point,
+              }));
+              draw({ ...record.points[record.points.length - 1] }, points);
+              record.step = drawingRecord.step;
+              record.points.push(...points);
+            } else {
+              state.historyDrawingRecords.push(drawingRecord);
+            }
+            return;
+          }
+          case DrawingStep.End: {
+            const record = state.historyDrawingRecords.find(
+              (record) => record.id === drawingRecord.id
+            );
+            if (record) {
+              canvas.value!.getContext().closePath();
+              const svgPath = pointsToSvgPath(drawingRecord.points);
+              const path = new fabric.Path(svgPath, {
+                fill: "",
+                selectable: false,
+                stroke: "red",
+                strokeWidth: 2,
+                hoverCursor: "default",
+              });
+              canvas.value?.clearContext(canvas.value!.getContext());
+              canvas.value?.add(path);
+              canvas.value?.renderAll();
+              record.points = drawingRecord.points;
+              record.step = drawingRecord.step;
+              record.fabric = path;
+            }
+            return;
+          }
+        }
+      }
+      case DrawingTool.Eraser:
+      case DrawingTool.Undo: {
+        const record = state.historyDrawingRecords.find(
+          (record) => record.id === drawingRecord.id
+        );
+        if (record && record.fabric) {
+          // 移除当前记录
+          state.historyDrawingRecords = state.historyDrawingRecords.filter(
+            (record) => record.id !== drawingRecord.id
+          );
+          // 从画板上删除
+          canvas.value?.remove(record.fabric);
+          // 添加到撤销记录中
+          state.undoDrawingRecords.push(toRaw(record));
+        }
+        return;
+      }
+      case DrawingTool.Redo: {
+        const record = state.undoDrawingRecords.find(
+          (record) => record.id === drawingRecord.id
+        );
+        if (record && record.fabric) {
+          state.undoDrawingRecords = state.undoDrawingRecords.filter(
+            (record) => record.id !== drawingRecord.id
+          );
+          // 添加到画板上
+          canvas.value?.add(record.fabric);
+          canvas.value?.renderAll();
+          // 添加到历史记录中
+          state.historyDrawingRecords.push(toRaw(record));
+        } else {
+          canvas.value!.getContext().closePath();
+          const svgPath = pointsToSvgPath(drawingRecord.points);
+          const path = new fabric.Path(svgPath, {
+            fill: "",
+            selectable: false,
+            stroke: "red",
+            strokeWidth: 2,
+            hoverCursor: "default",
+          });
+          canvas.value?.add(path);
+          canvas.value?.renderAll();
+          state.historyDrawingRecords.push(drawingRecord);
+        }
+        return;
+      }
+    }
+  };
 
   return {
     container,
     canvasEl,
-    paintToolEnum,
+    drawingToolEnum,
     state,
     onChange,
     onAction,
+    remoteDrawing,
+    resize,
   };
 };
 
 export const useTools = () => {
-  const [isShowPaintTool, togglePaintTool] = useToggle(false);
+  const [isShowDrawingTool, toggleDrawingTool] = useToggle(false);
 
-  const closeaintTool = () => togglePaintTool(false);
+  const closeaintTool = () => toggleDrawingTool(false);
 
   return {
-    isShowPaintTool,
-    togglePaintTool,
+    isShowDrawingTool,
+    toggleDrawingTool,
     closeaintTool,
   };
 };

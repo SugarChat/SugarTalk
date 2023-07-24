@@ -1,65 +1,75 @@
-import { nextTick, onMounted, onUnmounted, reactive, ref } from "vue";
-import { PaintTool } from "../../../../../../entity/enum";
+import {
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  watchEffect,
+} from "vue";
+import { DrawingTool } from "../../../../../../entity/enum";
 import { Point } from "../../../../../../entity/types";
+import { useResizeObserver, useWindowSize } from "@vueuse/core";
 
 export interface Props {
-  paintTool: PaintTool;
+  drawingTool: DrawingTool;
+  undoDisabled: boolean;
+  redoDisabled: boolean;
 }
 
 export interface Emits {
-  (event: "change", paintTool: PaintTool): void;
-  (event: "action", paintTool: PaintTool): void;
+  (event: "change", drawingTool: DrawingTool): void;
+  (event: "action", drawingTool: DrawingTool): void;
   (event: "close"): void;
 }
 
 export const useAction = (emits: Emits) => {
-  const paintToolEnum = reactive(PaintTool);
+  const drawingToolEnum = reactive(DrawingTool);
 
-  const paintToolList = ref([
+  const drawingToolList = ref([
     {
       title: "鼠标",
-      value: PaintTool.Cursor,
+      value: DrawingTool.Cursor,
       icon: "icon-cursor",
     },
-    {
-      title: "选择",
-      value: PaintTool.Move,
-      icon: "icon-move",
-    },
+    // {
+    //   title: "选择",
+    //   value: DrawingTool.Move,
+    //   icon: "icon-move",
+    // },
     {
       title: "激光笔",
-      value: PaintTool.Laser,
+      value: DrawingTool.Laser,
       icon: "icon-laser",
     },
     {
       title: "画笔",
-      value: PaintTool.Brush,
+      value: DrawingTool.Brush,
       icon: "icon-brush",
     },
-    {
-      title: "文本",
-      value: PaintTool.Text,
-      icon: "icon-text",
-    },
-    {
-      title: "图形",
-      value: PaintTool.Graphical,
-      icon: "icon-graphical",
-    },
+    // {
+    //   title: "文本",
+    //   value: DrawingTool.Text,
+    //   icon: "icon-text",
+    // },
+    // {
+    //   title: "图形",
+    //   value: DrawingTool.Graphical,
+    //   icon: "icon-graphical",
+    // },
     {
       title: "橡皮擦",
-      value: PaintTool.Eraser,
+      value: DrawingTool.Eraser,
       icon: "icon-eraser",
     },
   ]);
 
-  const onClick = (type: PaintTool) => emits("change", type);
+  const onClick = (type: DrawingTool) => emits("change", type);
 
-  const onAction = (type: PaintTool) => emits("action", type);
+  const onAction = (type: DrawingTool) => emits("action", type);
 
   return {
-    paintToolEnum,
-    paintToolList,
+    drawingToolEnum,
+    drawingToolList,
     onClick,
     onAction,
   };
@@ -74,7 +84,25 @@ export const useDragg = () => {
 
   const isDown = ref(false);
 
+  const isInit = ref(false);
+
   const layout = reactive({ width: 699, height: 60 });
+
+  const { width, height } = useWindowSize();
+
+  useResizeObserver(container, (entries) => {
+    const entry = entries[0];
+    const { width, height } = entry.contentRect;
+
+    if (width > 0 && height > 0 && !isInit.value) {
+      isInit.value = true;
+      point.x = (document.body.clientWidth - width) / 2;
+      point.y = document.body.clientHeight - 112;
+    }
+
+    layout.width = width;
+    layout.height = height;
+  });
 
   const mousedown = (event: MouseEvent) => {
     isDown.value = true;
@@ -106,12 +134,17 @@ export const useDragg = () => {
     document.removeEventListener("mouseup", mouseup);
   };
 
+  watchEffect(() => {
+    if (point.y + layout.height > height.value - 2) {
+      point.y = height.value - layout.height - 2;
+    }
+    if (point.x + layout.width > width.value - 2) {
+      point.x = width.value - layout.width - 2;
+    }
+  });
+
   onMounted(() => {
     nextTick(() => {
-      layout.width = container.value?.clientWidth || layout.width;
-      layout.height = container.value?.clientHeight || layout.height;
-      point.x = (document.body.clientWidth - layout.width) / 2;
-      point.y = document.body.clientHeight - 112;
       container.value?.addEventListener("mousedown", mousedown);
     });
   });

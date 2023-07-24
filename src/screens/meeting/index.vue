@@ -27,7 +27,10 @@
 
       <template v-if="videoStream">
         <div class="st-container">
-          <Player :stream="videoStream"></Player>
+          <Player
+            :stream="videoStream"
+            @update="drawingBoardRef?.resize"
+          ></Player>
           <UserList
             :meeting-info="meetingInfo"
             :sound-level-list="soundLevelList"
@@ -35,7 +38,7 @@
         </div>
       </template>
 
-      <!-- <DrawingBoard /> -->
+      <DrawingBoard ref="drawingBoardRef" @drawing="sendDrawing" />
 
       <video
         width="0"
@@ -99,7 +102,7 @@ import ScreenShare from "./components/screen-share/index.vue";
 import Member from "./components/member/index.vue";
 import Invite from "./components/invite/index.vue";
 import Speaking from "./components/speaking/index.vue";
-// import DrawingBoard from "./components/drawing-board/index.vue";
+import DrawingBoard from "./components/drawing-board/index.vue";
 import { useAction } from "./hooks";
 
 const {
@@ -115,6 +118,7 @@ const {
   moderator,
   isModerator,
   appStore,
+  drawingBoardRef,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,
@@ -122,6 +126,7 @@ const {
   leaveMeeting,
   endMeeting,
   blockClose,
+  sendDrawing,
 } = useAction();
 </script>
 

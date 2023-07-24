@@ -1,4 +1,4 @@
-.paint-tool {
+.drawing-tool {
   position: fixed;
   top: 0px;
   left: 0px;
@@ -13,7 +13,7 @@
   -webkit-app-region: no-drag;
   z-index: var(--drawing-tools-index);
 
-  .paint-item {
+  .drawing-item {
     width: 60px;
     display: flex;
     flex-direction: column;

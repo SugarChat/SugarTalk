@@ -4,9 +4,11 @@ import {
   DataChannelMessage,
   DataChannelNotify,
   MeetingQuery,
+  DrawingRecord,
   ScreenSource,
   StreamInfo,
   StreamItem,
+  VideoSizeInfo,
 } from "../../entity/types";
 import { ElLoading, ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
@@ -148,6 +150,14 @@ export const useAction = () => {
    * 当前分享屏幕的streamId
    */
   const shareScreenStreamId = ref("");
+
+  /**
+   * 画板ref
+   */
+  const drawingBoardRef = ref<{
+    drawing: (drawingRecord: DrawingRecord) => void;
+    resize: (videoSizeInfo: VideoSizeInfo) => void;
+  }>();
 
   /**
    * 当前用户信息
@@ -462,6 +472,7 @@ export const useAction = () => {
           // RTC Data Channel
           case "data_received":
             const data: DataChannelMessage<any> = JSON.parse(payload.data);
+            console.log("data_received", data);
             switch (data.command) {
               case DataChannelCommand.Notify:
                 const message: DataChannelNotify = data.message;
@@ -471,6 +482,10 @@ export const useAction = () => {
                     leaveMeetingRef.value?.openEnd();
                     return;
                 }
+              case DataChannelCommand.Drawing:
+                const drawingRecord: DrawingRecord = data.message;
+                drawingBoardRef.value?.drawing(drawingRecord);
+                break;
             }
         }
       },
@@ -573,6 +588,13 @@ export const useAction = () => {
 
   const blockClose = () => leaveMeetingRef.value?.open();
 
+  const sendDrawing = (drawingRecord: DrawingRecord) => {
+    sendData({
+      command: DataChannelCommand.Drawing,
+      message: drawingRecord,
+    });
+  };
+
   onMounted(() => {
     nextTick(() => {
       init();
@@ -597,6 +619,7 @@ export const useAction = () => {
     moderator,
     isModerator,
     appStore,
+    drawingBoardRef,
     updateMicMuteStatus,
     beforeStartShare,
     onStartShare,
@@ -604,5 +627,6 @@ export const useAction = () => {
     leaveMeeting,
     endMeeting,
     blockClose,
+    sendDrawing,
   };
 };
