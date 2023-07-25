@@ -7,9 +7,12 @@ import { pointsToSvgPath } from "./utils";
 import { v4 as uuidv4 } from "uuid";
 import { Emits } from "./props";
 import { useAppStore } from "../../../../stores/useAppStore";
+import { useDrawingStore } from "../../../../stores/useDrawingStore";
 
 export const useAction = (emits: Emits) => {
   const appStore = useAppStore();
+
+  const drawingStore = useDrawingStore();
 
   const container = ref<HTMLDivElement>();
 
@@ -51,9 +54,26 @@ export const useAction = (emits: Emits) => {
 
     canvas.value?.setWidth(currentVideoWidth);
     canvas.value?.setHeight(currentVideoHeight);
-    canvas.value?.renderAll();
-    canvas.value?.calcOffset();
-    canvas.value?.requestRenderAll();
+    state.historyDrawingRecords.forEach((record) => {
+      record?.fabric && canvas.value?.remove(record.fabric);
+      const points = drawingStore.originalConvertCurrentPoints(record.points);
+      canvas.value!.getContext().closePath();
+      const svgPath = pointsToSvgPath(points);
+      const path = new fabric.Path(svgPath, {
+        fill: "",
+        selectable: false,
+        stroke: "red",
+        strokeWidth: 2 * drawingStore.ratio,
+        hoverCursor: "default",
+      });
+      console.log(points);
+      canvas.value?.add(path);
+      canvas.value?.renderAll();
+      record.fabric = path;
+    });
+    // canvas.value?.renderAll();
+    // canvas.value?.calcOffset();
+    // canvas.value?.requestRenderAll();
   };
 
   const drawing = (drawingRecord: DrawingRecord) =>
@@ -73,7 +93,8 @@ export const useAction = (emits: Emits) => {
           points: [],
           step: DrawingStep.Start,
         };
-        drawing({ ...currentRecord, points: [{ ...point }] });
+        const points = drawingStore.currentConvertOriginalPoints([point]);
+        drawing({ ...currentRecord, points });
         return;
       }
       case DrawingTool.Text: {
@@ -105,7 +126,6 @@ export const useAction = (emits: Emits) => {
           const drawingRecord = state.historyDrawingRecords.find(
             (record) => toRaw(record.fabric) === e.target
           );
-          console.log({ drawingRecord });
           if (drawingRecord && drawingRecord.fabric) {
             // 移除当前记录
             state.historyDrawingRecords = state.historyDrawingRecords.filter(
@@ -143,7 +163,10 @@ export const useAction = (emits: Emits) => {
       requestAnimationFrame(() => {
         if (currentRecord.points.length > 0) {
           const points = currentRecord.points.map((point) => ({ ...point }));
-          drawing({ ...currentRecord, points });
+          drawing({
+            ...currentRecord,
+            points: drawingStore.currentConvertOriginalPoints(points),
+          });
           currentRecord.points = [];
         }
       });
@@ -159,7 +182,7 @@ export const useAction = (emits: Emits) => {
         fill: "",
         selectable: false,
         stroke: "red",
-        strokeWidth: 2,
+        strokeWidth: 2 * drawingStore.ratio,
         hoverCursor: "default",
       });
       canvas.value?.clearContext(canvas.value!.getContext());
@@ -167,8 +190,13 @@ export const useAction = (emits: Emits) => {
       canvas.value?.renderAll();
       requestAnimationFrame(() => {
         currentRecord.step = DrawingStep.End;
-        const points = toRaw(state.points).map((point) => ({ ...point }));
-        drawing({ ...currentRecord, points });
+        const points = drawingStore.currentConvertOriginalPoints(
+          toRaw(state.points).map((point) => ({ ...point }))
+        );
+        drawing({
+          ...currentRecord,
+          points,
+        });
         state.historyDrawingRecords.push({
           ...currentRecord,
           points,
@@ -185,7 +213,7 @@ export const useAction = (emits: Emits) => {
     ctx.lineJoin = "round";
 
     ctx.strokeStyle = "red";
-    ctx.lineWidth = 0.2;
+    ctx.lineWidth = 2 * drawingStore.ratio;
 
     ctx.beginPath();
     ctx.moveTo(moveTo.x, moveTo.y);
@@ -282,7 +310,12 @@ export const useAction = (emits: Emits) => {
               const points = drawingRecord.points.map((point) => ({
                 ...point,
               }));
-              draw({ ...record.points[record.points.length - 1] }, points);
+              const startPoint = drawingStore.originalConvertCurrentPoints([
+                record.points[record.points.length - 1],
+              ])[0];
+              const movePoints =
+                drawingStore.originalConvertCurrentPoints(points);
+              draw(startPoint, movePoints);
               record.step = drawingRecord.step;
               record.points.push(...points);
             } else {
@@ -296,7 +329,10 @@ export const useAction = (emits: Emits) => {
             );
             if (record) {
               canvas.value!.getContext().closePath();
-              const svgPath = pointsToSvgPath(drawingRecord.points);
+              const points = drawingStore.originalConvertCurrentPoints(
+                drawingRecord.points
+              );
+              const svgPath = pointsToSvgPath(points);
               const path = new fabric.Path(svgPath, {
                 fill: "",
                 selectable: false,
@@ -341,13 +377,32 @@ export const useAction = (emits: Emits) => {
             (record) => record.id !== drawingRecord.id
           );
           // 添加到画板上
-          canvas.value?.add(record.fabric);
+
+          canvas.value!.getContext().closePath();
+          const points = drawingStore.originalConvertCurrentPoints(
+            drawingRecord.points
+          );
+          console.log("ratio", drawingStore.ratio);
+          const svgPath = pointsToSvgPath(points);
+          const path = new fabric.Path(svgPath, {
+            fill: "",
+            selectable: false,
+            stroke: "red",
+            strokeWidth: 2,
+            hoverCursor: "default",
+          });
+          canvas.value?.clearContext(canvas.value!.getContext());
+          canvas.value?.add(path);
           canvas.value?.renderAll();
+          record.fabric = path;
           // 添加到历史记录中
           state.historyDrawingRecords.push(toRaw(record));
         } else {
           canvas.value!.getContext().closePath();
-          const svgPath = pointsToSvgPath(drawingRecord.points);
+          const points = drawingStore.originalConvertCurrentPoints(
+            drawingRecord.points
+          );
+          const svgPath = pointsToSvgPath(points);
           const path = new fabric.Path(svgPath, {
             fill: "",
             selectable: false,
@@ -357,6 +412,7 @@ export const useAction = (emits: Emits) => {
           });
           canvas.value?.add(path);
           canvas.value?.renderAll();
+          drawingRecord.fabric = path;
           state.historyDrawingRecords.push(drawingRecord);
         }
         return;

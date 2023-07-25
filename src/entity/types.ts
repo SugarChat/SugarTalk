@@ -81,5 +81,5 @@ export interface VideoSizeInfo {
   videoHeight: number;
   currentVideoWidth: number;
   currentVideoHeight: number;
-  aspectRatio: number;
+  ratio: number;
 }

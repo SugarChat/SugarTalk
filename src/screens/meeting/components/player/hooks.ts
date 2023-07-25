@@ -1,12 +1,15 @@
 import { useResizeObserver } from "@vueuse/core";
 import { nextTick, onMounted, ref } from "vue";
 import { VideoSizeInfo } from "../../../../entity/types";
+import { useDrawingStore } from "../../../../stores/useDrawingStore";
 
 export interface Emits {
   (event: "update", videoSizeInfo: VideoSizeInfo): void;
 }
 
 export const useAction = (emits: Emits) => {
+  const drawingStore = useDrawingStore();
+
   const videoRef = ref<HTMLVideoElement>();
 
   const videoSizeInfo = {
@@ -16,32 +19,26 @@ export const useAction = (emits: Emits) => {
     videoHeight: 0,
     currentVideoWidth: 0,
     currentVideoHeight: 0,
-    aspectRatio: 0,
+    ratio: 0,
   };
 
   const update = () => {
     const { width, height, videoWidth, videoHeight } = videoSizeInfo;
 
     const aspectRatio = videoWidth / videoHeight;
-    let currentVideoWidth, currentVideoHeight;
 
     if (width / height > aspectRatio) {
-      currentVideoWidth = height * aspectRatio;
-      currentVideoHeight = height;
+      videoSizeInfo.currentVideoWidth = height * aspectRatio;
+      videoSizeInfo.currentVideoHeight = height;
     } else {
-      currentVideoWidth = width;
-      currentVideoHeight = width / aspectRatio;
+      videoSizeInfo.currentVideoWidth = width;
+      videoSizeInfo.currentVideoHeight = width / aspectRatio;
     }
 
-    emits("update", {
-      width,
-      height,
-      videoWidth: videoRef.value!.videoWidth,
-      videoHeight: videoRef.value!.videoHeight,
-      currentVideoWidth,
-      currentVideoHeight,
-      aspectRatio: currentVideoWidth / videoWidth,
-    });
+    videoSizeInfo.ratio = videoSizeInfo.currentVideoWidth / videoWidth;
+
+    drawingStore.setVideoSizeInfo(videoSizeInfo);
+    emits("update", videoSizeInfo);
   };
 
   useResizeObserver(videoRef, (entries) => {
