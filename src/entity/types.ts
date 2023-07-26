@@ -68,6 +68,9 @@ export interface DrawingRecord {
   id: string;
   userId: number;
   tool: DrawingTool;
+  drawingTool?: DrawingTool;
+  size: number;
+  color: string;
   points: Point[];
   step: DrawingStep;
   fabric?: fabric.Object;

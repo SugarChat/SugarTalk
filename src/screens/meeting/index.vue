@@ -27,18 +27,15 @@
 
       <template v-if="videoStream">
         <div class="st-container">
-          <Player
-            :stream="videoStream"
-            @update="drawingBoardRef?.resize"
-          ></Player>
+          <Player :stream="videoStream" @update="drawingBoardRef?.resize">
+            <DrawingBoard ref="drawingBoardRef" @drawing="sendDrawing" />
+          </Player>
           <UserList
             :meeting-info="meetingInfo"
             :sound-level-list="soundLevelList"
           />
         </div>
       </template>
-
-      <DrawingBoard ref="drawingBoardRef" @drawing="sendDrawing" />
 
       <video
         width="0"

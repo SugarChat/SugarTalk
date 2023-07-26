@@ -1,5 +1,6 @@
 import { fabric } from "fabric";
 import { Point, VideoSizeInfo } from "../../../../entity/types";
+import { useDrawingStore } from "../../../../stores/useDrawingStore";
 
 export class Drawing {
   canvas: fabric.Canvas;
@@ -11,7 +12,7 @@ export class Drawing {
     videoHeight: 0,
     currentVideoWidth: 0,
     currentVideoHeight: 0,
-    ratio: 0,
+    ratio: 1,
   };
 
   constructor(canvas: fabric.Canvas) {
@@ -35,14 +36,18 @@ export class Drawing {
     this.canvas.clear();
   }
 
-  createPath(moveTo: Point, linesTo: Point[]) {
+  createPath(moveTo: Point, linesTo: Point[], size?: number, color?: string) {
+    const drawingStore = useDrawingStore();
+
     const ctx = this.canvas.getContext();
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2 * this.videoSizeInfo.ratio;
+    ctx.lineWidth = size
+      ? size * this.videoSizeInfo.ratio
+      : drawingStore.lineSize * this.videoSizeInfo.ratio;
+    ctx.strokeStyle = color || drawingStore.lineColor;
 
     ctx.beginPath();
     ctx.moveTo(moveTo.x, moveTo.y);
@@ -51,16 +56,24 @@ export class Drawing {
     ctx.closePath();
   }
 
-  createFabricPath(points: Point[]) {
+  createFabricPath(points: Point[], size?: number, color?: string) {
+    const drawingStore = useDrawingStore();
+
     this.canvas.getContext().closePath();
+
     const svgPath = this.pointsToSvgPath(points);
     const path = new fabric.Path(svgPath, {
       fill: "",
       selectable: false,
-      stroke: "red",
-      strokeWidth: 2 * this.videoSizeInfo.ratio,
+      strokeWidth: size
+        ? size * this.videoSizeInfo.ratio
+        : drawingStore.lineSize * this.videoSizeInfo.ratio,
+      stroke: color || drawingStore.lineColor,
+      strokeLineCap: "round",
+      strokeLineJoin: "round",
       hoverCursor: "default",
     });
+
     this.canvas.add(path);
     this.canvas.renderAll();
     return path;

@@ -1,15 +1,12 @@
 import { useResizeObserver } from "@vueuse/core";
 import { nextTick, onMounted, ref } from "vue";
 import { VideoSizeInfo } from "../../../../entity/types";
-import { useDrawingStore } from "../../../../stores/useDrawingStore";
 
 export interface Emits {
   (event: "update", videoSizeInfo: VideoSizeInfo): void;
 }
 
 export const useAction = (emits: Emits) => {
-  const drawingStore = useDrawingStore();
-
   const videoRef = ref<HTMLVideoElement>();
 
   const videoSizeInfo = {
@@ -37,7 +34,6 @@ export const useAction = (emits: Emits) => {
 
     videoSizeInfo.ratio = videoSizeInfo.currentVideoWidth / videoWidth;
 
-    drawingStore.setVideoSizeInfo(videoSizeInfo);
     emits("update", videoSizeInfo);
   };
 

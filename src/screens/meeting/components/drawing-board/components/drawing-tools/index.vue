@@ -5,13 +5,46 @@
     :style="`transform: translate(${point.x}px, ${point.y}px);`"
   >
     <div
-      v-for="item in drawingToolList"
-      :key="item.value"
-      :class="['drawing-item', drawingTool === item.value && 'active']"
-      @click="() => onClick(item.value)"
+      :class="[
+        'drawing-item',
+        drawingTool === drawingToolEnum.Cursor && 'active',
+      ]"
+      @click="() => onClick(drawingToolEnum.Cursor)"
     >
-      <i :class="['iconfont', item.icon]" />
-      <p class="title">{{ item.title }}</p>
+      <i class="iconfont icon-cursor" />
+      <p class="title">鼠标</p>
+    </div>
+    <el-popover
+      placement="top"
+      :width="312"
+      :offset="16"
+      trigger="hover"
+      popper-style="padding: 0;"
+    >
+      <template #reference>
+        <div
+          :class="[
+            'drawing-item',
+            drawingTool === drawingToolEnum.Brush && 'active',
+          ]"
+          @click="() => onClick(drawingToolEnum.Brush)"
+        >
+          <i class="iconfont icon-brush" />
+          <p class="title">画笔</p>
+        </div>
+      </template>
+      <BrushStatus />
+    </el-popover>
+
+    <div
+      :class="[
+        'drawing-item',
+        drawingTool === drawingToolEnum.Eraser && 'active',
+      ]"
+      @click="() => onClick(drawingToolEnum.Eraser)"
+    >
+      <i class="iconfont icon-eraser" />
+      <p class="title">橡皮擦</p>
     </div>
 
     <div class="divider" />
@@ -49,6 +82,7 @@
 
 <script setup lang="ts">
 import { toRefs } from "vue";
+import BrushStatus from "../brush-status/index.vue";
 import { useAction, useDragg, Props, Emits } from "./hooks";
 
 const props = defineProps<Props>();
@@ -57,8 +91,7 @@ const emits = defineEmits<Emits>();
 
 const { drawingTool, undoDisabled, redoDisabled } = toRefs(props);
 
-const { drawingToolEnum, drawingToolList, onClick, onAction } =
-  useAction(emits);
+const { drawingToolEnum, onClick, onAction } = useAction(emits);
 
 const { container, point } = useDragg();
 

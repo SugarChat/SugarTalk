@@ -32,7 +32,7 @@ export const useAction = (emits: Emits) => {
     historyDrawingRecords: DrawingRecord[];
     undoDrawingRecords: DrawingRecord[];
   }>({
-    drawingTool: DrawingTool.Cursor,
+    drawingTool: DrawingTool.Brush,
     isDrawing: false,
     point: { x: 0, y: 0 }, // 鼠标down之后的鼠标Point
     points: [], // 鼠标down到up的Points
@@ -45,6 +45,8 @@ export const useAction = (emits: Emits) => {
     id: "",
     userId: appStore.userInfo.id,
     tool: DrawingTool.Brush,
+    size: 0,
+    color: "",
     points: [],
     step: DrawingStep.Start,
   };
@@ -53,7 +55,11 @@ export const useAction = (emits: Emits) => {
     drawing.value!.resize(videoSizeInfo);
     state.historyDrawingRecords.forEach((record) => {
       const points = drawing.value!.originalConvertCurrentPoints(record.points);
-      const path = drawing.value!.createFabricPath(points);
+      const path = drawing.value!.createFabricPath(
+        points,
+        record.size,
+        record.color
+      );
       record.fabric = path;
     });
   };
@@ -72,6 +78,8 @@ export const useAction = (emits: Emits) => {
           id: uuidv4(),
           userId: appStore.userInfo.id,
           tool: DrawingTool.Brush,
+          size: drawingStore.lineSize,
+          color: drawingStore.lineColor,
           points: [],
           step: DrawingStep.Start,
         };
@@ -122,6 +130,8 @@ export const useAction = (emits: Emits) => {
               id: drawingRecord.id,
               userId: drawingRecord.userId,
               tool: DrawingTool.Eraser,
+              size: 0,
+              color: "",
               points: drawingRecord.points,
               step: drawingRecord.step,
             });
@@ -216,11 +226,10 @@ export const useAction = (emits: Emits) => {
           // 添加到撤销记录中
           state.undoDrawingRecords.push(toRaw(drawingRecord));
           onDrawing({
-            id: drawingRecord.id,
-            userId: drawingRecord.userId,
+            ...drawingRecord,
+            drawingTool: drawingRecord.tool,
             tool: DrawingTool.Undo,
-            points: drawingRecord.points,
-            step: drawingRecord.step,
+            fabric: undefined,
           });
         }
         return;
@@ -232,16 +241,19 @@ export const useAction = (emits: Emits) => {
           const points = drawing.value!.originalConvertCurrentPoints(
             drawingRecord.points
           );
-          const path = drawing.value!.createFabricPath(points);
+          const path = drawing.value!.createFabricPath(
+            points,
+            drawingRecord.size,
+            drawingRecord.color
+          );
           drawingRecord.fabric = path;
           // 添加到历史记录中
           state.historyDrawingRecords.push(toRaw(drawingRecord));
           onDrawing({
-            id: drawingRecord.id,
-            userId: drawingRecord.userId,
+            ...drawingRecord,
+            drawingTool: drawingRecord.tool,
             tool: DrawingTool.Redo,
-            points: drawingRecord.points,
-            step: drawingRecord.step,
+            fabric: undefined,
           });
         }
         return;
@@ -254,6 +266,8 @@ export const useAction = (emits: Emits) => {
           id: uuidv4(),
           userId: appStore.userInfo.id,
           tool: DrawingTool.Clear,
+          size: 0,
+          color: "",
           points: [],
           step: DrawingStep.End,
         });
@@ -283,7 +297,12 @@ export const useAction = (emits: Emits) => {
               ])[0];
               const movePoints =
                 drawing.value!.originalConvertCurrentPoints(points);
-              drawing.value!.createPath(startPoint, movePoints);
+              drawing.value!.createPath(
+                startPoint,
+                movePoints,
+                record.size,
+                record.color
+              );
               record.step = drawingRecord.step;
               record.points.push(...points);
             } else {
@@ -300,7 +319,11 @@ export const useAction = (emits: Emits) => {
               const points = drawing.value!.originalConvertCurrentPoints(
                 drawingRecord.points
               );
-              const path = drawing.value!.createFabricPath(points);
+              const path = drawing.value!.createFabricPath(
+                points,
+                record.size,
+                record.color
+              );
 
               record.points = drawingRecord.points;
               record.step = drawingRecord.step;
@@ -332,24 +355,42 @@ export const useAction = (emits: Emits) => {
           (record) => record.id === drawingRecord.id
         );
         if (record && record.fabric) {
-          state.undoDrawingRecords = state.undoDrawingRecords.filter(
-            (record) => record.id !== drawingRecord.id
-          );
-          // 添加到画板上
-          const points = drawing.value!.originalConvertCurrentPoints(
-            drawingRecord.points
-          );
-          const path = drawing.value!.createFabricPath(points);
-          record.fabric = path;
-          // 添加到历史记录中
-          state.historyDrawingRecords.push(toRaw(record));
+          switch (record.tool) {
+            case DrawingTool.Brush: {
+              state.undoDrawingRecords = state.undoDrawingRecords.filter(
+                (record) => record.id !== drawingRecord.id
+              );
+              // 添加到画板上
+              const points = drawing.value!.originalConvertCurrentPoints(
+                drawingRecord.points
+              );
+              const path = drawing.value!.createFabricPath(
+                points,
+                record.size,
+                record.color
+              );
+              record.fabric = path;
+              // 添加到历史记录中
+              state.historyDrawingRecords.push(toRaw(record));
+              return;
+            }
+          }
         } else {
-          const points = drawing.value!.originalConvertCurrentPoints(
-            drawingRecord.points
-          );
-          const path = drawing.value!.createFabricPath(points);
-          drawingRecord.fabric = path;
-          state.historyDrawingRecords.push(drawingRecord);
+          switch (drawingRecord.drawingTool) {
+            case DrawingTool.Brush: {
+              const points = drawing.value!.originalConvertCurrentPoints(
+                drawingRecord.points
+              );
+              const path = drawing.value!.createFabricPath(
+                points,
+                drawingRecord.size,
+                drawingRecord.color
+              );
+              drawingRecord.fabric = path;
+              state.historyDrawingRecords.push(drawingRecord);
+              return;
+            }
+          }
         }
         return;
       }
@@ -357,6 +398,7 @@ export const useAction = (emits: Emits) => {
         drawing.value!.canvas.clear();
         state.undoDrawingRecords = [];
         state.historyDrawingRecords = [];
+        return;
       }
     }
   };
@@ -366,7 +408,6 @@ export const useAction = (emits: Emits) => {
     canvasEl,
     drawingToolEnum,
     state,
-    drawing,
     onChange,
     onAction,
     remoteDrawing,

@@ -25,43 +25,43 @@ export interface Emits {
 export const useAction = (emits: Emits) => {
   const drawingToolEnum = reactive(DrawingTool);
 
-  const drawingToolList = ref([
-    {
-      title: "鼠标",
-      value: DrawingTool.Cursor,
-      icon: "icon-cursor",
-    },
-    // {
-    //   title: "选择",
-    //   value: DrawingTool.Move,
-    //   icon: "icon-move",
-    // },
-    // {
-    //   title: "激光笔",
-    //   value: DrawingTool.Laser,
-    //   icon: "icon-laser",
-    // },
-    {
-      title: "画笔",
-      value: DrawingTool.Brush,
-      icon: "icon-brush",
-    },
-    // {
-    //   title: "文本",
-    //   value: DrawingTool.Text,
-    //   icon: "icon-text",
-    // },
-    // {
-    //   title: "图形",
-    //   value: DrawingTool.Graphical,
-    //   icon: "icon-graphical",
-    // },
-    {
-      title: "橡皮擦",
-      value: DrawingTool.Eraser,
-      icon: "icon-eraser",
-    },
-  ]);
+  // const drawingToolList = [
+  //   {
+  //     title: "鼠标",
+  //     value: DrawingTool.Cursor,
+  //     icon: "icon-cursor",
+  //   },
+  //   {
+  //     title: "选择",
+  //     value: DrawingTool.Move,
+  //     icon: "icon-move",
+  //   },
+  //   {
+  //     title: "激光笔",
+  //     value: DrawingTool.Laser,
+  //     icon: "icon-laser",
+  //   },
+  //   {
+  //     title: "画笔",
+  //     value: DrawingTool.Brush,
+  //     icon: "icon-brush",
+  //   },
+  //   {
+  //     title: "文本",
+  //     value: DrawingTool.Text,
+  //     icon: "icon-text",
+  //   },
+  //   {
+  //     title: "图形",
+  //     value: DrawingTool.Graphical,
+  //     icon: "icon-graphical",
+  //   },
+  //   {
+  //     title: "橡皮擦",
+  //     value: DrawingTool.Eraser,
+  //     icon: "icon-eraser",
+  //   },
+  // ];
 
   const onClick = (type: DrawingTool) => emits("change", type);
 
@@ -69,7 +69,6 @@ export const useAction = (emits: Emits) => {
 
   return {
     drawingToolEnum,
-    drawingToolList,
     onClick,
     onAction,
   };

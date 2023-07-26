@@ -32,7 +32,6 @@ const {
   canvasEl,
   drawingToolEnum,
   state,
-  drawing,
   onChange,
   onAction,
   remoteDrawing,
