@@ -3,7 +3,7 @@ import { useToggle } from "@vueuse/core";
 import { fabric } from "fabric";
 import { DrawingTool, DrawingStep } from "../../../../entity/enum";
 import { DrawingRecord, Point, VideoSizeInfo } from "../../../../entity/types";
-import { pointsToSvgPath } from "./utils";
+import { Drawing } from "./utils";
 import { v4 as uuidv4 } from "uuid";
 import { Emits } from "./props";
 import { useAppStore } from "../../../../stores/useAppStore";
@@ -18,7 +18,7 @@ export const useAction = (emits: Emits) => {
 
   const canvasEl = ref<HTMLCanvasElement>();
 
-  const canvas = ref<fabric.Canvas>();
+  const drawing = ref<Drawing>();
 
   const drawingToolEnum = reactive(DrawingTool);
 
@@ -50,33 +50,15 @@ export const useAction = (emits: Emits) => {
   };
 
   const resize = (videoSizeInfo: VideoSizeInfo) => {
-    const { currentVideoWidth, currentVideoHeight } = videoSizeInfo;
-
-    canvas.value?.setWidth(currentVideoWidth);
-    canvas.value?.setHeight(currentVideoHeight);
+    drawing.value!.resize(videoSizeInfo);
     state.historyDrawingRecords.forEach((record) => {
-      record?.fabric && canvas.value?.remove(record.fabric);
-      const points = drawingStore.originalConvertCurrentPoints(record.points);
-      canvas.value!.getContext().closePath();
-      const svgPath = pointsToSvgPath(points);
-      const path = new fabric.Path(svgPath, {
-        fill: "",
-        selectable: false,
-        stroke: "red",
-        strokeWidth: 2 * drawingStore.ratio,
-        hoverCursor: "default",
-      });
-      console.log(points);
-      canvas.value?.add(path);
-      canvas.value?.renderAll();
+      const points = drawing.value!.originalConvertCurrentPoints(record.points);
+      const path = drawing.value!.createFabricPath(points);
       record.fabric = path;
     });
-    // canvas.value?.renderAll();
-    // canvas.value?.calcOffset();
-    // canvas.value?.requestRenderAll();
   };
 
-  const drawing = (drawingRecord: DrawingRecord) =>
+  const onDrawing = (drawingRecord: DrawingRecord) =>
     emits("drawing", drawingRecord);
 
   const mousedown = (e: fabric.IEvent<MouseEvent>) => {
@@ -93,8 +75,8 @@ export const useAction = (emits: Emits) => {
           points: [],
           step: DrawingStep.Start,
         };
-        const points = drawingStore.currentConvertOriginalPoints([point]);
-        drawing({ ...currentRecord, points });
+        const points = drawing.value!.currentConvertOriginalPoints([point]);
+        onDrawing({ ...currentRecord, points });
         return;
       }
       case DrawingTool.Text: {
@@ -115,7 +97,7 @@ export const useAction = (emits: Emits) => {
             hasControls: true,
             selectable: false,
           });
-          canvas.value?.add(text);
+          drawing.value!.canvas.add(text);
           text.enterEditing();
           text.hiddenTextarea?.focus();
           textElement.value = text;
@@ -132,11 +114,11 @@ export const useAction = (emits: Emits) => {
               (record) => record.id !== drawingRecord.id
             );
             // 从画板上删除
-            canvas.value?.remove(drawingRecord.fabric);
+            drawing.value!.remove(drawingRecord.fabric);
             // 添加到撤销记录中
             state.undoDrawingRecords.push(toRaw(drawingRecord));
             // 通知其他人撤销
-            drawing({
+            onDrawing({
               id: drawingRecord.id,
               userId: drawingRecord.userId,
               tool: DrawingTool.Eraser,
@@ -157,15 +139,15 @@ export const useAction = (emits: Emits) => {
     state.points.push({ ...point });
     if (state.drawingTool === DrawingTool.Brush) {
       if (!state.isDrawing) return;
-      draw(prevPoint, [{ ...point }]);
+      drawing.value!.createPath(prevPoint, [{ ...point }]);
       currentRecord.step = DrawingStep.Process;
       currentRecord.points.push({ ...point });
       requestAnimationFrame(() => {
         if (currentRecord.points.length > 0) {
           const points = currentRecord.points.map((point) => ({ ...point }));
-          drawing({
+          onDrawing({
             ...currentRecord,
-            points: drawingStore.currentConvertOriginalPoints(points),
+            points: drawing.value!.currentConvertOriginalPoints(points),
           });
           currentRecord.points = [];
         }
@@ -176,24 +158,17 @@ export const useAction = (emits: Emits) => {
   const mouseup = (e: fabric.IEvent<MouseEvent>) => {
     if (state.drawingTool === DrawingTool.Brush) {
       state.isDrawing = false;
-      canvas.value!.getContext().closePath();
-      const svgPath = pointsToSvgPath(state.points);
-      const path = new fabric.Path(svgPath, {
-        fill: "",
-        selectable: false,
-        stroke: "red",
-        strokeWidth: 2 * drawingStore.ratio,
-        hoverCursor: "default",
-      });
-      canvas.value?.clearContext(canvas.value!.getContext());
-      canvas.value?.add(path);
-      canvas.value?.renderAll();
+
+      drawing.value?.clearContext();
+      const path = drawing.value!.createFabricPath(state.points);
+
       requestAnimationFrame(() => {
         currentRecord.step = DrawingStep.End;
-        const points = drawingStore.currentConvertOriginalPoints(
+
+        const points = drawing.value!.currentConvertOriginalPoints(
           toRaw(state.points).map((point) => ({ ...point }))
         );
-        drawing({
+        onDrawing({
           ...currentRecord,
           points,
         });
@@ -206,56 +181,41 @@ export const useAction = (emits: Emits) => {
     }
   };
 
-  const draw = (moveTo: Point, linesTo: Point[]) => {
-    const ctx = canvas.value!.getContext();
-
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2 * drawingStore.ratio;
-
-    ctx.beginPath();
-    ctx.moveTo(moveTo.x, moveTo.y);
-    linesTo.forEach((lineTo) => ctx.lineTo(lineTo.x, lineTo.y));
-    ctx.stroke();
-    ctx.closePath();
-  };
-
   onMounted(() => {
     nextTick(() => {
-      canvas.value = new fabric.Canvas("canvas", {
+      const canvas = new fabric.Canvas("canvas", {
         skipTargetFind: true,
         isDrawingMode: false,
         selection: false,
       });
-      canvas.value.on("mouse:down", mousedown);
-      canvas.value.on("mouse:move", mousemove);
-      canvas.value.on("mouse:up", mouseup);
+      canvas.on("mouse:down", mousedown);
+      canvas.on("mouse:move", mousemove);
+      canvas.on("mouse:up", mouseup);
+      drawing.value = new Drawing(canvas);
     });
   });
 
   const onChange = (drawingTool: DrawingTool) => {
     state.drawingTool = drawingTool;
-    canvas.value!.skipTargetFind = true;
+    drawing.value!.canvas.skipTargetFind = true;
     switch (drawingTool) {
       case DrawingTool.Eraser:
-        canvas.value!.skipTargetFind = false;
+        drawing.value!.canvas.skipTargetFind = false;
         break;
     }
   };
 
   const onAction = (drawingTool: DrawingTool) => {
-    canvas.value!.skipTargetFind = true;
+    drawing.value!.canvas.skipTargetFind = true;
     switch (drawingTool) {
       case DrawingTool.Undo: {
         const drawingRecord = state.historyDrawingRecords.pop();
         if (drawingRecord && drawingRecord.fabric) {
           // 从画板上删除
-          canvas.value?.remove(drawingRecord.fabric);
+          drawing.value!.remove(drawingRecord.fabric);
           // 添加到撤销记录中
           state.undoDrawingRecords.push(toRaw(drawingRecord));
-          drawing({
+          onDrawing({
             id: drawingRecord.id,
             userId: drawingRecord.userId,
             tool: DrawingTool.Undo,
@@ -269,11 +229,14 @@ export const useAction = (emits: Emits) => {
         const drawingRecord = state.undoDrawingRecords.pop();
         if (drawingRecord && drawingRecord.fabric) {
           // 添加到画板上
-          canvas.value?.add(drawingRecord.fabric);
-          canvas.value?.renderAll();
+          const points = drawing.value!.originalConvertCurrentPoints(
+            drawingRecord.points
+          );
+          const path = drawing.value!.createFabricPath(points);
+          drawingRecord.fabric = path;
           // 添加到历史记录中
           state.historyDrawingRecords.push(toRaw(drawingRecord));
-          drawing({
+          onDrawing({
             id: drawingRecord.id,
             userId: drawingRecord.userId,
             tool: DrawingTool.Redo,
@@ -284,11 +247,16 @@ export const useAction = (emits: Emits) => {
         return;
       }
       case DrawingTool.Clear: {
-        state.historyDrawingRecords.forEach(
-          (record) => record.fabric && canvas.value?.remove(record.fabric)
-        );
-        state.undoDrawingRecords.push(...state.historyDrawingRecords);
+        drawing.value!.canvas.clear();
+        state.undoDrawingRecords = [];
         state.historyDrawingRecords = [];
+        onDrawing({
+          id: uuidv4(),
+          userId: appStore.userInfo.id,
+          tool: DrawingTool.Clear,
+          points: [],
+          step: DrawingStep.End,
+        });
         return;
       }
     }
@@ -310,12 +278,12 @@ export const useAction = (emits: Emits) => {
               const points = drawingRecord.points.map((point) => ({
                 ...point,
               }));
-              const startPoint = drawingStore.originalConvertCurrentPoints([
+              const startPoint = drawing.value!.originalConvertCurrentPoints([
                 record.points[record.points.length - 1],
               ])[0];
               const movePoints =
-                drawingStore.originalConvertCurrentPoints(points);
-              draw(startPoint, movePoints);
+                drawing.value!.originalConvertCurrentPoints(points);
+              drawing.value!.createPath(startPoint, movePoints);
               record.step = drawingRecord.step;
               record.points.push(...points);
             } else {
@@ -328,21 +296,12 @@ export const useAction = (emits: Emits) => {
               (record) => record.id === drawingRecord.id
             );
             if (record) {
-              canvas.value!.getContext().closePath();
-              const points = drawingStore.originalConvertCurrentPoints(
+              drawing.value!.clearContext();
+              const points = drawing.value!.originalConvertCurrentPoints(
                 drawingRecord.points
               );
-              const svgPath = pointsToSvgPath(points);
-              const path = new fabric.Path(svgPath, {
-                fill: "",
-                selectable: false,
-                stroke: "red",
-                strokeWidth: 2,
-                hoverCursor: "default",
-              });
-              canvas.value?.clearContext(canvas.value!.getContext());
-              canvas.value?.add(path);
-              canvas.value?.renderAll();
+              const path = drawing.value!.createFabricPath(points);
+
               record.points = drawingRecord.points;
               record.step = drawingRecord.step;
               record.fabric = path;
@@ -362,7 +321,7 @@ export const useAction = (emits: Emits) => {
             (record) => record.id !== drawingRecord.id
           );
           // 从画板上删除
-          canvas.value?.remove(record.fabric);
+          drawing.value?.canvas.remove(record.fabric);
           // 添加到撤销记录中
           state.undoDrawingRecords.push(toRaw(record));
         }
@@ -377,45 +336,27 @@ export const useAction = (emits: Emits) => {
             (record) => record.id !== drawingRecord.id
           );
           // 添加到画板上
-
-          canvas.value!.getContext().closePath();
-          const points = drawingStore.originalConvertCurrentPoints(
+          const points = drawing.value!.originalConvertCurrentPoints(
             drawingRecord.points
           );
-          console.log("ratio", drawingStore.ratio);
-          const svgPath = pointsToSvgPath(points);
-          const path = new fabric.Path(svgPath, {
-            fill: "",
-            selectable: false,
-            stroke: "red",
-            strokeWidth: 2,
-            hoverCursor: "default",
-          });
-          canvas.value?.clearContext(canvas.value!.getContext());
-          canvas.value?.add(path);
-          canvas.value?.renderAll();
+          const path = drawing.value!.createFabricPath(points);
           record.fabric = path;
           // 添加到历史记录中
           state.historyDrawingRecords.push(toRaw(record));
         } else {
-          canvas.value!.getContext().closePath();
-          const points = drawingStore.originalConvertCurrentPoints(
+          const points = drawing.value!.originalConvertCurrentPoints(
             drawingRecord.points
           );
-          const svgPath = pointsToSvgPath(points);
-          const path = new fabric.Path(svgPath, {
-            fill: "",
-            selectable: false,
-            stroke: "red",
-            strokeWidth: 2,
-            hoverCursor: "default",
-          });
-          canvas.value?.add(path);
-          canvas.value?.renderAll();
+          const path = drawing.value!.createFabricPath(points);
           drawingRecord.fabric = path;
           state.historyDrawingRecords.push(drawingRecord);
         }
         return;
+      }
+      case DrawingTool.Clear: {
+        drawing.value!.canvas.clear();
+        state.undoDrawingRecords = [];
+        state.historyDrawingRecords = [];
       }
     }
   };
@@ -425,6 +366,7 @@ export const useAction = (emits: Emits) => {
     canvasEl,
     drawingToolEnum,
     state,
+    drawing,
     onChange,
     onAction,
     remoteDrawing,

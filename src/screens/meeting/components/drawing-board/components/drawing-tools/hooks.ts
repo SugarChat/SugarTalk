@@ -36,11 +36,11 @@ export const useAction = (emits: Emits) => {
     //   value: DrawingTool.Move,
     //   icon: "icon-move",
     // },
-    {
-      title: "激光笔",
-      value: DrawingTool.Laser,
-      icon: "icon-laser",
-    },
+    // {
+    //   title: "激光笔",
+    //   value: DrawingTool.Laser,
+    //   icon: "icon-laser",
+    // },
     {
       title: "画笔",
       value: DrawingTool.Brush,
