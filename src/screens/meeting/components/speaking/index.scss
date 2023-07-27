@@ -12,6 +12,7 @@
   transform: translate(-50%, 0);
   background-color: var(--color-primary-light);
   border-radius: var(--border-radius-base);
+  z-index: var(--status-bar-index);
 
   .text {
     padding-bottom: var(--spacing-smaller);

@@ -21,17 +21,6 @@
         :sound-level-list="soundLevelList"
       />
 
-      <Watermark
-        v-if="settingsStore.enableWatermark"
-        :text="`${appStore.appInfo.name} ${meetingQuery.userName}`"
-      />
-
-      <Speaking
-        v-if="meetingInfo?.userSessions?.length > 0"
-        :meeting-info="meetingInfo"
-        :sound-level-list="soundLevelList"
-      />
-
       <template v-if="videoStream">
         <div class="st-container">
           <Player :stream="videoStream" @update="drawingBoardRef?.resize">
@@ -47,6 +36,17 @@
           />
         </div>
       </template>
+
+      <Watermark
+        v-if="settingsStore.enableWatermark"
+        :text="`${appStore.appInfo.name} ${meetingQuery.userName}`"
+      />
+
+      <Speaking
+        v-if="meetingInfo?.userSessions?.length > 0"
+        :meeting-info="meetingInfo"
+        :sound-level-list="soundLevelList"
+      />
 
       <video
         width="0"

@@ -10,8 +10,19 @@
       animation: upY 0.3s forwards;
     }
 
-    ::v-deep(.share-bar) {
-      animation: upY 0.3s forwards;
+    ::v-deep(.speaking) {
+      top: 28px;
+      left: 0;
+      transform: none;
+      background-color: transparent;
+
+      .text {
+        color: var(--color-text-primary);
+        font-weight: bold;
+        text-shadow: -1px -1px 0 var(--color-text-white),
+          1px -1px 0 var(--color-text-white), -1px 1px 0 var(--color-text-white),
+          1px 1px 0 var(--color-text-white);
+      }
     }
 
     ::v-deep(.footer) {
@@ -20,10 +31,6 @@
 
     &:hover {
       ::v-deep(.status-bar) {
-        animation: upInvertedY 0.3s forwards;
-      }
-
-      ::v-deep(.share-bar) {
         animation: upInvertedY 0.3s forwards;
       }
 
@@ -40,6 +47,21 @@
 
     ::v-deep(.share-bar) {
       animation: upY 0.3s forwards;
+    }
+
+    ::v-deep(.speaking) {
+      top: 28px;
+      left: 0;
+      transform: none;
+      background-color: transparent;
+
+      .text {
+        color: var(--color-text-primary);
+        font-weight: bold;
+        text-shadow: -1px -1px 0 var(--color-text-white),
+          1px -1px 0 var(--color-text-white), -1px 1px 0 var(--color-text-white),
+          1px 1px 0 var(--color-text-white);
+      }
     }
 
     ::v-deep(.footer) {
