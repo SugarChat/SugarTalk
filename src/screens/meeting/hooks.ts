@@ -1,4 +1,12 @@
-import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue";
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  toRaw,
+} from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
 import {
   DataChannelMessage,
@@ -30,6 +38,7 @@ import {
 import { Meeting, UserSession } from "../../entity/response";
 import { SoundMeter } from "../../utils/webrtc/soundmeter";
 import { useAppStore } from "../../stores/useAppStore";
+import { useThrottleFn, useWindowFocus } from "@vueuse/core";
 
 export const useSoundmeter = () => {
   const audioContext = ref(new AudioContext());
@@ -618,6 +627,7 @@ export const useAction = () => {
     currentFrequency,
     moderator,
     isModerator,
+    currentShareUser,
     appStore,
     drawingBoardRef,
     updateMicMuteStatus,
@@ -628,5 +638,34 @@ export const useAction = () => {
     endMeeting,
     blockClose,
     sendDrawing,
+  };
+};
+
+export const useMouse = () => {
+  const stoped = ref(false);
+
+  const _timer = ref<NodeJS.Timeout>();
+
+  const focused = useWindowFocus();
+
+  const mousemove = useThrottleFn(() => {
+    stoped.value = false;
+    clearTimeout(_timer.value);
+    _timer.value = setTimeout(() => {
+      stoped.value = true;
+    }, 3000);
+  }, 100);
+
+  onMounted(() => {
+    document.body.addEventListener("mousemove", mousemove);
+  });
+
+  onUnmounted(() => {
+    document.body.removeEventListener("mousemove", mousemove);
+  });
+
+  return {
+    stoped,
+    focused,
   };
 };

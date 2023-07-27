@@ -7,21 +7,43 @@
 
   &.share-mode {
     ::v-deep(.status-bar) {
-      animation: upY 0.3s 2s forwards;
+      animation: upY 0.3s forwards;
+    }
+
+    ::v-deep(.share-bar) {
+      animation: upY 0.3s forwards;
     }
 
     ::v-deep(.footer) {
-      animation: downY 0.3s 2s forwards;
+      animation: downY 0.3s forwards;
     }
 
     &:hover {
       ::v-deep(.status-bar) {
-        animation: none;
+        animation: upInvertedY 0.3s forwards;
+      }
+
+      ::v-deep(.share-bar) {
+        animation: upInvertedY 0.3s forwards;
       }
 
       ::v-deep(.footer) {
-        animation: none;
+        animation: downInvertedY 0.3s forwards;
       }
+    }
+  }
+
+  &.share-mode-isBlur {
+    ::v-deep(.status-bar) {
+      animation: upY 0.3s forwards;
+    }
+
+    ::v-deep(.share-bar) {
+      animation: upY 0.3s forwards;
+    }
+
+    ::v-deep(.footer) {
+      animation: downY 0.3s forwards;
     }
   }
 
@@ -55,11 +77,29 @@
   }
 }
 
+@keyframes upInvertedY {
+  0% {
+    transform: translate(0px, -100%);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}
+
 @keyframes downY {
   0% {
     transform: translate(0px, 0px);
   }
   100% {
     transform: translate(0px, 100%);
+  }
+}
+
+@keyframes downInvertedY {
+  0% {
+    transform: translate(0px, 100%);
+  }
+  100% {
+    transform: translate(0px, 0px);
   }
 }

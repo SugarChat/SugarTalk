@@ -5,7 +5,10 @@
     <LaserPoint v-if="state.drawingTool === drawingToolEnum.Laser" />
   </div>
 
-  <ShareBar @toggle-drawing-tool="toggleDrawingTool" />
+  <ShareBar
+    :current-share-user="props.currentShareUser"
+    @toggle-drawing-tool="toggleDrawingTool"
+  />
 
   <DrawingTool
     v-show="isShowDrawingTool"
@@ -23,7 +26,9 @@ import ShareBar from "./components/share-bar/index.vue";
 import DrawingTool from "./components/drawing-tools/index.vue";
 import LaserPoint from "./components/laser-point/index.vue";
 import { useAction, useTools } from "./hooks";
-import { Emits } from "./props";
+import { Emits, Props } from "./props";
+
+const props = defineProps<Props>();
 
 const emits = defineEmits<Emits>();
 

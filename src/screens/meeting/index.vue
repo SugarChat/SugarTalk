@@ -1,5 +1,12 @@
 <template>
-  <div :class="['meeting-page', videoStream && 'share-mode']">
+  <div
+    :class="[
+      'meeting-page',
+      videoStream && (stoped || !focused)
+        ? 'share-mode-isBlur'
+        : videoStream && 'share-mode',
+    ]"
+  >
     <Header
       borderBottom
       :title="`${appStore.appInfo.name}会议`"
@@ -28,7 +35,11 @@
       <template v-if="videoStream">
         <div class="st-container">
           <Player :stream="videoStream" @update="drawingBoardRef?.resize">
-            <DrawingBoard ref="drawingBoardRef" @drawing="sendDrawing" />
+            <DrawingBoard
+              ref="drawingBoardRef"
+              :current-share-user="currentShareUser"
+              @drawing="sendDrawing"
+            />
           </Player>
           <UserList
             :meeting-info="meetingInfo"
@@ -100,7 +111,7 @@ import Member from "./components/member/index.vue";
 import Invite from "./components/invite/index.vue";
 import Speaking from "./components/speaking/index.vue";
 import DrawingBoard from "./components/drawing-board/index.vue";
-import { useAction } from "./hooks";
+import { useAction, useMouse } from "./hooks";
 
 const {
   leaveMeetingRef,
@@ -114,6 +125,7 @@ const {
   currentFrequency,
   moderator,
   isModerator,
+  currentShareUser,
   appStore,
   drawingBoardRef,
   updateMicMuteStatus,
@@ -125,6 +137,8 @@ const {
   blockClose,
   sendDrawing,
 } = useAction();
+
+const { stoped, focused } = useMouse();
 </script>
 
 <style scoped lang="scss">

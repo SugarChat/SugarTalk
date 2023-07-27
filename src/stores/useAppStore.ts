@@ -13,6 +13,7 @@ export const useAppStore = defineStore("appStore", {
   }),
   actions: {
     async init() {
+      this.isFullscreen = false;
       const appInfo = await window.electronAPI.appInfo();
       const platform =
         appInfo.platform === "darwin"
