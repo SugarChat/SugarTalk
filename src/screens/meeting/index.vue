@@ -1,74 +1,97 @@
 <template>
-  <Header borderBottom title="Sugar Talk会议" :close="blockClose" />
-
-  <div class="container">
-    <StatusBar :meeting-query="meetingQuery" :moderator="moderator" />
-
-    <UserPanel :meeting-info="meetingInfo" :sound-level-list="soundLevelList" />
-    <Watermark
-      v-if="settingsStore.enableWatermark"
-      :text="`Sugar Talk ${meetingQuery.userName}`"
+  <div
+    :class="[
+      'meeting-page',
+      videoStream && (stoped || !focused)
+        ? 'share-mode-isBlur'
+        : videoStream && 'share-mode',
+    ]"
+  >
+    <Header
+      borderBottom
+      :title="`${appStore.appInfo.name}会议`"
+      :close="blockClose"
     />
 
-    <Speaking
-      v-if="meetingInfo?.userSessions?.length > 0"
-      :meeting-info="meetingInfo"
-      :sound-level-list="soundLevelList"
-    />
+    <div class="container">
+      <StatusBar :meeting-query="meetingQuery" :moderator="moderator" />
 
-    <template v-if="videoStream">
-      <div class="st-container">
-        <Player :stream="videoStream" />
-        <UserList
-          :meeting-info="meetingInfo"
-          :sound-level-list="soundLevelList"
-        />
-      </div>
-    </template>
+      <UserPanel
+        :meeting-info="meetingInfo"
+        :sound-level-list="soundLevelList"
+      />
 
-    <video
-      width="0"
-      height="0"
-      v-for="stream in streamsList"
-      :key="stream.streamId"
-      autoplay
-      playsinline
-      :srcObject="stream.stream"
-    />
+      <template v-if="videoStream">
+        <div class="st-container">
+          <Player :stream="videoStream" @update="drawingBoardRef?.resize">
+            <DrawingBoard
+              ref="drawingBoardRef"
+              :current-share-user="currentShareUser"
+              @drawing="sendDrawing"
+            />
+          </Player>
+          <UserList
+            :meeting-info="meetingInfo"
+            :sound-level-list="soundLevelList"
+          />
+        </div>
+      </template>
 
-    <Footer>
-      <template #left>
-        <AudioManage
-          :isMuted="meetingQuery.isMuted"
-          :frequency="currentFrequency"
-          :update="updateMicMuteStatus"
-        />
-        <!-- <VideoManage /> -->
-      </template>
-      <template #content>
-        <ScreenShare
-          :is-share-screen="isShareScreen"
-          :before-open="beforeStartShare"
-          @startShare="onStartShare"
-          @stopShare="onStopShare"
-        />
-        <Invite :meeting-query="meetingQuery" :moderator="moderator" />
-        <Member
-          :meeting-info="meetingInfo"
-          :sound-level-list="soundLevelList"
-          :isMuted="meetingQuery.isMuted"
-          :update="updateMicMuteStatus"
-        />
-      </template>
-      <template #right>
-        <LeaveMeeting
-          ref="leaveMeetingRef"
-          :is-moderator="isModerator"
-          @on-leave-meeting="leaveMeeting"
-          @on-end-meeting="endMeeting"
-        />
-      </template>
-    </Footer>
+      <Watermark
+        v-if="settingsStore.enableWatermark"
+        :text="`${appStore.appInfo.name} ${meetingQuery.userName}`"
+      />
+
+      <Speaking
+        v-if="meetingInfo?.userSessions?.length > 0"
+        :meeting-info="meetingInfo"
+        :sound-level-list="soundLevelList"
+      />
+
+      <video
+        width="0"
+        height="0"
+        v-for="stream in streamsList"
+        :key="stream.streamId"
+        autoplay
+        playsinline
+        :srcObject="stream.stream"
+      />
+
+      <Footer>
+        <template #left>
+          <AudioManage
+            :isMuted="meetingQuery.isMuted"
+            :frequency="currentFrequency"
+            :update="updateMicMuteStatus"
+          />
+          <!-- <VideoManage /> -->
+        </template>
+        <template #content>
+          <ScreenShare
+            :is-share-screen="isShareScreen"
+            :before-open="beforeStartShare"
+            @startShare="onStartShare"
+            @stopShare="onStopShare"
+          />
+          <Invite :meeting-query="meetingQuery" :moderator="moderator" />
+          <Member
+            :meeting-info="meetingInfo"
+            :sound-level-list="soundLevelList"
+            :isMuted="meetingQuery.isMuted"
+            :update="updateMicMuteStatus"
+          />
+        </template>
+        <template #right>
+          <LeaveMeeting
+            ref="leaveMeetingRef"
+            :is-moderator="isModerator"
+            @on-leave-meeting="leaveMeeting"
+            @on-end-meeting="endMeeting"
+          />
+        </template>
+      </Footer>
+    </div>
   </div>
 </template>
 
@@ -87,7 +110,8 @@ import ScreenShare from "./components/screen-share/index.vue";
 import Member from "./components/member/index.vue";
 import Invite from "./components/invite/index.vue";
 import Speaking from "./components/speaking/index.vue";
-import { useAction } from "./hooks";
+import DrawingBoard from "./components/drawing-board/index.vue";
+import { useAction, useMouse } from "./hooks";
 
 const {
   leaveMeetingRef,
@@ -101,6 +125,9 @@ const {
   currentFrequency,
   moderator,
   isModerator,
+  currentShareUser,
+  appStore,
+  drawingBoardRef,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,
@@ -108,7 +135,10 @@ const {
   leaveMeeting,
   endMeeting,
   blockClose,
+  sendDrawing,
 } = useAction();
+
+const { stoped, focused } = useMouse();
 </script>
 
 <style scoped lang="scss">

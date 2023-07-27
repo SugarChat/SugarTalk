@@ -11,7 +11,9 @@
             :value="item.deviceId"
           />
         </el-select>
-        <el-button @click="onPlay">检测扬声器</el-button>
+        <el-button @click="onPlay">{{
+          state.isPlay ? "停止检测" : "检测扬声器"
+        }}</el-button>
       </div>
 
       <!-- <div>
@@ -45,36 +47,16 @@
 
 <script setup lang="ts">
 import Scroll from "../scroll/index.vue";
-import { ref } from "vue";
 import { useAction } from "./hooks";
 
-const { settingsStore, audioOutputDevices, setVolume, setMuted, onPlay } =
-  useAction();
-
-const value = ref("");
-
-const options = [
-  {
-    value: "Option1",
-    label: "Option1",
-  },
-  {
-    value: "Option2",
-    label: "Option2",
-  },
-  {
-    value: "Option3",
-    label: "Option3",
-  },
-  {
-    value: "Option4",
-    label: "Option4",
-  },
-  {
-    value: "Option5",
-    label: "Option5",
-  },
-];
+const {
+  state,
+  settingsStore,
+  audioOutputDevices,
+  setVolume,
+  setMuted,
+  onPlay,
+} = useAction();
 </script>
 
 <style scoped lang="scss">

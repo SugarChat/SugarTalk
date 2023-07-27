@@ -1,0 +1,107 @@
+.drawing-tool {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background-color: var(--background-color-white);
+  border: var(--border-width-base) solid var(--border-color-base);
+  border-radius: var(--border-radius-base);
+  overflow: hidden;
+  cursor: move;
+  -webkit-app-region: no-drag;
+  z-index: var(--drawing-tools-index);
+
+  .drawing-item {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover,
+    &.active {
+      .iconfont,
+      .title {
+        color: var(--color-primary);
+      }
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+    }
+
+    &.disabled,
+    &.disabled:hover {
+      .iconfont,
+      .title {
+        color: var(--color-text-disabled);
+      }
+    }
+
+    .iconfont {
+      color: var(--color-text-primary);
+      font-size: var(--font-size-extra-large);
+    }
+
+    .title {
+      color: var(--color-text-primary);
+      font-size: var(--font-size-small);
+      margin-top: var(--spacing-tiny);
+    }
+  }
+
+  .divider {
+    position: relative;
+    width: 1px;
+    height: 100%;
+    margin: 0 var(--spacing-smaller);
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: var(--spacing-smaller);
+      left: 0;
+      bottom: var(--spacing-smaller);
+      border-left: var(--border-width-base) solid var(--border-color-base);
+    }
+  }
+
+  .close-btn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    padding-left: 4px;
+    padding-bottom: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    border-top-right-radius: var(--border-radius-base);
+
+    .iconfont {
+      display: block;
+      position: relative;
+      font-size: 8px;
+      font-weight: var(--font-weight-primary);
+      color: var(--color-text-white);
+    }
+
+    &::before {
+      content: "";
+      display: block;
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      top: -20px;
+      left: 0px;
+      border-radius: 50%;
+      background-color: var(--color-text-primary);
+    }
+  }
+}

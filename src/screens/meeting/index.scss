@@ -1,18 +1,127 @@
-.container {
-  position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.meeting-page {
+  --player-index: 2;
+  --drawing-index: 3;
+  --status-bar-index: 4;
+  --drawing-tools-index: 5;
+  --drawing-mask-index: 6;
 
-  .st-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+  &.share-mode {
+    ::v-deep(.status-bar) {
+      animation: upY 0.3s forwards;
+    }
+
+    ::v-deep(.speaking) {
+      top: 28px;
+      left: 0;
+      transform: none;
+      background-color: transparent;
+
+      .text {
+        color: var(--color-text-primary);
+        font-weight: bold;
+        text-shadow: -1px -1px 0 var(--color-text-white),
+          1px -1px 0 var(--color-text-white), -1px 1px 0 var(--color-text-white),
+          1px 1px 0 var(--color-text-white);
+      }
+    }
+
+    ::v-deep(.footer) {
+      animation: downY 0.3s forwards;
+    }
+
+    &:hover {
+      ::v-deep(.status-bar) {
+        animation: upInvertedY 0.3s forwards;
+      }
+
+      ::v-deep(.footer) {
+        animation: downInvertedY 0.3s forwards;
+      }
+    }
+  }
+
+  &.share-mode-isBlur {
+    ::v-deep(.status-bar) {
+      animation: upY 0.3s forwards;
+    }
+
+    ::v-deep(.share-bar) {
+      animation: upY 0.3s forwards;
+    }
+
+    ::v-deep(.speaking) {
+      top: 28px;
+      left: 0;
+      transform: none;
+      background-color: transparent;
+
+      .text {
+        color: var(--color-text-primary);
+        font-weight: bold;
+        text-shadow: -1px -1px 0 var(--color-text-white),
+          1px -1px 0 var(--color-text-white), -1px 1px 0 var(--color-text-white),
+          1px 1px 0 var(--color-text-white);
+      }
+    }
+
+    ::v-deep(.footer) {
+      animation: downY 0.3s forwards;
+    }
+  }
+
+  .container {
+    position: relative;
+    flex: 1;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     overflow: hidden;
+
+    .st-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      z-index: var(--player-index);
+    }
+  }
+}
+
+@keyframes upY {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  100% {
+    transform: translate(0px, -100%);
+  }
+}
+
+@keyframes upInvertedY {
+  0% {
+    transform: translate(0px, -100%);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}
+
+@keyframes downY {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  100% {
+    transform: translate(0px, 100%);
+  }
+}
+
+@keyframes downInvertedY {
+  0% {
+    transform: translate(0px, 100%);
+  }
+  100% {
+    transform: translate(0px, 0px);
   }
 }

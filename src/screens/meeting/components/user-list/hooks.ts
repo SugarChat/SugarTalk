@@ -1,4 +1,4 @@
-import { nextTick, onMounted, ref } from "vue";
+import { nextTick, onMounted, onUnmounted, ref } from "vue";
 
 const WIDTH = 176;
 
@@ -41,6 +41,10 @@ export const useDraggResize = () => {
     nextTick(() => {
       handle.value?.addEventListener("mousedown", mousedown);
     });
+  });
+
+  onUnmounted(() => {
+    handle.value?.removeEventListener("mousedown", mousedown);
   });
 
   return {

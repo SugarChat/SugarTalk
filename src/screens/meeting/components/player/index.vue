@@ -1,11 +1,20 @@
 <template>
   <div class="player">
-    <video id="stream-media" :srcObject="stream" autoplay playsInline muted />
+    <video
+      ref="videoRef"
+      id="stream-media"
+      :srcObject="stream"
+      autoplay
+      playsInline
+      muted
+    />
+    <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
 import { toRefs } from "vue";
+import { Emits, useAction } from "./hooks";
 
 interface Props {
   stream: MediaStream;
@@ -13,7 +22,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emits = defineEmits<Emits>();
+
 const { stream } = toRefs(props);
+
+const { videoRef } = useAction(emits);
 </script>
 
 <style scoped lang="scss">

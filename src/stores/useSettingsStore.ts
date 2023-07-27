@@ -1,12 +1,9 @@
 import { defineStore } from "pinia";
 import loudness from "../utils/loudness";
-import config from "../config";
 
 export const useSettingsStore = defineStore("settingsStore", {
   state: () => ({
     websocketURL: "wss://talk.sjdistributors.com:5443/LiveApp/websocket",
-    baseURL: config.baseURL,
-    foundationURL: config.foundationURL,
     // 入会开启摄像头
     enableCamera: false,
     // 入会开启麦克风
@@ -23,14 +20,14 @@ export const useSettingsStore = defineStore("settingsStore", {
     openDevTools: false,
     // 是否开启水印
     enableWatermark: false,
+    // 是否开启MCU模式
+    enableMCU: false,
   }),
   actions: {
     init() {
       loudness.getStatus().then(([volume, muted]) => {
         this.volume = volume;
         this.muted = muted;
-        this.baseURL = this.baseURL || config.baseURL;
-        this.foundationURL = this.foundationURL || config.foundationURL;
       });
     },
   },

@@ -1,7 +1,7 @@
 import { onMounted } from "vue";
 import { useAppStore } from "../../stores/useAppStore";
 import { useNavigation } from "../../hooks/useNavigation";
-import { createMeetingApi } from "../../services";
+import { GetUserInfoApi, createMeetingApi } from "../../services";
 import { ElLoading, ElMessage } from "element-plus";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { MeetingStreamMode } from "../../entity/enum";
@@ -13,7 +13,21 @@ export const useAction = () => {
 
   const navigation = useNavigation();
 
+  const getUserInfo = async () => {
+    const { code, data, msg } = await GetUserInfoApi();
+    if (code === 200) {
+      appStore.updateUserInfo(data);
+    } else {
+      ElMessage({
+        offset: 50,
+        message: msg,
+        type: "error",
+      });
+    }
+  };
+
   onMounted(() => {
+    getUserInfo();
     navigation.closeToHide();
   });
 
@@ -23,7 +37,9 @@ export const useAction = () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
       const { code, data, msg } = await createMeetingApi({
-        meetingStreamMode: MeetingStreamMode.MCU,
+        meetingStreamMode: settingsStore.enableMCU
+          ? MeetingStreamMode.MCU
+          : MeetingStreamMode.SFU,
         startDate: new Date(),
         endDate: new Date(+new Date() + 1000 * 60 * 60 * 24),
       });
@@ -56,6 +72,7 @@ export const useAction = () => {
   };
 
   return {
+    appStore,
     onJoinMeeting,
     onQuickMeeting,
     gotoSettings,

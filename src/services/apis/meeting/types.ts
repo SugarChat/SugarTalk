@@ -1,4 +1,4 @@
-import { StreamType } from "../../../entity/enum";
+import { MeetingStreamMode, StreamType } from "../../../entity/enum";
 import { Meeting, UserSession } from "../../../entity/response";
 
 interface Response {
@@ -21,7 +21,7 @@ export interface JoinMeetingResponse {
 }
 
 export interface CreateMeetingRequest {
-  meetingStreamMode: number;
+  meetingStreamMode: MeetingStreamMode;
   startDate: Date;
   endDate: Date;
 }

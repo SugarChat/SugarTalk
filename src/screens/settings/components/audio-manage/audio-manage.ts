@@ -1,21 +1,48 @@
 export class AudioManage {
-  audioContext: AudioContext;
+  context: AudioContext = new AudioContext();
 
   source?: AudioBufferSourceNode;
 
+  buffer?: AudioBuffer;
+
+  isPlay = false;
+
   constructor() {
-    this.audioContext = new AudioContext();
+    window.electronAPI.getLocalAudioArrayBuffer().then((arraybuffer) => {
+      this.context.decodeAudioData(arraybuffer, (buffer) => {
+        this.buffer = buffer;
+      });
+    });
   }
 
-  createBufferSource(options?: AudioBufferSourceOptions) {
-    this.source?.disconnect();
-    this.source = new AudioBufferSourceNode(this.audioContext, options);
-    this.source.connect(this.audioContext.destination);
+  createBufferSource() {
+    if (this.buffer) {
+      this.source = this.context.createBufferSource();
+      this.source.buffer = this.buffer;
+      this.source.loop = true;
+      this.source.connect(this.context.destination);
+    }
     return this;
   }
 
   setSinkId(sinkId: string) {
-    this.audioContext.setSinkId(sinkId);
+    this.context.setSinkId(sinkId);
+    return this;
+  }
+
+  start() {
+    if (this.isPlay) return;
+    this.isPlay = true;
+    this.createBufferSource();
+    this.source?.start();
+    return this;
+  }
+
+  stop() {
+    this.isPlay = false;
+    this.source?.stop();
+    this.source?.disconnect();
+    this.source = undefined;
     return this;
   }
 }

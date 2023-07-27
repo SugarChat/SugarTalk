@@ -1,10 +1,22 @@
-import { computed, nextTick, onMounted, reactive, ref, toRaw } from "vue";
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  toRaw,
+} from "vue";
 import { WebRTCAdaptor } from "../../utils/webrtc/webrtc-adaptor";
 import {
+  DataChannelMessage,
+  DataChannelNotify,
   MeetingQuery,
+  DrawingRecord,
   ScreenSource,
   StreamInfo,
   StreamItem,
+  VideoSizeInfo,
 } from "../../entity/types";
 import { ElLoading, ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
@@ -18,9 +30,15 @@ import {
 } from "../../services";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useNavigation } from "../../hooks/useNavigation";
-import { MeetingStreamMode } from "../../entity/enum";
+import {
+  DataChannelCommand,
+  DataChannelNotifyType,
+  MeetingStreamMode,
+} from "../../entity/enum";
 import { Meeting, UserSession } from "../../entity/response";
 import { SoundMeter } from "../../utils/webrtc/soundmeter";
+import { useAppStore } from "../../stores/useAppStore";
+import { useThrottleFn, useWindowFocus } from "@vueuse/core";
 
 export const useSoundmeter = () => {
   const audioContext = ref(new AudioContext());
@@ -75,6 +93,8 @@ export const useAction = () => {
 
   const settingsStore = useSettingsStore();
 
+  const appStore = useAppStore();
+
   const navigation = useNavigation();
 
   const { soundLevelList, enableAudioLevel } = useSoundmeter();
@@ -98,7 +118,12 @@ export const useAction = () => {
   const leaveMeetingRef = ref<{
     open: () => boolean;
     close: () => boolean;
+    openEnd: () => void;
   }>();
+
+  const state = reactive({
+    isDestroy: false, // 标记即将销毁页面
+  });
 
   /**
    * 房间信息
@@ -136,12 +161,20 @@ export const useAction = () => {
   const shareScreenStreamId = ref("");
 
   /**
+   * 画板ref
+   */
+  const drawingBoardRef = ref<{
+    drawing: (drawingRecord: DrawingRecord) => void;
+    resize: (videoSizeInfo: VideoSizeInfo) => void;
+  }>();
+
+  /**
    * 当前用户信息
    */
   const currentUser = computed<UserSession>(
     () =>
       meetingInfo.value?.userSessions?.find(
-        (user) => user.userName === meetingQuery.userName
+        (user) => user.userId === appStore.userInfo.id
       ) ?? ({} as UserSession)
   );
 
@@ -181,6 +214,13 @@ export const useAction = () => {
   const isMCU = computed(
     () => meetingQuery.meetingStreamMode === MeetingStreamMode.MCU
   );
+
+  const sendData = <T>(data: DataChannelMessage<T>) => {
+    webRTCAdaptor.value?.sendData(
+      streamInfo.value.streamId,
+      JSON.stringify(data)
+    );
+  };
 
   const joinMeetingAfter = async () => {
     // 发布本地流
@@ -313,6 +353,18 @@ export const useAction = () => {
   const endMeeting = async () => {
     const loading = ElLoading.service({ fullscreen: true });
     try {
+      // 主持人发送DataChannel通知其他人结束会议
+      sendData<DataChannelNotify>({
+        command: DataChannelCommand.Notify,
+        message: {
+          type: DataChannelNotifyType.EndMeeting,
+        },
+      });
+
+      await endMeetingApi({
+        meetingNumber: meetingInfo.value.meetingNumber,
+      });
+    } finally {
       webRTCAdaptor.value?.leaveFromRoom(meetingQuery.meetingNumber);
 
       if (streamInfo.value?.streamId) {
@@ -321,10 +373,6 @@ export const useAction = () => {
         webRTCAdaptor.value?.closeWebSocket();
       }
 
-      await endMeetingApi({
-        meetingNumber: meetingInfo.value.meetingNumber,
-      });
-    } finally {
       loading.close();
       navigation.destroy();
     }
@@ -395,10 +443,12 @@ export const useAction = () => {
              */
             getMeetingInfo().finally(() => {
               setTimeout(() => {
-                webRTCAdaptor.value?.getRoomInfo(
-                  meetingQuery.meetingNumber,
-                  streamInfo.value!.streamId
-                );
+                if (!state.isDestroy) {
+                  webRTCAdaptor.value?.getRoomInfo(
+                    meetingQuery.meetingNumber,
+                    streamInfo.value!.streamId
+                  );
+                }
               }, 3000);
             });
 
@@ -428,6 +478,24 @@ export const useAction = () => {
           case "localStream":
             localStream.value = payload;
             break;
+          // RTC Data Channel
+          case "data_received":
+            const data: DataChannelMessage<any> = JSON.parse(payload.data);
+            console.log("data_received", data);
+            switch (data.command) {
+              case DataChannelCommand.Notify:
+                const message: DataChannelNotify = data.message;
+                switch (message.type) {
+                  case DataChannelNotifyType.EndMeeting:
+                    state.isDestroy = true;
+                    leaveMeetingRef.value?.openEnd();
+                    return;
+                }
+              case DataChannelCommand.Drawing:
+                const drawingRecord: DrawingRecord = data.message;
+                drawingBoardRef.value?.drawing(drawingRecord);
+                break;
+            }
         }
       },
       callbackError: (command: string, payload?: any) => {
@@ -459,9 +527,6 @@ export const useAction = () => {
       }
       requestAnimationFrame(() => {
         meetingQuery.isMuted = status;
-        meetingInfo.value?.userSessions?.forEach(
-          (user) => user.id === currentUser.value?.id && (user.isMuted = status)
-        );
       });
     } else {
       ElMessage({
@@ -532,6 +597,13 @@ export const useAction = () => {
 
   const blockClose = () => leaveMeetingRef.value?.open();
 
+  const sendDrawing = (drawingRecord: DrawingRecord) => {
+    sendData({
+      command: DataChannelCommand.Drawing,
+      message: drawingRecord,
+    });
+  };
+
   onMounted(() => {
     nextTick(() => {
       init();
@@ -555,6 +627,9 @@ export const useAction = () => {
     currentFrequency,
     moderator,
     isModerator,
+    currentShareUser,
+    appStore,
+    drawingBoardRef,
     updateMicMuteStatus,
     beforeStartShare,
     onStartShare,
@@ -562,5 +637,35 @@ export const useAction = () => {
     leaveMeeting,
     endMeeting,
     blockClose,
+    sendDrawing,
+  };
+};
+
+export const useMouse = () => {
+  const stoped = ref(false);
+
+  const _timer = ref<NodeJS.Timeout>();
+
+  const focused = useWindowFocus();
+
+  const mousemove = useThrottleFn(() => {
+    stoped.value = false;
+    clearTimeout(_timer.value);
+    _timer.value = setTimeout(() => {
+      stoped.value = true;
+    }, 3000);
+  }, 100);
+
+  onMounted(() => {
+    document.body.addEventListener("mousemove", mousemove);
+  });
+
+  onUnmounted(() => {
+    document.body.removeEventListener("mousemove", mousemove);
+  });
+
+  return {
+    stoped,
+    focused,
   };
 };

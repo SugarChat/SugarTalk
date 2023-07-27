@@ -1,7 +1,7 @@
 <template>
   <Header
     class="header"
-    title="Sugar Talk"
+    :title="appStore.appInfo.name"
     :is-destroy="true"
     :hideMaximizable="true"
   />
@@ -27,7 +27,8 @@ import UserInfo from "./components/user-info/index.vue";
 import JoinBtn from "./components/join-btn/index.vue";
 import { useAction } from "./hooks";
 
-const { onJoinMeeting, onQuickMeeting, gotoSettings, onLogout } = useAction();
+const { appStore, onJoinMeeting, onQuickMeeting, gotoSettings, onLogout } =
+  useAction();
 </script>
 
 <style scoped lang="scss">

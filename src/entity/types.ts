@@ -1,4 +1,10 @@
-import { MeetingStreamMode } from "./enum";
+import {
+  DataChannelCommand,
+  DataChannelNotifyType,
+  MeetingStreamMode,
+  DrawingStep,
+  DrawingTool,
+} from "./enum";
 
 export interface ScreenSource {
   appIcon: string;
@@ -41,4 +47,42 @@ export interface AppInfo {
   name: string;
   version: string;
   platform: "mac" | "win" | "other";
+}
+
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface DataChannelMessage<T> {
+  command: DataChannelCommand;
+  message: T;
+}
+
+export interface DataChannelNotify {
+  type: DataChannelNotifyType;
+}
+
+// 绘制Item
+export interface DrawingRecord {
+  id: string;
+  userId: number;
+  tool: DrawingTool;
+  drawingTool?: DrawingTool;
+  size: number;
+  color: string;
+  points: Point[];
+  step: DrawingStep;
+  fabric?: fabric.Object;
+}
+
+// 共享屏幕的video 尺寸信息
+export interface VideoSizeInfo {
+  width: number;
+  height: number;
+  videoWidth: number;
+  videoHeight: number;
+  currentVideoWidth: number;
+  currentVideoHeight: number;
+  ratio: number;
 }
