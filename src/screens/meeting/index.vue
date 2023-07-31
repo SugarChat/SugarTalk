@@ -81,6 +81,7 @@
             :isMuted="meetingQuery.isMuted"
             :update="updateMicMuteStatus"
           />
+          <Chat ref="chatRef" @send="sendMessage" />
         </template>
         <template #right>
           <LeaveMeeting
@@ -108,6 +109,7 @@ import Watermark from "../../components/watermark/index.vue";
 import AudioManage from "./components/audio-manage/index.vue";
 import ScreenShare from "./components/screen-share/index.vue";
 import Member from "./components/member/index.vue";
+import Chat from "./components/chat/index.vue";
 import Invite from "./components/invite/index.vue";
 import Speaking from "./components/speaking/index.vue";
 import DrawingBoard from "./components/drawing-board/index.vue";
@@ -128,6 +130,7 @@ const {
   currentShareUser,
   appStore,
   drawingBoardRef,
+  chatRef,
   updateMicMuteStatus,
   beforeStartShare,
   onStartShare,
@@ -136,6 +139,7 @@ const {
   endMeeting,
   blockClose,
   sendDrawing,
+  sendMessage,
 } = useAction();
 
 const { stoped, focused } = useMouse();

@@ -4,6 +4,8 @@ import {
   MeetingStreamMode,
   DrawingStep,
   DrawingTool,
+  MessageType,
+  MessageSendStatus,
 } from "./enum";
 
 export interface ScreenSource {
@@ -85,4 +87,18 @@ export interface VideoSizeInfo {
   currentVideoWidth: number;
   currentVideoHeight: number;
   ratio: number;
+}
+
+// IM Message
+export interface Message {
+  id: string;
+  type: MessageType;
+  content: string;
+  sendStatus: MessageSendStatus;
+  sendTime: string;
+  isReaded: boolean;
+  sendByUserId: number;
+  sendByUserName: string;
+  sendToUserId: number;
+  sendToUserName: string;
 }

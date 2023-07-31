@@ -7,6 +7,10 @@
   justify-content: center;
   -webkit-app-region: drag;
 
+  &.inner {
+    -webkit-app-region: no-drag;
+  }
+
   &.border-bottom {
     border-bottom: var(--border-width-base) solid var(--border-color-light);
   }
@@ -55,7 +59,7 @@
   }
 
   .title {
-    font-size: 13px;
+    font-size: var(--font-size-base);
     user-select: none;
   }
 

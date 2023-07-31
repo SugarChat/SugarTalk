@@ -1,5 +1,11 @@
 <template>
-  <div :class="['header', borderBottom ? 'border-bottom' : '']">
+  <div
+    :class="[
+      'header',
+      borderBottom && 'border-bottom',
+      props?.isInner && 'inner',
+    ]"
+  >
     <div class="left">
       <template v-if="isMac">
         <slot name="traffic-light">

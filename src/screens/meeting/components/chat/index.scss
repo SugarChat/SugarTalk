@@ -1,0 +1,34 @@
+.chat-body {
+  height: 320px;
+  background-color: var(--background-color-base);
+
+  ::v-deep(.scrollbar-view) {
+    min-height: 320px;
+    padding: var(--spacing-smaller) var(--spacing-smaller) 0;
+  }
+}
+
+.chat-footer {
+  height: 86px;
+  border-top: 1px solid #ddd;
+  padding: var(--spacing-smaller);
+
+  .textarea {
+    width: 100%;
+    height: 100%;
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    outline: none;
+    border: none;
+    resize: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &::placeholder {
+      font-size: var(--font-size-base);
+      color: var(--color-text-placeholder);
+    }
+  }
+}
