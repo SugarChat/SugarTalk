@@ -24,8 +24,9 @@ export enum DrawingTool {
 
 // rtc的data channel 发送的命令
 export enum DataChannelCommand {
-  Notify = "notify",
-  Drawing = "drawing",
+  Notify = "notify", // 通知 例：主持人结束会议通知
+  Drawing = "drawing", // 画板消息
+  Message = "message", // IM消息
 }
 
 export enum DataChannelNotifyType {
@@ -37,4 +38,16 @@ export enum DrawingStep {
   Start,
   Process,
   End,
+}
+
+// IM消息类型
+export enum MessageType {
+  Message,
+}
+
+// IM消息发送类型
+export enum MessageSendStatus {
+  Success,
+  Sending,
+  Fail,
 }

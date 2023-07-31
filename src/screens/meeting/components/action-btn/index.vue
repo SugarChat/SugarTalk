@@ -6,16 +6,18 @@
       </slot>
     </div>
     <p class="title">{{ title }}</p>
+    <div v-if="badge" class="badge">{{ badge }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { toRefs } from "vue";
+import { computed, toRefs } from "vue";
 
 interface Props {
   title: string;
   icon: string;
   disabled?: boolean;
+  count?: number;
 }
 
 interface Emits {
@@ -24,9 +26,13 @@ interface Emits {
 
 const props = defineProps<Props>();
 
-const { title, icon, disabled } = toRefs(props);
+const { title, icon, disabled, count } = toRefs(props);
 
 const emits = defineEmits<Emits>();
+
+const badge = computed(() =>
+  count?.value ? (count.value > 99 ? "99+" : `${count.value}`) : ""
+);
 
 const onClick = () => emits("click");
 </script>

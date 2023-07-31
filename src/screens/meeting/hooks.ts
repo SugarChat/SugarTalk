@@ -17,6 +17,7 @@ import {
   StreamInfo,
   StreamItem,
   VideoSizeInfo,
+  Message,
 } from "../../entity/types";
 import { ElLoading, ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
@@ -166,6 +167,13 @@ export const useAction = () => {
   const drawingBoardRef = ref<{
     drawing: (drawingRecord: DrawingRecord) => void;
     resize: (videoSizeInfo: VideoSizeInfo) => void;
+  }>();
+
+  /**
+   * 聊天ref
+   */
+  const chatRef = ref<{
+    message: (message: Message) => void;
   }>();
 
   /**
@@ -483,18 +491,25 @@ export const useAction = () => {
             const data: DataChannelMessage<any> = JSON.parse(payload.data);
             console.log("data_received", data);
             switch (data.command) {
-              case DataChannelCommand.Notify:
+              case DataChannelCommand.Notify: {
                 const message: DataChannelNotify = data.message;
                 switch (message.type) {
                   case DataChannelNotifyType.EndMeeting:
                     state.isDestroy = true;
                     leaveMeetingRef.value?.openEnd();
-                    return;
                 }
-              case DataChannelCommand.Drawing:
-                const drawingRecord: DrawingRecord = data.message;
-                drawingBoardRef.value?.drawing(drawingRecord);
-                break;
+                return;
+              }
+              case DataChannelCommand.Drawing: {
+                const message: DrawingRecord = data.message;
+                drawingBoardRef.value?.drawing(message);
+                return;
+              }
+              case DataChannelCommand.Message: {
+                const message: Message = data.message;
+                chatRef.value?.message(message);
+                return;
+              }
             }
         }
       },
@@ -604,6 +619,13 @@ export const useAction = () => {
     });
   };
 
+  const sendMessage = (message: Message) => {
+    sendData({
+      command: DataChannelCommand.Message,
+      message: message,
+    });
+  };
+
   onMounted(() => {
     nextTick(() => {
       init();
@@ -630,6 +652,7 @@ export const useAction = () => {
     currentShareUser,
     appStore,
     drawingBoardRef,
+    chatRef,
     updateMicMuteStatus,
     beforeStartShare,
     onStartShare,
@@ -638,6 +661,7 @@ export const useAction = () => {
     endMeeting,
     blockClose,
     sendDrawing,
+    sendMessage,
   };
 };
 
