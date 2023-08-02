@@ -1,4 +1,4 @@
-import { computed, nextTick, onMounted, reactive, ref } from "vue";
+import { Ref, computed, nextTick, onMounted, reactive, ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { Emits } from "./props";
 import { Message } from "../../../../entity/types";
@@ -39,6 +39,22 @@ const useScroll = () => {
   };
 };
 
+const useComposition = (el: Ref<HTMLTextAreaElement | undefined>) => {
+  const isCompositionend = ref(false);
+
+  useEventListener(
+    el,
+    "compositionstart",
+    () => (isCompositionend.value = false)
+  );
+
+  useEventListener(el, "compositionend", () => (isCompositionend.value = true));
+
+  return {
+    isCompositionend,
+  };
+};
+
 export const useAction = (emits: Emits) => {
   const appStore = useAppStore();
 
@@ -64,6 +80,8 @@ export const useAction = (emits: Emits) => {
           message.sendByUserId !== appStore.userInfo.id && !message.isReaded
       ).length
   );
+
+  const { isCompositionend } = useComposition(textarea);
 
   const sendPicture = (base64Data: string, file: File) => {
     const chunkSize = 1024 * 15;
@@ -146,7 +164,7 @@ export const useAction = (emits: Emits) => {
       event.preventDefault();
       if (event.shiftKey) {
         insertTextAtCursor(textarea.value!, "\n");
-      } else {
+      } else if (isCompositionend.value) {
         const text = content.value.trim();
         if (text) {
           const message: Message = {
