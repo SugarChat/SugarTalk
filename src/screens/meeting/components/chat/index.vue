@@ -10,34 +10,39 @@
     :show-close="true"
     :align-center="true"
   >
-    <Header
-      title="聊天"
-      :is-inner="true"
-      borderBottom
-      :close="() => (state.visible = false)"
-    />
-    <div class="chat-body">
-      <el-scrollbar
-        ref="scrollbar"
-        view-class="scrollbar-view"
-        @scroll="scroll"
-      >
-        <Message
-          v-for="message in messages"
-          :key="message.id"
-          :message="message"
-        />
-      </el-scrollbar>
-    </div>
-    <div class="chat-footer">
-      <textarea
-        ref="textarea"
-        class="textarea"
-        v-model="content"
-        @keydown="keydown($event)"
-        maxlength="1024"
-        placeholder="说点什么..."
+    <div ref="dropZoneRef" class="chat-dialog">
+      <Header
+        title="聊天"
+        :is-inner="true"
+        borderBottom
+        :close="() => (state.visible = false)"
       />
+      <div class="chat-body">
+        <el-scrollbar
+          ref="scrollbar"
+          view-class="scrollbar-view"
+          @scroll="scroll"
+        >
+          <Message
+            v-for="message in messages"
+            :key="message.id"
+            :message="message"
+          />
+        </el-scrollbar>
+      </div>
+      <div class="chat-footer">
+        <textarea
+          ref="textarea"
+          class="textarea"
+          v-model="content"
+          @keydown="keydown($event)"
+          maxlength="1024"
+          placeholder="说点什么..."
+        />
+      </div>
+      <div v-show="isOverDropZone" class="chat-mask">
+        <p class="mask-text">松开发送</p>
+      </div>
     </div>
   </el-dialog>
 </template>
@@ -53,11 +58,13 @@ const emits = defineEmits<Emits>();
 
 const {
   textarea,
+  dropZoneRef,
   scrollbar,
   state,
   messages,
   content,
   unreadCount,
+  isOverDropZone,
   open,
   keydown,
   scroll,
