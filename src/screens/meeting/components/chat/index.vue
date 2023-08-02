@@ -31,14 +31,23 @@
         </el-scrollbar>
       </div>
       <div class="chat-footer">
-        <textarea
-          ref="textarea"
-          class="textarea"
-          v-model="content"
-          @keydown="keydown($event)"
-          maxlength="1024"
-          placeholder="说点什么..."
-        />
+        <div class="chat-tool-box">
+          <el-tooltip effect="light" content="选择图片" placement="top">
+            <div class="chat-tool-item" @click="() => select()">
+              <i class="iconfont icon-pictures" />
+            </div>
+          </el-tooltip>
+        </div>
+        <div class="textarea-box">
+          <textarea
+            ref="textarea"
+            class="textarea"
+            v-model="content"
+            @keydown="keydown($event)"
+            maxlength="1024"
+            placeholder="说点什么..."
+          />
+        </div>
       </div>
       <div v-show="isOverDropZone" class="chat-mask">
         <p class="mask-text">松开发送</p>
@@ -69,6 +78,7 @@ const {
   keydown,
   scroll,
   onMessage,
+  select,
 } = useAction(emits);
 
 defineExpose({

@@ -5,7 +5,7 @@ import { Message } from "../../../../entity/types";
 import { MessageSendStatus, MessageType } from "../../../../entity/enum";
 import { useAppStore } from "../../../../stores/useAppStore";
 import dayjs from "dayjs";
-import { useDropZone } from "@vueuse/core";
+import { useDropZone, useEventListener, useFileDialog } from "@vueuse/core";
 
 const insertTextAtCursor = (element: HTMLTextAreaElement, text: string) => {
   const start = element.selectionStart;
@@ -106,7 +106,7 @@ export const useAction = (emits: Emits) => {
           window.electronAPI
             .getBase64ByFilePath(file.path)
             .then((base64Data) => {
-              const message = sendPicture(base64Data, files[0]);
+              const message = sendPicture(base64Data, file);
               messages.value.push(message);
               scrollToBottom();
             });
@@ -114,6 +114,26 @@ export const useAction = (emits: Emits) => {
       });
     }
   );
+
+  const { open: select, onChange } = useFileDialog({
+    accept: "image/*",
+  });
+
+  onChange((files) => {
+    if (files && files.length > 0) {
+      Array.from(files).forEach((file) => {
+        if (file.type.includes("image")) {
+          window.electronAPI
+            .getBase64ByFilePath(file.path)
+            .then((base64Data) => {
+              const message = sendPicture(base64Data, file);
+              messages.value.push(message);
+              scrollToBottom();
+            });
+        }
+      });
+    }
+  });
 
   const open = () => {
     state.visible = true;
@@ -192,39 +212,35 @@ export const useAction = (emits: Emits) => {
     }
   };
 
-  onMounted(() => {
-    nextTick(() => {
-      document.addEventListener("paste", async (event) => {
-        const items = event.clipboardData?.items;
-        if (items) {
-          const item = Array.from(items)?.[0];
-          const file = item?.getAsFile();
-          if (file && file.type?.includes("image")) {
-            if (file.path) {
-              // 从本地复制的图片
-              event.preventDefault();
-              window.electronAPI
-                .getBase64ByFilePath(file.path)
-                .then((base64Data) => {
-                  const message = sendPicture(base64Data, file);
-                  messages.value.push(message);
-                  scrollToBottom();
-                });
-            } else {
-              // 从应用复制的图片数据
-              const base64Data = await window.clipboard.readImage();
-              const base64WithoutPrefix = base64Data.replace(
-                /^data:image\/\w+;base64,/,
-                ""
-              );
-              const message = sendPicture(base64WithoutPrefix, file);
+  useEventListener(document, "paste", async (event) => {
+    const items = event.clipboardData?.items;
+    if (items) {
+      const item = Array.from(items)?.[0];
+      const file = item?.getAsFile();
+      if (file && file.type?.includes("image")) {
+        if (file.path) {
+          // 从本地复制的图片
+          event.preventDefault();
+          window.electronAPI
+            .getBase64ByFilePath(file.path)
+            .then((base64Data) => {
+              const message = sendPicture(base64Data, file);
               messages.value.push(message);
               scrollToBottom();
-            }
-          }
+            });
+        } else {
+          // 从应用复制的图片数据
+          const base64Data = await window.clipboard.readImage();
+          const base64WithoutPrefix = base64Data.replace(
+            /^data:image\/\w+;base64,/,
+            ""
+          );
+          const message = sendPicture(base64WithoutPrefix, file);
+          messages.value.push(message);
+          scrollToBottom();
         }
-      });
-    });
+      }
+    }
   });
 
   return {
@@ -240,5 +256,6 @@ export const useAction = (emits: Emits) => {
     keydown,
     scroll,
     onMessage,
+    select,
   };
 };

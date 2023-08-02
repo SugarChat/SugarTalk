@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@types/uuid": "^9.0.2",
-    "@vueuse/core": "^9.13.0",
+    "@vueuse/core": "^10.3.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.3",
