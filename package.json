@@ -30,9 +30,8 @@
   },
   "devDependencies": {
     "@types/fabric": "^5.3.3",
+    "@types/uuid": "^9.0.2",
     "@vitejs/plugin-vue": "^4.1.0",
-    "electron": "^23.1.1",
-    "electron-builder": "^23.6.0",
     "sass": "^1.60.0",
     "typescript": "^5.0.2",
     "vite": "^4.1.4",
@@ -42,21 +41,22 @@
     "vue-tsc": "^1.2.0"
   },
   "dependencies": {
-    "@types/uuid": "^9.0.2",
     "@vueuse/core": "^10.3.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.9",
+    "electron": "^25.4.0",
+    "electron-builder": "^24.6.3",
     "element-plus": "^2.3.3",
     "fabric": "^5.3.0",
     "loudness": "^0.4.1",
     "normalize.css": "^8.0.1",
     "ping": "^0.4.4",
-    "pinia": "^2.0.34",
-    "pinia-plugin-persistedstate": "^3.1.0",
+    "pinia": "^2.1.6",
+    "pinia-plugin-persistedstate": "^3.2.0",
     "sharp": "^0.32.4",
     "uuid": "^9.0.0",
     "vite-plugin-html": "^3.2.0",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.2.4"
   },
   "engines": {
     "node": ">=16.0.0"
