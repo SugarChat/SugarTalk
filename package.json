@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@types/uuid": "^9.0.2",
-    "@vueuse/core": "^9.13.0",
+    "@vueuse/core": "^10.3.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.9",
     "element-plus": "^2.3.3",
@@ -53,6 +53,7 @@
     "ping": "^0.4.4",
     "pinia": "^2.0.34",
     "pinia-plugin-persistedstate": "^3.1.0",
+    "sharp": "^0.32.4",
     "uuid": "^9.0.0",
     "vite-plugin-html": "^3.2.0",
     "vue-router": "^4.1.6"

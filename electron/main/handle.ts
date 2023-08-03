@@ -5,6 +5,10 @@ import {
   dialog,
   systemPreferences,
   clipboard,
+  Menu,
+  MenuItem,
+  app,
+  nativeImage,
 } from "electron";
 import { exec } from "child_process";
 import ping from "ping";
@@ -12,6 +16,8 @@ import { PingConfig } from "../../src/renderer";
 import loudness from "loudness";
 import fs from "node:fs";
 import { join } from "node:path";
+import { v1 as uuidv1 } from "uuid";
+import sharp from "sharp";
 
 ipcMain.handle("getPlatform", () => process.platform);
 
@@ -119,6 +125,11 @@ ipcMain.handle("clipboard.writeText", (_, text: string) =>
   clipboard.writeText(text)
 );
 
+ipcMain.handle("clipboard.readImage", () => {
+  const image = clipboard.readImage("clipboard");
+  return image.toDataURL();
+});
+
 ipcMain.handle("store-dispatch", (_, id: string, hash: string) => {
   const wins = BrowserWindow.getAllWindows();
   wins.forEach((win) => {
@@ -143,4 +154,57 @@ ipcMain.handle("get-local-audio-arraybuffer", () => {
   const buffer = fs.readFileSync(path);
   const arraybuffer = new Uint8Array(buffer);
   return arraybuffer.buffer;
+});
+
+ipcMain.handle("get-base64-by-filePath", async (_, filePath: string) => {
+  const data = fs.readFileSync(filePath);
+  let compressedImageBuffer = await sharp(data).png({ quality: 60 }).toBuffer();
+  if (compressedImageBuffer.length > 1024 * 1024 * 3) {
+    compressedImageBuffer = await sharp(data).png({ quality: 60 }).toBuffer();
+  }
+  return compressedImageBuffer.toString("base64");
+});
+
+ipcMain.handle("show-context-menu", (_, imageURL: string) => {
+  const contextMenu = new Menu();
+  contextMenu.append(
+    new MenuItem({
+      label: "复制",
+      click: () => {
+        const imageBuffer = Buffer.from(imageURL, "base64");
+        const imageNative = nativeImage.createFromBuffer(imageBuffer);
+        clipboard.writeImage(imageNative);
+      },
+    })
+  );
+  contextMenu.append(
+    new MenuItem({
+      label: "另存为",
+      click: () => {
+        const appName = app.getName();
+        const foramt = (num: number) => (num > 9 ? `${num}` : `0${num}`);
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = foramt(now.getMonth() + 1);
+        const day = foramt(now.getDate());
+        dialog
+          .showSaveDialog({
+            defaultPath: `${appName}_${year}${month}${day}_${uuidv1().substring(
+              0,
+              8
+            )}.png`,
+          })
+          .then((result) => {
+            if (!result.canceled && result.filePath) {
+              const savePath = result.filePath;
+
+              const imageBuffer = Buffer.from(imageURL, "base64");
+
+              fs.writeFile(savePath, imageBuffer, "base64", () => {});
+            }
+          });
+      },
+    })
+  );
+  contextMenu.popup({ window: BrowserWindow.getFocusedWindow() });
 });

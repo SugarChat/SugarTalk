@@ -1,8 +1,13 @@
 .share-bar {
   position: fixed;
   top: 0;
-  left: 50%;
+  left: calc(50% - 140px);
+  width: 280px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
   z-index: var(--status-bar-index);
+  -webkit-app-region: no-drag;
 
   .share-bar-container {
     height: 24px;
@@ -11,7 +16,6 @@
     background-color: #373b3e;
     border-bottom-left-radius: var(--border-radius-large);
     border-bottom-right-radius: var(--border-radius-large);
-    transform: translate(-50%, 0);
 
     .title {
       padding: 0 var(--spacing-medium);

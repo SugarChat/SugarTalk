@@ -43,6 +43,7 @@ export enum DrawingStep {
 // IM消息类型
 export enum MessageType {
   Message,
+  Picture,
 }
 
 // IM消息发送类型

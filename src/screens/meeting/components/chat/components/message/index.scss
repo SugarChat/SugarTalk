@@ -45,6 +45,7 @@
       box-sizing: border-box;
 
       .text {
+        max-width: 100%;
         line-height: 20px;
         font-size: var(--font-size-base);
         color: var(--color-text-primary);

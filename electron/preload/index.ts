@@ -45,6 +45,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("ping", addr, config),
   getLocalAudioArrayBuffer: () =>
     ipcRenderer.invoke("get-local-audio-arraybuffer"),
+  getBase64ByFilePath: (filePath: string) =>
+    ipcRenderer.invoke("get-base64-by-filePath", filePath),
+  showContextMenu: (imageURL: string) =>
+    ipcRenderer.invoke("show-context-menu", imageURL),
 });
 
 contextBridge.exposeInMainWorld("desktopCapturer", {
@@ -77,6 +81,7 @@ contextBridge.exposeInMainWorld("dialog", {
 
 contextBridge.exposeInMainWorld("clipboard", {
   writeText: (text: string) => ipcRenderer.invoke("clipboard.writeText", text),
+  readImage: () => ipcRenderer.invoke("clipboard.readImage"),
 });
 
 contextBridge.exposeInMainWorld("store", {

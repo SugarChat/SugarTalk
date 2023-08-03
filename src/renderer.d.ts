@@ -69,6 +69,8 @@ export interface IElectronAPI {
   execCommand: (command: string) => Promise<void>;
   ping: (addr: string, config?: PingConfig) => Promise<PingResponse>;
   getLocalAudioArrayBuffer: () => Promise<ArrayBuffer>;
+  getBase64ByFilePath: (filePath: string) => Promise<string>;
+  showContextMenu: (imageURL: string) => Promise<void>;
 }
 
 export interface IDesktopCapturer {
@@ -92,6 +94,7 @@ export interface IDialog {
 
 export interface IClipboard {
   writeText: (text: string) => Promise<void>;
+  readImage: () => Promise<string>;
 }
 
 export interface IStore {

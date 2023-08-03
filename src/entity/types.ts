@@ -94,6 +94,9 @@ export interface Message {
   id: string;
   type: MessageType;
   content: string;
+  fileType: string;
+  filePath: string;
+  size: number;
   sendStatus: MessageSendStatus;
   sendTime: string;
   isReaded: boolean;
