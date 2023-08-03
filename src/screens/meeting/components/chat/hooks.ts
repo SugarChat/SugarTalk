@@ -6,6 +6,7 @@ import { MessageSendStatus, MessageType } from "../../../../entity/enum";
 import { useAppStore } from "../../../../stores/useAppStore";
 import dayjs from "dayjs";
 import { useDropZone, useEventListener, useFileDialog } from "@vueuse/core";
+import { ElMessage } from "element-plus";
 
 const insertTextAtCursor = (element: HTMLTextAreaElement, text: string) => {
   const start = element.selectionStart;
@@ -116,6 +117,20 @@ export const useAction = (emits: Emits) => {
     return message;
   };
 
+  const handlePicture = (base64Data: string, file: File) => {
+    if (base64Data.length * 0.75 > 1024 * 1024 * 3) {
+      ElMessage({
+        offset: 28,
+        message: "图片太大",
+        type: "error",
+      });
+      return;
+    }
+    const message = sendPicture(base64Data, file);
+    messages.value.push(message);
+    scrollToBottom();
+  };
+
   const { isOverDropZone } = useDropZone(
     dropZoneRef,
     (files: File[] | null) => {
@@ -124,9 +139,7 @@ export const useAction = (emits: Emits) => {
           window.electronAPI
             .getBase64ByFilePath(file.path)
             .then((base64Data) => {
-              const message = sendPicture(base64Data, file);
-              messages.value.push(message);
-              scrollToBottom();
+              handlePicture(base64Data, file);
             });
         }
       });
@@ -144,9 +157,7 @@ export const useAction = (emits: Emits) => {
           window.electronAPI
             .getBase64ByFilePath(file.path)
             .then((base64Data) => {
-              const message = sendPicture(base64Data, file);
-              messages.value.push(message);
-              scrollToBottom();
+              handlePicture(base64Data, file);
             });
         }
       });
@@ -242,9 +253,7 @@ export const useAction = (emits: Emits) => {
           window.electronAPI
             .getBase64ByFilePath(file.path)
             .then((base64Data) => {
-              const message = sendPicture(base64Data, file);
-              messages.value.push(message);
-              scrollToBottom();
+              handlePicture(base64Data, file);
             });
         } else {
           // 从应用复制的图片数据

@@ -17,6 +17,7 @@ import loudness from "loudness";
 import fs from "node:fs";
 import { join } from "node:path";
 import { v1 as uuidv1 } from "uuid";
+import sharp from "sharp";
 
 ipcMain.handle("getPlatform", () => process.platform);
 
@@ -155,9 +156,13 @@ ipcMain.handle("get-local-audio-arraybuffer", () => {
   return arraybuffer.buffer;
 });
 
-ipcMain.handle("get-base64-by-filePath", (_, filePath: string) => {
+ipcMain.handle("get-base64-by-filePath", async (_, filePath: string) => {
   const data = fs.readFileSync(filePath);
-  return data.toString("base64");
+  let compressedImageBuffer = await sharp(data).png({ quality: 60 }).toBuffer();
+  if (compressedImageBuffer.length > 1024 * 1024 * 3) {
+    compressedImageBuffer = await sharp(data).png({ quality: 60 }).toBuffer();
+  }
+  return compressedImageBuffer.toString("base64");
 });
 
 ipcMain.handle("show-context-menu", (_, imageURL: string) => {
