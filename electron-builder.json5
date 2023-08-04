@@ -12,6 +12,7 @@
   mac: {
     artifactName: "${productName}_${version}.${ext}",
     target: ["dmg"],
+    mergeASARs: false,
     hardenedRuntime: true,
     entitlements: "public/entitlements.mac.plist",
     entitlementsInherit: "public/entitlements.mac.plist",

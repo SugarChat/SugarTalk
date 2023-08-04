@@ -32,20 +32,20 @@
     "@types/fabric": "^5.3.3",
     "@types/uuid": "^9.0.2",
     "@vitejs/plugin-vue": "^4.1.0",
+    "electron": "^25.4.0",
+    "electron-builder": "^24.6.3",
     "sass": "^1.60.0",
     "typescript": "^5.0.2",
     "vite": "^4.1.4",
     "vite-plugin-electron": "^0.11.1",
     "vite-plugin-electron-renderer": "^0.13.14",
-    "vue": "^3.2.47",
+    "vite-plugin-html": "^3.2.0",
     "vue-tsc": "^1.2.0"
   },
   "dependencies": {
     "@vueuse/core": "^10.3.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.9",
-    "electron": "^25.4.0",
-    "electron-builder": "^24.6.3",
     "element-plus": "^2.3.3",
     "fabric": "^5.3.0",
     "loudness": "^0.4.1",
@@ -55,7 +55,7 @@
     "pinia-plugin-persistedstate": "^3.2.0",
     "sharp": "^0.32.4",
     "uuid": "^9.0.0",
-    "vite-plugin-html": "^3.2.0",
+    "vue": "^3.2.47",
     "vue-router": "^4.2.4"
   },
   "engines": {
