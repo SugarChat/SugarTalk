@@ -1,8 +1,7 @@
+import { RoutePath } from "../entity/types";
 import { BrowserWindowConstructorOptions } from "../renderer";
 import { useSettingsStore } from "../stores/useSettingsStore";
 import { handlerPathParams } from "../utils/utils";
-
-type RoutePath = "/home" | "/settings" | "/join-meeting" | "/meeting";
 
 class Navigation {
   navigate(
@@ -42,7 +41,6 @@ class Navigation {
           maximizable: false,
           minimizable: false,
           titleBarStyle: "hidden",
-          alwaysOnTop: true,
           trafficLightPosition: {
             x: 12,
             y: 16,

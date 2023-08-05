@@ -10,6 +10,7 @@ export const useAppStore = defineStore("appStore", {
     expires: "",
     appInfo: {} as AppInfo,
     userInfo: {} as UserInfo,
+    isMeeting: false,
   }),
   actions: {
     async init() {

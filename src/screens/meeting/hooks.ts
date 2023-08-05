@@ -351,6 +351,7 @@ export const useAction = () => {
       });
     } finally {
       loading.close();
+      appStore.isMeeting = false;
       navigation.destroy();
     }
   };
@@ -382,6 +383,7 @@ export const useAction = () => {
       }
 
       loading.close();
+      appStore.isMeeting = false;
       navigation.destroy();
     }
   };
@@ -627,6 +629,7 @@ export const useAction = () => {
   };
 
   onMounted(() => {
+    appStore.isMeeting = true;
     nextTick(() => {
       init();
     });

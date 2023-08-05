@@ -5,6 +5,8 @@ import { GetUserInfoApi, createMeetingApi } from "../../services";
 import { ElLoading, ElMessage } from "element-plus";
 import { useSettingsStore } from "../../stores/useSettingsStore";
 import { MeetingStreamMode } from "../../entity/enum";
+import { existsWindow } from "../../utils/utils";
+import { useEventListener } from "@vueuse/core";
 
 export const useAction = () => {
   const appStore = useAppStore();
@@ -26,14 +28,12 @@ export const useAction = () => {
     }
   };
 
-  onMounted(() => {
-    getUserInfo();
-    navigation.closeToHide();
-  });
-
   const onJoinMeeting = () => navigation.navigate("/join-meeting");
 
   const onQuickMeeting = async () => {
+    const isHas = await existsWindow("/meeting");
+    if (isHas) return;
+
     const loading = ElLoading.service({ fullscreen: true });
     try {
       const { code, data, msg } = await createMeetingApi({
@@ -64,6 +64,8 @@ export const useAction = () => {
     }
   };
 
+  const onBackMeeting = () => existsWindow("/meeting");
+
   const gotoSettings = () => navigation.navigate("/settings");
 
   const onLogout = () => {
@@ -71,10 +73,21 @@ export const useAction = () => {
     navigation.destroy().openMainWindow();
   };
 
+  onMounted(() => {
+    getUserInfo();
+    navigation.closeToHide();
+  });
+
+  useEventListener(window, "focus", async () => {
+    const isHas = await existsWindow("/meeting", false);
+    appStore.isMeeting !== isHas && (appStore.isMeeting = isHas);
+  });
+
   return {
     appStore,
     onJoinMeeting,
     onQuickMeeting,
+    onBackMeeting,
     gotoSettings,
     onLogout,
   };

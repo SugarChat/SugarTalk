@@ -8,6 +8,8 @@ import {
   MessageSendStatus,
 } from "./enum";
 
+export type RoutePath = "/home" | "/settings" | "/join-meeting" | "/meeting";
+
 export interface ScreenSource {
   appIcon: string;
   display_id: string;

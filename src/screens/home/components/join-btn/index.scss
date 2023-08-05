@@ -1,6 +1,44 @@
 .join-btn {
   cursor: pointer;
 
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      opacity: 0.5;
+
+      .title {
+        color: var(--color-text-primary);
+      }
+    }
+  }
+
+  &.highlight {
+    .btn-box {
+      background: linear-gradient(
+          to left top,
+          transparent 0% 50%,
+          #fd6600 50%,
+          #fea003 100%
+        ),
+        linear-gradient(
+          to right bottom,
+          transparent 0% 50%,
+          #fd6600 50%,
+          #fea802 100%
+        );
+    }
+
+    &:hover {
+      opacity: 0.9;
+
+      .title {
+        color: #fd6600;
+      }
+    }
+  }
+
   .btn-box {
     display: flex;
     align-items: center;
@@ -29,11 +67,16 @@
   }
 
   .title {
+    color: var(--color-text-primary);
     text-align: center;
     margin-top: 16px;
   }
 
   &:hover {
     opacity: 0.9;
+
+    .title {
+      color: var(--color-primary);
+    }
   }
 }

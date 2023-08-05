@@ -1,7 +1,7 @@
 import { app, BrowserWindow, shell, ipcMain } from "electron";
 import { release } from "node:os";
 import { join } from "node:path";
-import { getNewWindowPoint } from "./utils";
+import { getNewWindowPoint, windowManage } from "./utils";
 import "./handle";
 import { BrowserWindowConstructorOptions } from "../../src/renderer";
 
@@ -68,6 +68,11 @@ async function createWindow() {
         contextIsolation: true,
       },
     });
+
+    windowManage.set({
+      id: win.id,
+      path: "/",
+    });
   }
 
   if (process.env.VITE_DEV_SERVER_URL) {
@@ -78,6 +83,10 @@ async function createWindow() {
   } else {
     win.loadFile(indexHtml);
   }
+
+  win.on("closed", () => {
+    windowManage.delete("/");
+  });
 
   win.on("ready-to-show", () => {
     win.show();
@@ -135,6 +144,12 @@ ipcMain.handle("open-main-win", () => {
 ipcMain.handle(
   "open-win",
   (_, arg, options: BrowserWindowConstructorOptions) => {
+    const isHas = windowManage.has(arg);
+    if (isHas) {
+      BrowserWindow.fromId(windowManage.get(arg).id).focus();
+      return;
+    }
+
     const parentWin = BrowserWindow.getFocusedWindow();
 
     const point = getNewWindowPoint(
@@ -154,6 +169,15 @@ ipcMain.handle(
       ...options,
       parent: options?.parent ? parentWin : null,
       show: options?.show ?? false,
+    });
+
+    windowManage.set({
+      id: childWin.id,
+      path: arg,
+    });
+
+    childWin.on("closed", () => {
+      windowManage.delete(arg);
     });
 
     childWin.on("ready-to-show", () => {

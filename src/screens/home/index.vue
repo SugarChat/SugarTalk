@@ -15,8 +15,24 @@
       </el-tooltip>
     </div>
     <div class="meeting-btns">
-      <JoinBtn title="加入会议" icon="icon-add" @click="onJoinMeeting" />
-      <JoinBtn title="快速会议" icon="icon-quick" @click="onQuickMeeting" />
+      <template v-if="appStore.isMeeting">
+        <JoinBtn
+          :highlight="true"
+          title="返回会议"
+          icon="icon-goback"
+          @click="onBackMeeting"
+        />
+      </template>
+      <template v-else>
+        <JoinBtn title="加入会议" icon="icon-add" @click="onJoinMeeting" />
+      </template>
+
+      <JoinBtn
+        :disabled="appStore.isMeeting"
+        title="快速会议"
+        icon="icon-quick"
+        @click="onQuickMeeting"
+      />
     </div>
   </div>
 </template>
@@ -27,8 +43,14 @@ import UserInfo from "./components/user-info/index.vue";
 import JoinBtn from "./components/join-btn/index.vue";
 import { useAction } from "./hooks";
 
-const { appStore, onJoinMeeting, onQuickMeeting, gotoSettings, onLogout } =
-  useAction();
+const {
+  appStore,
+  onJoinMeeting,
+  onQuickMeeting,
+  onBackMeeting,
+  gotoSettings,
+  onLogout,
+} = useAction();
 </script>
 
 <style scoped lang="scss">

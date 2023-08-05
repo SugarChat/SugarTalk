@@ -1,5 +1,8 @@
 <template>
-  <div class="join-btn" @click="onClick">
+  <div
+    :class="['join-btn', disabled && 'disabled', highlight && 'highlight']"
+    @click="onClick"
+  >
     <div class="btn-box">
       <i :class="`iconfont ${icon}`" />
     </div>
@@ -13,6 +16,8 @@ import { toRefs } from "vue";
 interface Props {
   icon: string;
   title: string;
+  disabled?: boolean;
+  highlight?: boolean;
 }
 
 interface Emits {
@@ -23,9 +28,9 @@ const emits = defineEmits<Emits>();
 
 const props = defineProps<Props>();
 
-const { icon, title } = toRefs(props);
+const { icon, title, disabled, highlight } = toRefs(props);
 
-const onClick = () => emits("click");
+const onClick = () => !disabled.value && emits("click");
 </script>
 
 <style scoped lang="scss">

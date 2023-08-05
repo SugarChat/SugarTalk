@@ -18,6 +18,7 @@ import fs from "node:fs";
 import { join } from "node:path";
 import { v1 as uuidv1 } from "uuid";
 import sharp from "sharp";
+import { windowManage } from "./utils";
 
 ipcMain.handle("getPlatform", () => process.platform);
 
@@ -39,6 +40,13 @@ ipcMain.handle("unmaximize-window", () =>
   BrowserWindow.getFocusedWindow().unmaximize()
 );
 
+ipcMain.handle("focus-window", (_, path: string) => {
+  const winItem = windowManage.get(path);
+  if (winItem) {
+    BrowserWindow.fromId(winItem.id).focus();
+  }
+});
+
 ipcMain.handle(
   "getSources",
   (
@@ -55,6 +63,8 @@ ipcMain.handle("setFullScreen", (_, flag: boolean) =>
 ipcMain.handle("setSize", (_, width: number, height, animate?: boolean) =>
   BrowserWindow.getFocusedWindow().setSize(width, height, animate)
 );
+
+ipcMain.handle("window-manage", () => windowManage);
 
 ipcMain.handle(
   "close-win-with-dialog",
