@@ -1,3 +1,5 @@
+import { RoutePath } from "../entity/types";
+
 /**
  * 获取环境
  * @returns Promise<"mac" | "win" | "other">
@@ -27,3 +29,10 @@ export const handlerPathParams = (params: Record<string, any>) =>
   Object.keys(params)
     .map((key) => `${key}=${params[key]}`)
     .join("&");
+
+export const existsWindow = async (path: RoutePath, isFocus = true) => {
+  const windowManage = await window.electronAPI.windowManage();
+  const isHas = windowManage.record.has(path);
+  isHas && isFocus && window.electronAPI.focus(path);
+  return isHas;
+};

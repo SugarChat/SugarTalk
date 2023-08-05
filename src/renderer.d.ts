@@ -1,5 +1,6 @@
 import { ScreenSource } from "./entity/types";
 import { BrowserWindowConstructorOptions as BrowserWindowOptions } from "electron";
+import { WindowManage } from "../electron/main/utils";
 
 export interface CurrentWindow {
   close: () => Promise<void>;
@@ -58,6 +59,8 @@ export interface IElectronAPI {
     options?: BrowserWindowConstructorOptions
   ) => Promise<void>;
   getCurrentWindow: () => CurrentWindow;
+  windowManage: () => Promise<WindowManage>;
+  focus: (path: string) => Promise<void>;
   enterFullscreen: (callback: () => void) => void;
   leaveFullscreen: (callback: () => void) => void;
   onClose: (

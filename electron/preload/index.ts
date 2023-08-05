@@ -27,6 +27,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     setSize: (width: number, height, animate?: boolean) =>
       ipcRenderer.invoke("setSize", width, height, animate),
   }),
+  windowManage: () => ipcRenderer.invoke("window-manage"),
+  focus: (path: string) => ipcRenderer.invoke("focus-window", path),
   enterFullscreen: (callback: () => void) =>
     ipcRenderer.on("enter-full-screen", callback),
   leaveFullscreen: (callback: () => void) =>
