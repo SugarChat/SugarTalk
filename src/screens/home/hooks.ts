@@ -69,8 +69,16 @@ export const useAction = () => {
   const gotoSettings = () => navigation.navigate("/settings");
 
   const onLogout = () => {
-    appStore.logout();
-    navigation.destroy().openMainWindow();
+    if (appStore.isMeeting) {
+      ElMessage({
+        offset: 50,
+        message: "会议中暂不支持退出登录",
+        type: "warning",
+      });
+    } else {
+      appStore.logout();
+      navigation.destroy().openMainWindow();
+    }
   };
 
   onMounted(() => {

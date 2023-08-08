@@ -323,11 +323,13 @@ export const useAction = () => {
       meetingInfo.value = data;
       getMeetingInfoAfter(data);
     } else {
-      ElMessage({
-        offset: 28,
-        message: msg,
-        type: "error",
-      });
+      const errorMsg = msg.trim();
+      errorMsg &&
+        ElMessage({
+          offset: 28,
+          message: errorMsg,
+          type: "error",
+        });
     }
   };
 

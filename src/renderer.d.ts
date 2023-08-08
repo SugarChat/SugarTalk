@@ -74,6 +74,7 @@ export interface IElectronAPI {
   getLocalAudioArrayBuffer: () => Promise<ArrayBuffer>;
   getBase64ByFilePath: (filePath: string) => Promise<string>;
   showContextMenu: (imageURL: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export interface IDesktopCapturer {

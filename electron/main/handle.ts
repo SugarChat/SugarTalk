@@ -19,6 +19,7 @@ import { join } from "node:path";
 import { v1 as uuidv1 } from "uuid";
 import sharp from "sharp";
 import { windowManage } from "./utils";
+import { createWindow } from "./index";
 
 ipcMain.handle("getPlatform", () => process.platform);
 
@@ -217,4 +218,24 @@ ipcMain.handle("show-context-menu", (_, imageURL: string) => {
     })
   );
   contextMenu.popup({ window: BrowserWindow.getFocusedWindow() });
+});
+
+ipcMain.handle("logout", () => {
+  let mainWinId: number;
+  windowManage.forEach((item, key) => {
+    if (key === "/") {
+      mainWinId = item.id;
+    } else {
+      if (key.includes("/meeting")) {
+        BrowserWindow.fromId(item.id).destroy();
+      } else {
+        BrowserWindow.fromId(item.id).close();
+      }
+    }
+  });
+  if (mainWinId) {
+    BrowserWindow.fromId(mainWinId).focus();
+  } else {
+    createWindow();
+  }
 });

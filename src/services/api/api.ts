@@ -24,7 +24,12 @@ Api.interceptors.response.use(
     return response;
   },
   (error) => {
-    const errorStr = error?.response?.data?.error ?? error?.toString() ?? "";
+    if (error?.response?.status === 401) {
+      window.electronAPI.logout();
+      return;
+    }
+    const errorStr =
+      error?.response?.data?.error ?? error?.message ?? error?.toString() ?? "";
     errorStr &&
       ElMessage({
         offset: 50,
