@@ -49,6 +49,16 @@ export class WindowManage {
   has(path: string) {
     return this.record.has(this.parsePath(path));
   }
+
+  forEach(
+    callbackfn: (
+      value: WindowItem,
+      key: string,
+      map: Map<string, WindowItem>
+    ) => void
+  ) {
+    this.record.forEach(callbackfn);
+  }
 }
 
 export const windowManage = new WindowManage();

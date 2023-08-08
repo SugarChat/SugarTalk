@@ -43,7 +43,7 @@ const preload = join(__dirname, "../preload/index.js");
 const url = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
 
-async function createWindow() {
+export async function createWindow() {
   if (win === null) {
     win = new BrowserWindow({
       title: "Main window",

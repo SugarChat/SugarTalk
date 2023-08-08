@@ -51,6 +51,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("get-base64-by-filePath", filePath),
   showContextMenu: (imageURL: string) =>
     ipcRenderer.invoke("show-context-menu", imageURL),
+  logout: () => ipcRenderer.invoke("logout"),
 });
 
 contextBridge.exposeInMainWorld("desktopCapturer", {

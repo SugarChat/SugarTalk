@@ -17,7 +17,11 @@
           <el-input v-model="userinfo.username" />
         </el-form-item>
         <el-form-item label="Password" prop="password">
-          <el-input v-model="userinfo.password" type="password" />
+          <el-input
+            v-model="userinfo.password"
+            type="password"
+            @keyup.enter="onLogin"
+          />
         </el-form-item>
         <el-form-item>
           <div class="login-btn">
