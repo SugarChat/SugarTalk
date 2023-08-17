@@ -40,6 +40,7 @@ import { Meeting, UserSession } from "../../entity/response";
 import { SoundMeter } from "../../utils/webrtc/soundmeter";
 import { useAppStore } from "../../stores/useAppStore";
 import { useThrottleFn, useWindowFocus } from "@vueuse/core";
+import config from "../../config";
 
 export const useSoundmeter = () => {
   const audioContext = ref(new AudioContext());
@@ -392,7 +393,7 @@ export const useAction = () => {
 
   const init = () => {
     webRTCAdaptor.value = new WebRTCAdaptor({
-      websocket_url: settingsStore.websocketURL,
+      websocket_url: config.websocketURL,
       debug: false,
       peerconnection_config: {
         iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
@@ -405,7 +406,7 @@ export const useAction = () => {
             webRTCAdaptor.value?.joinRoom(
               meetingQuery.meetingNumber,
               "",
-              "mcu"
+              settingsStore.enableMCU ? "mcu" : "legacy"
             );
             break;
           // 已加入房间回调
@@ -632,9 +633,7 @@ export const useAction = () => {
 
   onMounted(() => {
     appStore.isMeeting = true;
-    nextTick(() => {
-      init();
-    });
+    init();
 
     /**
      * 阻止窗口关闭，唤起自定义关闭窗口
