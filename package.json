@@ -43,6 +43,7 @@
     "vue-tsc": "^1.2.0"
   },
   "dependencies": {
+    "@microsoft/signalr": "^7.0.10",
     "@vueuse/core": "^10.3.0",
     "axios": "^1.4.0",
     "dayjs": "^1.11.9",
