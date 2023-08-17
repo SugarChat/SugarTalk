@@ -40,6 +40,7 @@ import { Meeting, UserSession } from "../../entity/response";
 import { SoundMeter } from "../../utils/webrtc/soundmeter";
 import { useAppStore } from "../../stores/useAppStore";
 import { useThrottleFn, useWindowFocus } from "@vueuse/core";
+import * as signalR from "@microsoft/signalr";
 
 export const useSoundmeter = () => {
   const audioContext = ref(new AudioContext());
@@ -392,7 +393,9 @@ export const useAction = () => {
 
   const init = () => {
     webRTCAdaptor.value = new WebRTCAdaptor({
-      websocket_url: settingsStore.websocketURL,
+      // websocket_url: settingsStore.websocketURL,
+      // websocket_url: "wss://talk.sjdistributors.com:5443/LiveApp/websocket",
+      websocket_url: "wss://ams-origin.wiltechs.com/LiveApp/websocket",
       debug: false,
       peerconnection_config: {
         iceServers: [{ urls: "stun:stun1.l.google.com:19302" }],
@@ -405,7 +408,7 @@ export const useAction = () => {
             webRTCAdaptor.value?.joinRoom(
               meetingQuery.meetingNumber,
               "",
-              "mcu"
+              "legacy"
             );
             break;
           // 已加入房间回调
@@ -642,6 +645,8 @@ export const useAction = () => {
     navigation.blockClose(blockClose);
   });
 
+  // useSocket(meetingQuery.meetingNumber);
+
   return {
     leaveMeetingRef,
     settingsStore,
@@ -697,4 +702,40 @@ export const useMouse = () => {
     stoped,
     focused,
   };
+};
+
+export const useSocket = (meetingNumber: string) => {
+  const appStore = useAppStore();
+
+  onMounted(() => {
+    nextTick(() => {
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(
+          `https://sugartalktest.yamimeal.ca/meetingHub?meetingNumber=${meetingNumber}`,
+          { accessTokenFactory: () => appStore.access_token }
+        )
+        .build();
+
+      connection.on("SendAsync", (...data) =>
+        console.log("SendMessageAsync", data)
+      );
+      connection.on("GetMeetingInfoAsync", (...data) =>
+        console.log("GetMeetingInfoAsync", data)
+      );
+
+      connection
+        .start()
+        .then(async () => {
+          console.log("start");
+          connection.invoke("GetMeetingInfoAsync", true);
+
+          setTimeout(() => {
+            connection.invoke("SendMessageAsync", "ping");
+          }, 5000);
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
+    });
+  });
 };
