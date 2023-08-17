@@ -3,7 +3,6 @@ import loudness from "../utils/loudness";
 
 export const useSettingsStore = defineStore("settingsStore", {
   state: () => ({
-    websocketURL: "wss://talk.sjdistributors.com:5443/LiveApp/websocket",
     // 入会开启摄像头
     enableCamera: false,
     // 入会开启麦克风
